@@ -16,11 +16,41 @@ abstract class CommandSideTest {
         commandRouter.eventPublisher = eventPublisher
     }
 
+    void given(Closure history) {
+        given collectEventsFrom(history)
+    }
+
+    void given(List history) {
+        repository.history = history
+    }
+
     void when(command) {
         commandRouter.route(command)
     }
 
+    void then(Closure expectedEvents) {
+        then collectEventsFrom(expectedEvents)
+    }
+
     void then(List expectedEvents) {
         assertThat(eventPublisher.receivedEvents, equalTo(expectedEvents))
+    }
+
+    def collectEventsFrom(Closure closure) {
+        def eventCollector = new EventCollector()
+        eventCollector.with closure
+        eventCollector.toList()
+    }
+}
+
+class EventCollector {
+    def eventList = []
+
+    def methodMissing(String eventName, arguments) {
+        eventList << Class.forName("model.events.$eventName").newInstance(arguments)
+    }
+
+    def toList() {
+        eventList
     }
 }

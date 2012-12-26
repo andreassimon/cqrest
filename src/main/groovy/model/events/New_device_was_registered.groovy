@@ -11,10 +11,11 @@ class New_device_was_registered extends Event<Device> {
         this.deviceId = deviceId
     }
 
-    void applyTo(device) {
-
+    Device applyTo(device) {
+        new Device(deviceId)
     }
 
+    // TODO Every Event has to have a toString() and an equals() method
     @Override
     String toString() {
         "New device was registered: deviceId=$deviceId, deviceName=$deviceName"

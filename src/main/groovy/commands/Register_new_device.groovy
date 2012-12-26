@@ -10,13 +10,10 @@ class Register_new_device {
 }
 
 
-class Register_new_device_Handler {
-    def repository
-    def eventPublisher
+class Register_new_device_Handler extends CommandHandler {
 
     Register_new_device_Handler(repository, eventPublisher) {
-        this.repository = repository
-        this.eventPublisher = eventPublisher
+        super(repository, eventPublisher)
     }
 
     void handle(Register_new_device command) {

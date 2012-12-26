@@ -2,12 +2,14 @@ import model.Device
 import model.events.Event
 
 class InMemoryRepository {
+    def history = []
+
     Device getDevice(deviceId) {
         return null
     }
 
-    def getEventsFor(Class clazz, UUID entityId) {
-        return []
+    def getEventsFor(Class clazz, entityId) {
+        return history
     }
 }
 

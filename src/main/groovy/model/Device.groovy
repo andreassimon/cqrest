@@ -1,6 +1,8 @@
 package model
 
+import commands.Lock_out_device
 import commands.Register_new_device
+import model.events.Device_was_locked_out
 import model.events.Event
 import model.events.New_device_was_registered
 
@@ -27,11 +29,19 @@ class Device {
     }
 
     Device(UUID deviceId) {
-        this.deviceId = new Id(deviceId)
+        this(new Id(deviceId))
     }
 
-    void handle(Register_new_device command, def eventPublisher) {
+    Device(Id deviceId) {
+        this.deviceId = deviceId
+    }
+
+    void handle(Register_new_device command, eventPublisher) {
         eventPublisher.publish(new New_device_was_registered(new Device.Id(command.deviceId), command.deviceName))
+    }
+
+    void handle(Lock_out_device command, eventPublisher) {
+        eventPublisher.publish(new Device_was_locked_out(command.deviceId))
     }
 
     void apply(List<Event<Device>> events) {

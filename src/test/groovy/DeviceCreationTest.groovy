@@ -14,7 +14,9 @@ class DeviceCreationTest extends CommandSideTest {
 
         when(new Register_new_device(deviceId: newDeviceId, deviceName: "andreas-thinkpad"))
 
-        then([new New_device_was_registered(new Device.Id(newDeviceId), "andreas-thinkpad")])
+        then {
+            New_device_was_registered(new Device.Id(newDeviceId), "andreas-thinkpad")
+        }
     }
 
 }
