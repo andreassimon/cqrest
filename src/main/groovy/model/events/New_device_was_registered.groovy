@@ -2,10 +2,6 @@ package model.events
 
 import model.Device
 
-abstract class Event<T> {
-    abstract void applyTo(T)
-}
-
 class New_device_was_registered extends Event<Device> {
     private final Device.Id deviceId
     private final String deviceName

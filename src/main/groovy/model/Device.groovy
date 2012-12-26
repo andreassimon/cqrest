@@ -38,6 +38,7 @@ class Device {
 
     }
 
+    // Why not move it to New_device_was_registered.applyTo(device)?
     void apply(New_device_was_registered event) {
         event.applyTo(this)
     }
