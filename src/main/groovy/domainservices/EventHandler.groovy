@@ -1,0 +1,4 @@
+package domainservices
+
+class EventHandler {
+}
