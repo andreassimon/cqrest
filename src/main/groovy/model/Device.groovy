@@ -19,6 +19,11 @@ class Device {
         String toString() {
             uuid.toString()
         }
+
+        @Override
+        boolean equals(Object that) {
+            this.uuid == that.uuid
+        }
     }
 
     Device(UUID deviceId) {

@@ -27,13 +27,22 @@ class DeviceCreationTest {
         commandRouter.eventPublisher = eventPublisher
     }
 
+
     @Test
     void should_create_new_device() {
-        commandRouter.route(new Register_new_device(deviceId: UUID.randomUUID(), deviceName: "andreas-thinkpad"))
+        def newDeviceId = UUID.randomUUID()
+        commandRouter.route(new Register_new_device(deviceId: newDeviceId, deviceName: "andreas-thinkpad"))
 
-        assertThat eventPublisher.receivedEvents, equalTo([new New_device_was_registered(new Device.Id(), "andreas-thinkpad")])
+        assertThat(eventPublisher.receivedEvents, equalTo([new New_device_was_registered(new Device.Id(newDeviceId), "andreas-thinkpad")]))
     }
 
+    @Test
+    public void event_lists_should_be_equal() {
+        def newDeviceUUID = UUID.randomUUID()
+        def newDeviceId = new Device.Id(newDeviceUUID)
+
+        assertThat([new New_device_was_registered(newDeviceId, "andreas-thinkpad")], equalTo([new New_device_was_registered(newDeviceId, "andreas-thinkpad")]))
+    }
 }
 
 class Repository {

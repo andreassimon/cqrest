@@ -23,5 +23,11 @@ class New_device_was_registered extends Event<Device> {
     String toString() {
         "New device was registered: deviceId=$deviceId, deviceName=$deviceName"
     }
+
+    @Override
+    boolean equals(Object that) {
+        this.deviceId == that.deviceId &&
+                this.deviceName == that.deviceName
+    }
 }
 
