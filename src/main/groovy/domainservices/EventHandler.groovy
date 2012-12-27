@@ -1,4 +1,0 @@
-package domainservices
-
-class EventHandler {
-}

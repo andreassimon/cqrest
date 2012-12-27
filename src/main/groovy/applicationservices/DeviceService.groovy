@@ -1,25 +1,24 @@
 package applicationservices
 
-import domainservices.EventHandler
-import model.Device
-import model.events.Device_asked_for_updates
-import model.events.Device_was_locked_out
-import model.events.New_device_was_registered
+import domain.commands.CommandRouter
+import domain.commands.Lock_out_device
+import domain.commands.Register_new_device
 
 
 class DeviceService {
 
-    EventHandler eventHandler
+    CommandRouter commandRouter
 
     def registerNewDevice(deviceId, deviceName, devicePublicKey) {
-        eventHandler.dispatch(new New_device_was_registered(deviceId, deviceName, devicePublicKey))
+        commandRouter.route(new Register_new_device(deviceId, deviceName, devicePublicKey))
     }
 
     def lockOutDevice(deviceId) {
-        eventHandler.dispatch(new Device_was_locked_out(deviceId))
+        commandRouter.route(new Lock_out_device(deviceId))
     }
 
     def getDevices(offset, count) {
         readModel.getDevices(offset, count)
     }
+
 }

@@ -1,14 +1,7 @@
-package commands
+package domain.commandhandler
 
-import model.Device
-
-class Lock_out_device {
-    final Device.Id deviceId
-
-    Lock_out_device(Device.Id deviceId) {
-        this.deviceId = deviceId
-    }
-}
+import domain.aggregates.Device
+import domain.commands.UnknownDeviceException
 
 class Lock_out_device_Handler extends CommandHandler {
     Lock_out_device_Handler(repository, eventPublisher) {
@@ -21,11 +14,9 @@ class Lock_out_device_Handler extends CommandHandler {
         Device device = deviceHistory.inject null, { device, event ->
             event.applyTo device
         }
-
         if(!device) { throw new UnknownDeviceException() }
+
         device.handle(command, eventPublisher)
     }
 
 }
-
-class UnknownDeviceException extends RuntimeException {}

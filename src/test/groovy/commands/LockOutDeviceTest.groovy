@@ -1,8 +1,10 @@
-import commands.Lock_out_device
-import commands.UnknownDeviceException
-import model.Device
-import model.events.Device_was_locked_out
-import model.events.New_device_was_registered
+package commands
+
+import domain.aggregates.Device
+import domain.commands.Lock_out_device
+import domain.commands.UnknownDeviceException
+import domain.events.Device_was_locked_out
+import domain.events.New_device_was_registered
 import org.junit.Test
 
 class LockOutDeviceTest extends CommandSideTest {

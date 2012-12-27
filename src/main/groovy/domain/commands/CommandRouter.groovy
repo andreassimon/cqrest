@@ -1,3 +1,5 @@
+package domain.commands
+
 class CommandRouter {
     def repository
     def eventPublisher
@@ -7,6 +9,6 @@ class CommandRouter {
     }
 
     private def handlerFor(command) {
-        Class.forName("${command.class.name}_Handler").newInstance(repository, eventPublisher)
+        Class.forName("domain.commandhandler.${command.class.name.split('\\.')[-1]}_Handler").newInstance(repository, eventPublisher)
     }
 }

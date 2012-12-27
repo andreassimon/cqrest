@@ -1,5 +1,7 @@
-import model.Device
-import model.events.New_device_was_registered
+package events
+
+import domain.aggregates.Device
+import domain.events.New_device_was_registered
 import org.hamcrest.CoreMatchers
 import org.junit.Assert
 import org.junit.Test

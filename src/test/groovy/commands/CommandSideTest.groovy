@@ -1,4 +1,9 @@
+package commands
+
+import domain.commands.CommandRouter
 import org.junit.Before
+import utilities.InMemoryEventPublisher
+import utilities.InMemoryRepository
 
 import static org.hamcrest.CoreMatchers.equalTo
 import static org.junit.Assert.assertThat
@@ -47,7 +52,7 @@ class EventCollector {
     def eventList = []
 
     def methodMissing(String eventName, arguments) {
-        eventList << Class.forName("model.events.$eventName").newInstance(arguments)
+        eventList << Class.forName("domain.events.$eventName").newInstance(arguments)
     }
 
     def toList() {

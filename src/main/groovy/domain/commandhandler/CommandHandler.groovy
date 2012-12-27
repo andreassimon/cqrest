@@ -1,4 +1,4 @@
-package commands
+package domain.commandhandler
 
 abstract class CommandHandler {
     def repository

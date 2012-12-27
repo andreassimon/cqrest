@@ -1,10 +1,10 @@
-package model
+package domain.aggregates
 
-import commands.Lock_out_device
-import commands.Register_new_device
-import model.events.Device_was_locked_out
-import model.events.Event
-import model.events.New_device_was_registered
+import domain.commands.Lock_out_device
+import domain.commands.Register_new_device
+import domain.events.Device_was_locked_out
+import domain.events.Event
+import domain.events.New_device_was_registered
 
 class Device {
 
@@ -37,7 +37,15 @@ class Device {
     }
 
     void handle(Register_new_device command, eventPublisher) {
-        eventPublisher.publish(new New_device_was_registered(new Device.Id(command.deviceId), command.deviceName))
+        eventPublisher.publish(
+            new New_device_was_registered(new Device.Id(command.deviceId), command.deviceName)
+        )
+    }
+
+    void Register_new_device(deviceId, deviceName, eventPublisher) {
+        eventPublisher.publish(
+            new New_device_was_registered(new Device.Id(deviceId), deviceName)
+        )
     }
 
     void handle(Lock_out_device command, eventPublisher) {
@@ -45,7 +53,9 @@ class Device {
     }
 
     void apply(List<Event<Device>> events) {
-
+        for(Event<Device> event: events) {
+            apply(event)
+        }
     }
 
     // Why not move it to New_device_was_registered.applyTo(device)?

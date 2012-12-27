@@ -1,5 +1,7 @@
-import model.Device
-import model.events.Event
+package utilities
+
+import domain.aggregates.Device
+import domain.events.Event
 
 class InMemoryRepository {
     def history = []

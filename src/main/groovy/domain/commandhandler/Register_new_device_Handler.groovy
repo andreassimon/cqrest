@@ -1,14 +1,8 @@
-package commands
+package domain.commandhandler
 
-import model.Device
-import model.events.Event
-
-
-class Register_new_device {
-    UUID deviceId
-    String deviceName
-}
-
+import domain.aggregates.Device
+import domain.commands.Register_new_device
+import domain.events.Event
 
 class Register_new_device_Handler extends CommandHandler {
 
@@ -22,7 +16,14 @@ class Register_new_device_Handler extends CommandHandler {
         device.apply(
                 repository.getEventsFor(Device.class, command.deviceId))
 
-        device.handle(command, eventPublisher)
+        def thisEventPublisher = eventPublisher
+        def unitOfWork = new Object() {
+            def publish(Event event) {
+                thisEventPublisher.publish(event)
+                device.apply(event)
+            }
+        }
+        device.handle(command, unitOfWork)
     }
 
     private Device deviceWith(UUID deviceId) {
