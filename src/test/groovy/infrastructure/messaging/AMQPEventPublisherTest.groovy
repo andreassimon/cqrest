@@ -7,8 +7,10 @@ import com.rabbitmq.client.impl.AMQConnection
 import domain.aggregates.Device
 import domain.events.Event
 import domain.events.New_device_was_registered
+import infrastructure.utilities.GenericEventSerializer
 import org.junit.Test
 
+import static infrastructure.utilities.GenericEventSerializer.toJSON
 import static org.hamcrest.CoreMatchers.equalTo
 import static org.junit.Assert.assertThat
 
@@ -25,7 +27,7 @@ class AMQPEventPublisherTest {
 
         eventPublisher.publish(event)
 
-        assertThat(receivedMessage(), equalTo("Hello, world!"))
+        assertThat(receivedMessage(), equalTo(toJSON(event)))
     }
 
     private String receivedMessage() {

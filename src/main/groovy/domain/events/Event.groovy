@@ -12,7 +12,7 @@ abstract class Event<T> {
     }
 
     private Map<String, String> attributes() {
-        properties.findAll { k, v -> k != 'class' && k != 'name' }.collectEntries { k, v -> [(k): v.toString()] }
+        properties.findAll { k, _ -> ! ['class', 'name'].contains(k) }.collectEntries { k, v -> [(k): v.toString()] }
     }
 
 }

@@ -3,6 +3,9 @@ package infrastructure.messaging
 import domain.events.Event
 import framework.EventPublisher
 import com.rabbitmq.client.*
+import infrastructure.utilities.GenericEventSerializer
+
+import static infrastructure.utilities.GenericEventSerializer.toJSON
 
 class AMQPEventPublisher implements EventPublisher {
     public static final AMQP.BasicProperties NO_PROPERTIES = null
@@ -32,7 +35,7 @@ class AMQPEventPublisher implements EventPublisher {
 
         channel.queueDeclare(QUEUE_NAME, NOT_DURABLE, NOT_EXCLUSIVE, NO_AUTO_DELETE, NO_ADDITIONAL_ARGUMENTS);
 
-        channel.basicPublish '', QUEUE_NAME, NO_PROPERTIES, "Hello, world!".bytes
+        channel.basicPublish '', QUEUE_NAME, NO_PROPERTIES, toJSON(event).bytes
 
         channel.close()
         connection.close()
