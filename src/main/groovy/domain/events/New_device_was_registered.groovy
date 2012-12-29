@@ -3,8 +3,8 @@ package domain.events
 import domain.aggregates.Device
 
 class New_device_was_registered extends Event<Device> {
-    private final Device.Id deviceId
-    private final String deviceName
+    final Device.Id deviceId
+    final String deviceName
 
     New_device_was_registered(Device.Id deviceId, String deviceName) {
         this.deviceName = deviceName
