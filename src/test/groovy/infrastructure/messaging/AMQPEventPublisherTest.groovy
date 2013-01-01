@@ -7,16 +7,14 @@ import com.rabbitmq.client.impl.AMQConnection
 import domain.aggregates.Device
 import domain.events.Event
 import domain.events.New_device_was_registered
-import infrastructure.utilities.GenericEventSerializer
 import org.junit.Test
 
 import static infrastructure.utilities.GenericEventSerializer.toJSON
 import static org.hamcrest.CoreMatchers.equalTo
+import static org.hamcrest.CoreMatchers.is
 import static org.junit.Assert.assertThat
 
 class AMQPEventPublisherTest {
-
-    public static final boolean AUTO_ACK = true
 
     def eventPublisher = new AMQPEventPublisher()
 
@@ -27,7 +25,7 @@ class AMQPEventPublisherTest {
 
         eventPublisher.publish(event)
 
-        assertThat(receivedMessage(), equalTo(toJSON(event)))
+        assertThat receivedMessage(), is(equalTo(toJSON(event)))
     }
 
     private String receivedMessage() {
@@ -36,10 +34,10 @@ class AMQPEventPublisherTest {
         AMQConnection connection = factory.newConnection();
         Channel channel = connection.createChannel();
 
-        channel.queueDeclare(AMQPEventPublisher.QUEUE_NAME, AMQPEventPublisher.NOT_DURABLE, AMQPEventPublisher.NOT_EXCLUSIVE, AMQPEventPublisher.NO_AUTO_DELETE, AMQPEventPublisher.NO_ADDITIONAL_ARGUMENTS);
+        channel.queueDeclare(AMQPConstants.EVENT_QUEUE, AMQPConstants.NOT_DURABLE, AMQPConstants.NOT_EXCLUSIVE, AMQPConstants.NO_AUTO_DELETE, AMQPConstants.NO_ADDITIONAL_ARGUMENTS);
 
         QueueingConsumer consumer = new QueueingConsumer(channel);
-        channel.basicConsume(AMQPEventPublisher.QUEUE_NAME, AUTO_ACK, consumer);
+        channel.basicConsume(AMQPConstants.EVENT_QUEUE, AMQPConstants.AUTO_ACK, consumer);
 
         QueueingConsumer.Delivery delivery = consumer.nextDelivery();
         return new String(delivery.getBody());

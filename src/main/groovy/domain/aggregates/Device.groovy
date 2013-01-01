@@ -2,7 +2,9 @@ package domain.aggregates
 
 import domain.commands.Lock_out_device
 import domain.commands.Register_new_device
+import domain.commands.Unregister_new_device
 import domain.events.Device_was_locked_out
+import domain.events.Device_was_unregistered
 import domain.events.Event
 import domain.events.New_device_was_registered
 
@@ -50,6 +52,10 @@ class Device {
 
     void handle(Lock_out_device command, eventPublisher) {
         eventPublisher.publish(new Device_was_locked_out(command.deviceId))
+    }
+
+    void handle(Unregister_new_device command, eventPublisher) {
+        eventPublisher.publish(new Device_was_unregistered(new Device.Id(command.deviceId)))
     }
 
     void apply(List<Event<Device>> events) {

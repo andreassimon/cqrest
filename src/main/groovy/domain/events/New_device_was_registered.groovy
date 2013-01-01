@@ -14,7 +14,7 @@ class New_device_was_registered extends Event<Device> {
     // TODO How to implement applyTo()?
     //  * functional (like it is)
     //  * non-functional
-    Device applyTo(device) {
+    Device applyTo(Device device) {
         new Device(deviceId)
     }
 

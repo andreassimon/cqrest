@@ -1,7 +1,7 @@
 package domain.events
 
 abstract class Event<T> {
-    abstract T applyTo(T)
+    abstract T applyTo(T t)
 
     String getName() {
         this.class.name.split('\\.')[-1].replaceAll('_', ' ')

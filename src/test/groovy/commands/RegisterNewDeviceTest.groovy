@@ -11,7 +11,7 @@ class RegisterNewDeviceTest extends CommandSideTest {
         def newDeviceUUID = UUID.randomUUID()
         def newDeviceId = new Device.Id(newDeviceUUID)
 
-        when(new Register_new_device(deviceId: newDeviceUUID, deviceName: "andreas-thinkpad"))
+        when(new Register_new_device(newDeviceUUID, "andreas-thinkpad"))
 
         then {
             New_device_was_registered(newDeviceId, "andreas-thinkpad")

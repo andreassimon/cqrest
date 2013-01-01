@@ -1,0 +1,4 @@
+package infrastructure
+
+class EventStore {
+}
