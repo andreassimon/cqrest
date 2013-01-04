@@ -12,7 +12,18 @@ abstract class Event<T> {
     }
 
     private Map<String, String> attributes() {
-        properties.findAll { k, _ -> ! ['class', 'name'].contains(k) }.collectEntries { k, v -> [(k): v.toString()] }
+        return properties.findAll({
+            key, value -> ! ['class', 'name'].contains(key)  // key != 'class' && key != 'name'
+        }).collectEntries { k, v -> [(k): v.toString()] }
     }
 
+    @Override
+    String toString() {
+        "${name} ${attributes()}"
+    }
+
+    @Override
+    boolean equals(Object that) {
+        this.toString() == that.toString()
+    }
 }
