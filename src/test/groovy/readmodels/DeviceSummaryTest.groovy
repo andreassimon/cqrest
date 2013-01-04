@@ -1,68 +1,68 @@
 package readmodels
 
-import com.rabbitmq.client.Channel
-import com.rabbitmq.client.Connection
-import com.rabbitmq.client.ConnectionFactory
-import com.rabbitmq.client.QueueingConsumer
-import groovy.json.JsonBuilder
-import groovy.json.JsonSlurper
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
+import com.rabbitmq.client.*
+import groovy.json.*
+import org.junit.*
 import org.springframework.jdbc.core.JdbcTemplate
 
 import static infrastructure.messaging.AMQPConstants.*
-import static org.mockito.Mockito.mock
-import static org.mockito.Mockito.verify
+import static org.junit.Assert.*
+import static org.mockito.Mockito.*
 
 class DeviceSummaryTest {
     ConnectionFactory connectionFactory
-    Connection producerConnection, consumerConnection
-    Channel producerChannel, consumerChannel
+    Connection producerConnection
+    Channel producerChannel
 
-    def eventName = 'New device was registered'
-    def newDeviceId = UUID.randomUUID()
-    def newDeviceName = 'new device name'
+    final def NEW_DEVICE_ID = 'e5270db1-2e83-4499-b8f5-91d0491d9fce"'
+    final def NEW_DEVICE_NAME = 'new device name'
 
-    QueueingConsumer consumer
-    QueueingConsumer.Delivery delivery
-
+    final def REGISTERED_DEVICE_ID = '7083f2f5-3131-462a-a24a-eb5253f8227b'
     JsonSlurper slurper = new JsonSlurper()
 
-    def jdbcTemplate = mock(JdbcTemplate.class)
+    JdbcTemplate jdbcTemplate = mock(JdbcTemplate.class)
+    Thread readModelBuilder
 
     @Before
     public void setUp() throws Exception {
         connectionFactory = new ConnectionFactory()
 
         producerConnection = connectionFactory.newConnection()
-        consumerConnection = connectionFactory.newConnection()
 
         producerChannel = producerConnection.createChannel()
-        consumerChannel = consumerConnection.createChannel()
 
-        consumer = new QueueingConsumer(consumerChannel);
-
-        producerChannel.queueDeclare(EVENT_QUEUE, NOT_DURABLE, NOT_EXCLUSIVE, NO_AUTO_DELETE, NO_ADDITIONAL_ARGUMENTS);
+        readModelBuilder = ReadModelBuilder.start(jdbcTemplate)
+        producerChannel.queuePurge(EVENT_QUEUE)
     }
 
     @Test
     public void should_create_a_new_record_for_a_new_device() {
-        def readModelBuilder = new ReadModelBuilder(jdbcTemplate)
 
         publishEvent(
-            (eventName): [
-                deviceId: newDeviceId,
-                deviceName: newDeviceName
-            ])
+                ('New device was registered'): [
+                        deviceId: NEW_DEVICE_ID,
+                        deviceName: NEW_DEVICE_NAME
+                ])
 
-        verify(jdbcTemplate).update("INSERT INTO DeviceSummary (deviceId, deviceName) VALUES (?, ?);", newDeviceId.toString(), newDeviceName)
+        verify(jdbcTemplate).update("INSERT INTO DeviceSummary (deviceId, deviceName) VALUES (?, ?);", NEW_DEVICE_ID.toString(), NEW_DEVICE_NAME)
+    }
+
+    @Test
+    public void should_delete_record_for_a_registered_device() {
+        publishEvent(
+                ('Device was unregistered'): [
+                        deviceId: REGISTERED_DEVICE_ID
+                ])
+
+        verify(jdbcTemplate).update("DELETE FROM DeviceSummary WHERE deviceId = ?);", REGISTERED_DEVICE_ID.toString())
     }
 
     private void publishEvent(Map<String, Object> eventAttributes) {
         final json = toJSON(eventAttributes).bytes
-        producerChannel.basicPublish('', EVENT_QUEUE, NO_PROPERTIES, json)
-        producerChannel.waitForConfirms()
+        assertTrue producerChannel.waitForConfirms()
+        producerChannel.basicPublish(DEFAULT_EXCHANGE, EVENT_QUEUE, NO_PROPERTIES, json)
+        assertTrue producerChannel.waitForConfirms()
+        readModelBuilder.interrupt()
     }
 
     private String toJSON(Map<String, Object> json) {
@@ -73,9 +73,6 @@ class DeviceSummaryTest {
     public void tearDown() throws Exception {
         producerChannel.close()
         producerConnection.close()
-
-        consumerChannel.close()
-        consumerConnection.close()
     }
 
 }

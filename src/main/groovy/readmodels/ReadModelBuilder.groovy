@@ -1,65 +1,100 @@
 package readmodels
 
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel
 import com.rabbitmq.client.ConnectionFactory
 import com.rabbitmq.client.QueueingConsumer
 import com.rabbitmq.client.impl.AMQConnection
 import groovy.json.JsonSlurper
-import infrastructure.messaging.AMQPConstants
 import org.springframework.jdbc.core.JdbcTemplate
 
-import static infrastructure.messaging.AMQPConstants.AUTO_ACK
-import static infrastructure.messaging.AMQPConstants.EVENT_QUEUE
-import static infrastructure.messaging.AMQPConstants.NOT_DURABLE
-import static infrastructure.messaging.AMQPConstants.NOT_EXCLUSIVE
-import static infrastructure.messaging.AMQPConstants.NO_ADDITIONAL_ARGUMENTS
-import static infrastructure.messaging.AMQPConstants.NO_AUTO_DELETE
-
+import static infrastructure.messaging.AMQPConstants.*
 
 class ReadModelBuilder implements Runnable {
     final JdbcTemplate jdbcTemplate
+
     ConnectionFactory factory
     AMQConnection connection
     Channel channel
     QueueingConsumer consumer
     JsonSlurper slurper = new JsonSlurper()
 
-    ReadModelBuilder(JdbcTemplate jdbcTemplate) {
+    Map<String, Closure> eventHandler
+
+
+    private ReadModelBuilder(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate
 
-        factory = new ConnectionFactory();
-        factory.setHost("localhost");
-        connection = factory.newConnection();
-        channel = connection.createChannel();
-        channel.queueDeclare(EVENT_QUEUE, NOT_DURABLE, NOT_EXCLUSIVE, NO_AUTO_DELETE, NO_ADDITIONAL_ARGUMENTS);
-        consumer = new QueueingConsumer(channel);
+        eventHandler = new DefaultHashMap<String, Closure>({ eventName, _eventAttributes -> System.err.println "Unknown event name: ${eventName}" })
+        eventHandler.put 'New device was registered', { jdbc, eventName, eventAttributes ->
+            jdbc.update("INSERT INTO DeviceSummary (deviceId, deviceName) VALUES (?, ?);", eventAttributes.deviceId, eventAttributes.deviceName);
+        }.curry(jdbcTemplate)
+        eventHandler.put 'Device was unregistered', { jdbc, eventName, eventAttributes ->
+            jdbc.update("DELETE FROM DeviceSummary WHERE deviceId = ?);", eventAttributes.deviceId);
+        }.curry(jdbcTemplate)
 
-        channel.basicConsume(EVENT_QUEUE, AUTO_ACK, consumer);
+        factory = new ConnectionFactory()
+        connection = factory.newConnection()
+        channel = connection.createChannel()
+        final AMQP.Queue.DeclareOk declare = channel.queueDeclare(EVENT_QUEUE, NOT_DURABLE, NOT_EXCLUSIVE, AUTO_DELETE, NO_ADDITIONAL_ARGUMENTS)
+        println "Messages in $EVENT_QUEUE: ${declare.messageCount}"
+        consumer = new QueueingConsumer(channel)
 
-        new Thread(this).start()
+        channel.basicConsume(EVENT_QUEUE, NO_AUTO_ACK, consumer)
+    }
+
+    static Thread start(JdbcTemplate jdbcTemplate) {
+        final instance = new Thread(new ReadModelBuilder(jdbcTemplate))
+        instance.start()
+        return instance
     }
 
 
     @Override
     void run() {
-        while (true) {
-            def delivery = consumer.nextDelivery();
-            def message = new String(delivery.getBody());
+        while (!Thread.interrupted()) {
+            try {
+                QueueingConsumer.Delivery delivery = consumer.nextDelivery();
+                def message = new String(delivery.getBody());
 
-            def jsonMap = slurper.parseText(message)
+                def jsonMap = slurper.parseText(message)
 
-            jsonMap.each { eventName, attributes ->
-                jdbcTemplate.update("INSERT INTO DeviceSummary (deviceId, deviceName) VALUES (?, ?);", attributes.deviceId, attributes.deviceName);
+                jsonMap.each { String eventName, eventAttributes ->
+                   eventHandler[eventName].call(eventName, eventAttributes)
+                }
+                channel.basicAck(delivery.envelope.deliveryTag, SINGLE_MESSAGE)
+                if (Thread.interrupted()) {
+                    throw new InterruptedException()
+                }
+            } catch (InterruptedException e) {
+                closeResources()
+                break
+            } catch (e) {
+                e.printStackTrace(System.err)
             }
-//            channel.basicConsume(EVENT_QUEUE, AUTO_ACK, consumer);
-//            QueueingConsumer.Delivery delivery = consumer.nextDelivery();
-//            def message = new String(delivery.getBody());
-//
-//            def jsonMap = slurper.parseText(message)
-//
-//            jsonMap.each { eventName, attributes ->
-//                this.jdbcTemplate.update("INSERT INTO DeviceSummary (deviceId, deviceName) VALUES (?, ?);", attributes.deviceId, attributes.desviceName );
-//            }
+        }
+    }
+
+    void closeResources() {
+        channel.close()
+        connection.close()
+    }
+
+    static class DefaultHashMap<K, V> extends HashMap<K, V> {
+        V defaultValue;
+
+        public DefaultHashMap(V defaultValue) {
+            this.defaultValue = defaultValue;
+        }
+
+        @Override
+        public V get(K k) {
+            if (!this.containsKey(k)) {
+                return this.defaultValue
+            }
+            return super.get(k);
         }
     }
 }
+
+
