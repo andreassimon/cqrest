@@ -36,7 +36,10 @@ class ReadModelBuilder implements Runnable {
             jdbc.update("INSERT INTO DeviceSummary (deviceId, deviceName) VALUES (?, ?);", eventAttributes.deviceId, eventAttributes.deviceName);
         }.curry(jdbcTemplate)
         eventHandlers.put 'Device was unregistered', { jdbc, eventName, eventAttributes ->
-            jdbc.update("DELETE FROM DeviceSummary WHERE deviceId = ?);", eventAttributes.deviceId);
+            jdbc.update("DELETE FROM DeviceSummary WHERE deviceId = ?;", eventAttributes.deviceId);
+        }.curry(jdbcTemplate)
+        eventHandlers.put 'Device was locked out', { jdbc, eventName, eventAttributes ->
+            jdbc.update("UPDATE DeviceSummary SET locked = true WHERE deviceid = ?;", eventAttributes.deviceId);
         }.curry(jdbcTemplate)
 
         consumer = new QueueingConsumer(channel)

@@ -53,14 +53,22 @@ class DeviceSummaryTest {
                         deviceId: REGISTERED_DEVICE_ID
                 ])
 
-        verify(jdbcTemplate).update("DELETE FROM DeviceSummary WHERE deviceId = ?);", REGISTERED_DEVICE_ID.toString())
+        verify(jdbcTemplate).update("DELETE FROM DeviceSummary WHERE deviceId = ?;", REGISTERED_DEVICE_ID.toString())
+    }
+
+    @Test
+    public void should_mark_device_locked() {
+        publishEvent(
+                ('Device was locked out'): [
+                        deviceId: REGISTERED_DEVICE_ID
+                ])
+
+        verify(jdbcTemplate).update("UPDATE DeviceSummary SET locked = true WHERE deviceid = ?;", REGISTERED_DEVICE_ID.toString())
     }
 
     private void publishEvent(Map<String, Object> eventAttributes) {
         final json = toJSON(eventAttributes).bytes
-        assertTrue producerChannel.waitForConfirms()
         producerChannel.basicPublish(DEFAULT_EXCHANGE, ReadModelBuilder.MESSAGE_QUEUE, NO_PROPERTIES, json)
-        assertTrue producerChannel.waitForConfirms()
         Thread.sleep(10)
         readModelBuilder.interrupt()
     }
