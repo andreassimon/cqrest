@@ -5,6 +5,7 @@ import com.rabbitmq.client.Connection
 import com.rabbitmq.client.ConnectionFactory
 import com.rabbitmq.client.QueueingConsumer
 import groovy.json.JsonSlurper
+import org.springframework.dao.DataAccessException
 import org.springframework.jdbc.core.JdbcTemplate
 
 import static infrastructure.messaging.AMQPConstants.*
@@ -33,7 +34,13 @@ class ReadModelBuilder implements Runnable {
 
         eventHandlers = new DefaultHashMap<String, Closure>({ eventName, _eventAttributes -> System.err.println "Unknown event name: ${eventName}" })
         eventHandlers.put 'New device was registered', { jdbc, eventName, eventAttributes ->
-            jdbc.update("INSERT INTO DeviceSummary (deviceId, deviceName) VALUES (?, ?);", eventAttributes.deviceId, eventAttributes.deviceName);
+            try {
+                final rowsAffected = jdbc.update("INSERT INTO DeviceSummary (deviceId, deviceName) VALUES (?, ?);", UUID.fromString(eventAttributes.deviceId), eventAttributes.deviceName);
+                println "updated $rowsAffected rows"
+            } catch (DataAccessException ex) {
+                println "Error executing insert to DeviceSummary"
+                ex.printStackTrace()
+            }
         }.curry(jdbcTemplate)
         eventHandlers.put 'Device was unregistered', { jdbc, eventName, eventAttributes ->
             jdbc.update("DELETE FROM DeviceSummary WHERE deviceId = ?;", eventAttributes.deviceId);
