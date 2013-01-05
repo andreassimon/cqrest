@@ -1,83 +1,98 @@
 package rabbitmq
 
 import com.rabbitmq.client.*
-import infrastructure.messaging.AMQPConstants
 import org.junit.*
 
-import static infrastructure.messaging.AMQPConstants.AUTO_DELETE
-import static infrastructure.messaging.AMQPConstants.NOT_DURABLE
-import static infrastructure.messaging.AMQPConstants.NOT_EXCLUSIVE
-import static infrastructure.messaging.AMQPConstants.NO_ADDITIONAL_ARGUMENTS
-import static org.hamcrest.CoreMatchers.notNullValue
-import static org.hamcrest.CoreMatchers.startsWith
+import static infrastructure.messaging.AMQPConstants.*
+import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.assertThat
 
-class RabbitMQ_ExchangeLifecycle_Test {}
 
-class RabbitMQ_QueueLifecycle_Test {
-
+class RabbitMQ_ExchangeLifecycle_Test {
 
     Channel channel
 
+
     @Before
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
+        ConnectionFactory connectionFactory = new ConnectionFactory()
+        Connection connection = connectionFactory.newConnection()
+        channel = connection.createChannel()
+    }
+
+
+    @Test
+    void create_a_new_direct_exchange() {
+        final AMQP.Exchange.DeclareOk declareOk = channel.exchangeDeclare('new-direct-exchange', DIRECT_EXCHANGE)
+
+        assertThat declareOk, notNullValue()
+    }
+
+    @Test
+    void create_a_new_fanout_exchange() {
+        final AMQP.Exchange.DeclareOk declareOk = channel.exchangeDeclare('new-fanout-exchange', FANOUT_EXCHANGE)
+
+        assertThat declareOk, notNullValue()
+    }
+
+    @Test
+    void create_a_new_topic_exchange() {
+        final AMQP.Exchange.DeclareOk declareOk = channel.exchangeDeclare('new-topic-exchange', TOPIC_EXCHANGE)
+
+        assertThat declareOk, notNullValue()
+    }
+}
+
+class RabbitMQ_QueueLifecycle_Test {
+
+    Channel channel
+
+
+    @Before
+    void setUp() throws Exception {
         ConnectionFactory connectionFactory = new ConnectionFactory()
         Connection connection = connectionFactory.newConnection()
         channel = connection.createChannel()
     }
 
     @Test
-    public void declare_a_new_queue() {
+    void declare_a_new_temporary_queue() {
         final AMQP.Queue.DeclareOk declareOk = channel.queueDeclare()
 
         assertThat declareOk.queue, startsWith('amq.gen-')
     }
 
     @Test
-    public void declare_an_existing_queue() {
-        final AMQP.Queue.DeclareOk firstDeclareOk = channel.queueDeclare()
-        final AMQP.Queue.DeclareOk secondDeclareOk = channel.queueDeclare(firstDeclareOk.queue, NOT_DURABLE, NOT_EXCLUSIVE, AUTO_DELETE, NO_ADDITIONAL_ARGUMENTS)
+    void declare_a_named_queue() {
+        final AMQP.Queue.DeclareOk declareOk = channel.queueDeclare('explicitly-named-queue', NOT_DURABLE, EXCLUSIVE, AUTO_DELETE, NO_ADDITIONAL_ARGUMENTS)
 
-        assertThat secondDeclareOk, notNullValue()
+        assertThat declareOk, notNullValue()
+    }
+
+    @Test(expected = IOException.class)
+    void queue_name_must_not_start_with_amq() {
+        final RESERVED_AMQP_PREFIX = 'amq.'
+        final ILLEGAL_QUEUE_NAME = RESERVED_AMQP_PREFIX + 'gen-wxvNnJM-T8bSSFsx5rkCNj'
+        channel.queueDeclare(ILLEGAL_QUEUE_NAME, NOT_DURABLE, NOT_EXCLUSIVE, AUTO_DELETE, NO_ADDITIONAL_ARGUMENTS)
     }
 
     @Test
-    public void delete_an_existing_queue() {
+    void delete_an_existing_queue() {
+        final AMQP.Queue.DeclareOk declareOk = channel.queueDeclare()
 
+        final AMQP.Queue.DeleteOk deleteOk = channel.queueDelete(declareOk.queue)
+
+        assertThat deleteOk, notNullValue()
     }
 
 }
 
-class RabbitMQ_Multithreaded_Test {}
+class RabbitMQ_Multithreaded_Test { }
 
-class RabbitMQ_ConsumerLifecycle_Test {
+class RabbitMQ_ConsumerLifecycle_Test { }
 
-    @Test
-    public void learn_about_lifecycle() {
+class RabbitMQ_ProducerLifecycle_Test { }
 
-    }
-}
+class RabbitMQ_Binding_Test { }
 
-class RabbitMQ_ProducerLifecycle_Test {
-
-    @Test
-    public void learn_about_lifecycle() {
-
-    }
-}
-
-class RabbitMQ_Binding_Test {
-
-    @Test
-    public void learn_about_lifecycle() {
-
-    }
-}
-
-class RabbitMQ_Routing_Test {
-
-    @Test
-    public void learn_about_lifecycle() {
-
-    }
-}
+class RabbitMQ_Routing_Test { }
