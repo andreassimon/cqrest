@@ -1,17 +1,15 @@
 package infrastructure.messaging
 
-import com.rabbitmq.client.Channel
-import com.rabbitmq.client.ConnectionFactory
-import com.rabbitmq.client.QueueingConsumer
+import com.rabbitmq.client.*
 import com.rabbitmq.client.impl.AMQConnection
 import domain.aggregates.Device
-import domain.events.Event
-import domain.events.New_device_was_registered
-import org.junit.Test
+import domain.events.*
+import org.junit.*
+import readmodels.ReadModelBuilder
 
+import static infrastructure.messaging.AMQPConstants.*
 import static infrastructure.utilities.GenericEventSerializer.toJSON
-import static org.hamcrest.CoreMatchers.equalTo
-import static org.hamcrest.CoreMatchers.is
+import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.assertThat
 
 class AMQPEventPublisherTest {
@@ -34,10 +32,10 @@ class AMQPEventPublisherTest {
         AMQConnection connection = factory.newConnection();
         Channel channel = connection.createChannel();
 
-        channel.queueDeclare(AMQPConstants.EVENT_QUEUE, AMQPConstants.NOT_DURABLE, AMQPConstants.NOT_EXCLUSIVE, AMQPConstants.NO_AUTO_DELETE, AMQPConstants.NO_ADDITIONAL_ARGUMENTS);
+        channel.queueDeclare(ReadModelBuilder.MESSAGE_QUEUE, NOT_DURABLE, NOT_EXCLUSIVE, NO_AUTO_DELETE, NO_ADDITIONAL_ARGUMENTS);
 
         QueueingConsumer consumer = new QueueingConsumer(channel);
-        channel.basicConsume(AMQPConstants.EVENT_QUEUE, AMQPConstants.AUTO_ACK, consumer);
+        channel.basicConsume(ReadModelBuilder.MESSAGE_QUEUE, AUTO_ACK, consumer);
 
         QueueingConsumer.Delivery delivery = consumer.nextDelivery();
         return new String(delivery.getBody());

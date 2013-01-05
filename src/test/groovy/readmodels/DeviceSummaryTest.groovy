@@ -10,7 +10,6 @@ import static org.junit.Assert.*
 import static org.mockito.Mockito.*
 
 class DeviceSummaryTest {
-    ConnectionFactory connectionFactory
     Connection producerConnection
     Channel producerChannel
 
@@ -21,18 +20,18 @@ class DeviceSummaryTest {
     JsonSlurper slurper = new JsonSlurper()
 
     JdbcTemplate jdbcTemplate = mock(JdbcTemplate.class)
-    Thread readModelBuilder
+    ReadModelBuilder readModelBuilder
 
     @Before
     public void setUp() throws Exception {
-        connectionFactory = new ConnectionFactory()
+        def connectionFactory = new ConnectionFactory()
 
         producerConnection = connectionFactory.newConnection()
-
         producerChannel = producerConnection.createChannel()
 
-        readModelBuilder = ReadModelBuilder.start(jdbcTemplate)
-        producerChannel.queuePurge(EVENT_QUEUE)
+        readModelBuilder = ReadModelBuilder.newInstance(jdbcTemplate)
+        readModelBuilder.purgeQueue()
+        readModelBuilder.start()
     }
 
     @Test
@@ -60,8 +59,9 @@ class DeviceSummaryTest {
     private void publishEvent(Map<String, Object> eventAttributes) {
         final json = toJSON(eventAttributes).bytes
         assertTrue producerChannel.waitForConfirms()
-        producerChannel.basicPublish(DEFAULT_EXCHANGE, EVENT_QUEUE, NO_PROPERTIES, json)
+        producerChannel.basicPublish(DEFAULT_EXCHANGE, ReadModelBuilder.MESSAGE_QUEUE, NO_PROPERTIES, json)
         assertTrue producerChannel.waitForConfirms()
+        Thread.sleep(10)
         readModelBuilder.interrupt()
     }
 
@@ -71,8 +71,14 @@ class DeviceSummaryTest {
 
     @After
     public void tearDown() throws Exception {
-        producerChannel.close()
-        producerConnection.close()
+        close producerChannel
+        close producerConnection
+    }
+
+    void close(amqpResource) {
+       try {
+           amqpResource.close()
+       } catch (AlreadyClosedException) { }
     }
 
 }
