@@ -21,6 +21,7 @@ class DeviceIntegrationTest {
 
     CommandRouter commandRouter
     ReadModelRepository readModelRepository
+    ReadModelBuilder readModelBuilder
 
     @Before
     public void setUp() throws Exception {
@@ -46,7 +47,7 @@ class DeviceIntegrationTest {
         jdbcTemplate.execute('DELETE FROM DeviceSummary')
 
         readModelRepository = new ReadModelRepository(jdbcTemplate)
-        def readModelBuilder = ReadModelBuilder.newInstance(jdbcTemplate)
+        readModelBuilder = ReadModelBuilder.newInstance(jdbcTemplate)
         readModelBuilder.start()
     }
 
@@ -62,4 +63,10 @@ class DeviceIntegrationTest {
         assertThat allDeviceSummaries, equalTo([new DeviceSummary(deviceId, deviceName)])
     }
 
+
+
+    @After
+    public void tearDown() throws Exception {
+        readModelBuilder.interrupt()
+    }
 }

@@ -13,7 +13,7 @@ class DeviceSummaryTest {
     Connection producerConnection
     Channel producerChannel
 
-    final def NEW_DEVICE_ID = 'e5270db1-2e83-4499-b8f5-91d0491d9fce"'
+    final def NEW_DEVICE_ID = 'e5270db1-2e83-4499-b8f5-91d0491d9fce'
     final def NEW_DEVICE_NAME = 'new device name'
 
     final def REGISTERED_DEVICE_ID = '7083f2f5-3131-462a-a24a-eb5253f8227b'
@@ -43,7 +43,7 @@ class DeviceSummaryTest {
                         deviceName: NEW_DEVICE_NAME
                 ])
 
-        verify(jdbcTemplate).update("INSERT INTO DeviceSummary (deviceId, deviceName) VALUES (?, ?);", NEW_DEVICE_ID.toString(), NEW_DEVICE_NAME)
+        verify(jdbcTemplate).update("INSERT INTO DeviceSummary (deviceId, deviceName) VALUES (?, ?);", UUID.fromString(NEW_DEVICE_ID), NEW_DEVICE_NAME)
     }
 
     @Test
