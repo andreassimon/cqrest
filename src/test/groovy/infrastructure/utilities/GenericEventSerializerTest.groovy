@@ -15,6 +15,6 @@ class GenericEventSerializerTest {
     public void should_serialize_to_JSON() {
         def event = new New_device_was_registered(new Device.Id(), "device name")
 
-        assertThat(GenericEventSerializer.toJSON(event), equalTo("{\"New device was registered\":{\"deviceId\":\"${event.deviceId}\",\"deviceName\":\"${event.deviceName}\"}}".toString()))
+        assertThat(GenericEventSerializer.toJSON(event), equalTo("{\"New device was registered\":{\"deviceId\":\"${event.deviceId}\",\"timestamp\":\"${event.timestamp}\",\"deviceName\":\"${event.deviceName}\"}}".toString()))
     }
 }

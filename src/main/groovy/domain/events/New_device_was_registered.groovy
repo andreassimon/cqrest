@@ -11,6 +11,10 @@ class New_device_was_registered extends Event<Device> {
         this.deviceId = deviceId
     }
 
+    New_device_was_registered(UUID uuid, String deviceName) {
+        this(new Device.Id(uuid), deviceName)
+    }
+
     // TODO How to implement applyTo()?
     //  * functional (like it is)
     //  * non-functional
