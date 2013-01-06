@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    groovy 'org.codehaus.groovy:groovy:2.0.+'
+    groovy 'org.codehaus.groovy:groovy-all:2.0.+'
 
     compile 'com.rabbitmq:amqp-client:3.0.+'
     compile 'org.springframework:spring-jdbc:3.1.+'
