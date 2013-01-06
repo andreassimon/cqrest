@@ -40,7 +40,7 @@ class EventStoreTest {
         assertThat history, equalTo([
             [
                 eventname: 'New device was registered',
-                attributes: "{\"New device was registered\":{\"deviceId\":\"${event.deviceId}\",\"timestamp\":\"${event.timestamp}\",\"deviceName\":\"Device1\"}}",
+                attributes: "{\"New device was registered\":{\"deviceId\":\"${event.deviceId}\",\"timestamp\":\"${event.timestamp}\",\"deviceName\":\"Device1\"}}".toString(),
                 timestamp: new Timestamp(event.timestamp.time)
             ]
         ])
