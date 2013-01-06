@@ -39,12 +39,13 @@ class DeviceIntegrationTest {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource)
 
-        jdbcTemplate.execute('CREATE TABLE IF NOT EXISTS DeviceSummary (' +
+        jdbcTemplate.execute('DROP TABLE IF EXISTS DeviceSummary')
+        jdbcTemplate.execute(
+            'CREATE TABLE IF NOT EXISTS DeviceSummary (' +
             '    deviceId uuid PRIMARY KEY,' +
             '    deviceName VARCHAR(25)' +
             ');'
         )
-        jdbcTemplate.execute('DELETE FROM DeviceSummary')
 
         readModelRepository = new ReadModelRepository(jdbcTemplate)
         readModelBuilder = ReadModelBuilder.newInstance(jdbcTemplate)
@@ -57,7 +58,7 @@ class DeviceIntegrationTest {
         final deviceName = 'new device'
         commandRouter.route new Register_new_device(deviceId, deviceName)
 
-        Thread.sleep(2000)
+        Thread.sleep(100)
 
         final allDeviceSummaries = readModelRepository.getAll(DeviceSummary.class)
         assertThat allDeviceSummaries, equalTo([new DeviceSummary(deviceId, deviceName)])

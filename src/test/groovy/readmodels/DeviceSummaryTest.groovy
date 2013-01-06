@@ -69,7 +69,7 @@ class DeviceSummaryTest {
     private void publishEvent(Map<String, Object> eventAttributes) {
         final json = toJSON(eventAttributes).bytes
         producerChannel.basicPublish(DEFAULT_EXCHANGE, ReadModelBuilder.MESSAGE_QUEUE, NO_PROPERTIES, json)
-        Thread.sleep(10)
+        Thread.sleep(100)
         readModelBuilder.interrupt()
     }
 
