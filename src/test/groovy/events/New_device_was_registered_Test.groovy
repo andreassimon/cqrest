@@ -6,9 +6,11 @@ import org.hamcrest.CoreMatchers
 import org.junit.Assert
 import org.junit.Test
 
+import static java.util.UUID.randomUUID
+
 class New_device_was_registered_Test {
 
-    def deviceId = new Device.Id()
+    def deviceId = randomUUID()
     def deviceName = "deviceName"
 
 

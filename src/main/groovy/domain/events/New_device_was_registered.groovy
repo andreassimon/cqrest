@@ -3,16 +3,12 @@ package domain.events
 import domain.aggregates.Device
 
 class New_device_was_registered extends Event<Device> {
-    final Device.Id deviceId
+    final UUID deviceId
     final String deviceName
 
-    New_device_was_registered(Device.Id deviceId, String deviceName) {
-        this.deviceName = deviceName
+    New_device_was_registered(UUID deviceId, String deviceName) {
         this.deviceId = deviceId
-    }
-
-    New_device_was_registered(UUID uuid, String deviceName) {
-        this(new Device.Id(uuid), deviceName)
+        this.deviceName = deviceName
     }
 
     // TODO How to implement applyTo()?

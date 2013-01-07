@@ -1,14 +1,11 @@
 package commands
 
-import domain.aggregates.Device
-import domain.commands.Lock_out_device
-import domain.commands.UnknownDeviceException
-import domain.events.Device_was_locked_out
-import domain.events.New_device_was_registered
-import org.junit.Test
+import domain.commands.*
+import domain.events.*
+import org.junit.*
 
 class LockOutDeviceTest extends CommandSideTest {
-    def deviceId = new Device.Id(UUID.randomUUID())
+    def deviceId = UUID.randomUUID()
 
     @Test
     void should_lock_out_existing_device() {

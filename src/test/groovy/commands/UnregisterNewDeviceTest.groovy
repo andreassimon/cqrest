@@ -7,18 +7,17 @@ import org.junit.Test
 
 class UnregisterNewDeviceTest extends CommandSideTest {
     def deviceUUID = UUID.randomUUID()
-    def deviceId = new Device.Id(deviceUUID)
 
     @Test
     void should_create_new_device() {
         given {
-            New_device_was_registered(deviceId, "andreas-thinkpad")
+            New_device_was_registered(deviceUUID, "andreas-thinkpad")
         }
 
         when(new Unregister_new_device(deviceUUID))
 
         then {
-            Device_was_unregistered(deviceId)
+            Device_was_unregistered(deviceUUID)
         }
     }
 

@@ -3,9 +3,9 @@ package domain.events
 import domain.aggregates.Device
 
 class Device_was_locked_out extends Event<Device> {
-    final Device.Id deviceId
+    final UUID deviceId
 
-    Device_was_locked_out(Device.Id deviceId) {
+    Device_was_locked_out(UUID deviceId) {
         this.deviceId = deviceId
     }
 
@@ -20,7 +20,7 @@ class Device_was_locked_out extends Event<Device> {
     }
 
     @Override
-    Device applyTo(device) {
+    Device applyTo(Device device) {
         device
     }
 }

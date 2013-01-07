@@ -3,9 +3,9 @@ package domain.events
 import domain.aggregates.Device
 
 class Device_was_unregistered extends Event<Device> {
-    final Device.Id deviceId
+    final UUID deviceId
 
-    Device_was_unregistered(Device.Id deviceId) {
+    Device_was_unregistered(UUID deviceId) {
         this.deviceId = deviceId
     }
 

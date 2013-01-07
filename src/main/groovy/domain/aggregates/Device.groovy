@@ -10,43 +10,20 @@ import domain.events.New_device_was_registered
 
 class Device {
 
-    Id deviceId
+    UUID deviceId
 
-    static class Id {
-        UUID uuid;
-
-        Id(UUID uuid = UUID.randomUUID()) {
-            this.uuid = uuid
-        }
-
-        @Override
-        String toString() {
-            uuid.toString()
-        }
-
-        @Override
-        boolean equals(Object that) {
-            this.uuid == that.uuid
-        }
-    }
 
     Device(UUID deviceId) {
-        this(new Id(deviceId))
-    }
-
-    Device(Id deviceId) {
+        // TODO Illegal: state may only be modified through events
         this.deviceId = deviceId
     }
 
-    void handle(Register_new_device command, eventPublisher) {
+    void handle(Register_new_device command, eventPublisher) throws DeviceAlreadyExists {
+        if(deviceId) {
+           throw new DeviceAlreadyExists(deviceId)
+        }
         eventPublisher.publish(
-            new New_device_was_registered(new Device.Id(command.deviceId), command.deviceName)
-        )
-    }
-
-    void Register_new_device(deviceId, deviceName, eventPublisher) {
-        eventPublisher.publish(
-            new New_device_was_registered(new Device.Id(deviceId), deviceName)
+            new New_device_was_registered(command.deviceId, command.deviceName)
         )
     }
 
@@ -55,7 +32,7 @@ class Device {
     }
 
     void handle(Unregister_new_device command, eventPublisher) {
-        eventPublisher.publish(new Device_was_unregistered(new Device.Id(command.deviceId)))
+        eventPublisher.publish(new Device_was_unregistered(command.deviceId))
     }
 
     void apply(List<Event<Device>> events) {
@@ -67,6 +44,16 @@ class Device {
     // Why not move it to New_device_was_registered.applyTo(device)?
     void apply(New_device_was_registered event) {
         event.applyTo(this)
+    }
+
+}
+
+class DeviceAlreadyExists extends RuntimeException {
+
+    final UUID deviceId
+
+    DeviceAlreadyExists(UUID deviceId) {
+        this.deviceId = deviceId
     }
 
 }

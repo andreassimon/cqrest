@@ -1,11 +1,9 @@
 package domain.commands
 
-import domain.aggregates.Device
-
 class Lock_out_device {
-    final Device.Id deviceId
+    final UUID deviceId
 
-    Lock_out_device(Device.Id deviceId) {
+    Lock_out_device(UUID deviceId) {
         this.deviceId = deviceId
     }
 }
