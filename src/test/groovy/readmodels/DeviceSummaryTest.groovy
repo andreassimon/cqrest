@@ -29,15 +29,15 @@ class DeviceSummaryTest {
         producerConnection = connectionFactory.newConnection()
         producerChannel = producerConnection.createChannel()
 
-        readModelBuilder = ReadModelBuilder.newInstance(jdbcTemplate)
+        readModelBuilder = new ReadModelBuilder()
         readModelBuilder.purgeQueue()
         readModelBuilder.eventHandlers = [
                 new New_device_was_registered_Handler(),
                 new Device_was_locked_out_Handler(),
                 new Device_was_unregistered_Handler()
         ]
+        readModelBuilder.jdbcTemplate = jdbcTemplate
         readModelBuilder.start()
-
     }
 
     @Test

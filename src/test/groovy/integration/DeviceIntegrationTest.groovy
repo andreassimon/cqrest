@@ -45,12 +45,13 @@ class DeviceIntegrationTest {
         )
 
         readModelRepository = new ReadModelRepository(jdbcTemplate)
-        readModelBuilder = ReadModelBuilder.newInstance(jdbcTemplate)
+        readModelBuilder = new ReadModelBuilder()
         readModelBuilder.eventHandlers = [
                 new New_device_was_registered_Handler(),
                 new Device_was_locked_out_Handler(),
                 new Device_was_unregistered_Handler()
         ]
+        readModelBuilder.jdbcTemplate = jdbcTemplate
         readModelBuilder.start()
     }
 

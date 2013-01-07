@@ -1,11 +1,7 @@
 package readmodels
 
-import com.rabbitmq.client.Channel
-import com.rabbitmq.client.Connection
-import com.rabbitmq.client.ConnectionFactory
-import com.rabbitmq.client.QueueingConsumer
+import com.rabbitmq.client.*
 import groovy.json.JsonSlurper
-import org.springframework.dao.DataAccessException
 import org.springframework.jdbc.core.JdbcTemplate
 import readmodels.eventhandlers.EventHandler
 
@@ -14,7 +10,7 @@ import static infrastructure.messaging.AMQPConstants.*
 class ReadModelBuilder implements Runnable {
     public static final String MESSAGE_QUEUE = "event-queue"
     Thread thread
-    final JdbcTemplate jdbcTemplate
+    JdbcTemplate jdbcTemplate
 
     Connection connection
     Channel channel
@@ -38,13 +34,17 @@ class ReadModelBuilder implements Runnable {
     final String channelLock = 'channel-lock'
 
 
-    private ReadModelBuilder(JdbcTemplate jdbcTemplate, Connection connection, Channel channel) {
-        this.jdbcTemplate = jdbcTemplate
-        this.connection = connection
-        this.channel = channel
+    private ReadModelBuilder() {
+        def factory = new ConnectionFactory()
+
+        this.connection = factory.newConnection()
+        this.channel = connection.createChannel()
+
+        declareMessageQueue(connection, channel)
 
         consumer = new QueueingConsumer(channel)
 
+        this.channel = connection.createChannel()
         channel.basicConsume(MESSAGE_QUEUE, NO_AUTO_ACK, consumer)
     }
 
@@ -68,15 +68,6 @@ class ReadModelBuilder implements Runnable {
         return [declareOk, channel]
     }
 
-    static ReadModelBuilder newInstance(JdbcTemplate jdbcTemplate) {
-        def factory = new ConnectionFactory()
-        def connection = factory.newConnection()
-        def channel = connection.createChannel()
-        declareMessageQueue(connection, channel)
-
-        channel = connection.createChannel()
-        return new ReadModelBuilder(jdbcTemplate, connection, channel)
-    }
 
     void start() {
         thread = new Thread(this, 'read-model-builder')
