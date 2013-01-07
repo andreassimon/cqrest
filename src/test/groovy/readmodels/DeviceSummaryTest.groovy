@@ -10,7 +10,7 @@ import static infrastructure.messaging.AMQPConstants.*
 import static org.mockito.Mockito.*
 
 class DeviceSummaryTest {
-    Connection producerConnection
+    Connection connection
     Channel producerChannel
 
     final def NEW_DEVICE_ID = 'e5270db1-2e83-4499-b8f5-91d0491d9fce'
@@ -26,10 +26,10 @@ class DeviceSummaryTest {
     public void setUp() throws Exception {
         def connectionFactory = new ConnectionFactory()
 
-        producerConnection = connectionFactory.newConnection()
-        producerChannel = producerConnection.createChannel()
+        connection = connectionFactory.newConnection()
+        producerChannel = connection.createChannel()
 
-        readModelBuilder = new ReadModelBuilder()
+        readModelBuilder = new ReadModelBuilder(connection)
         readModelBuilder.purgeQueue()
         readModelBuilder.eventHandlers = [
                 new New_device_was_registered_Handler(),
@@ -86,7 +86,7 @@ class DeviceSummaryTest {
     @After
     public void tearDown() throws Exception {
         close producerChannel
-        close producerConnection
+        close connection
     }
 
     void close(amqpResource) {

@@ -15,7 +15,7 @@ import static org.junit.Assert.assertThat
 
 class AMQPEventPublisherTest {
 
-    def eventPublisher = new AMQPEventPublisher()
+    def eventPublisher
     Connection connection
     Consumer consumer
     Channel consumerChannel
@@ -24,6 +24,8 @@ class AMQPEventPublisherTest {
     public void setUp() throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
         connection = factory.newConnection();
+
+        eventPublisher = new AMQPEventPublisher(connection)
 
         consumerChannel = connection.createChannel()
         consumerChannel.queueDeclare(ReadModelBuilder.MESSAGE_QUEUE, NOT_DURABLE, EXCLUSIVE, AUTO_DELETE, NO_ADDITIONAL_ARGUMENTS)

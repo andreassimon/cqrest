@@ -1,5 +1,6 @@
 package integration
 
+import com.rabbitmq.client.ConnectionFactory
 import domain.commands.*
 import infrastructure.messaging.AMQPEventPublisher
 import org.junit.*
@@ -22,7 +23,10 @@ class DeviceIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        def amqpEventPublisher = new AMQPEventPublisher()
+        def factory = new ConnectionFactory()
+        def connection = factory.newConnection()
+
+        def amqpEventPublisher = new AMQPEventPublisher(connection)
         def inMemoryRepository = new InMemoryRepository()
 
         commandRouter = new CommandRouter()
@@ -45,7 +49,7 @@ class DeviceIntegrationTest {
         )
 
         readModelRepository = new ReadModelRepository(jdbcTemplate)
-        readModelBuilder = new ReadModelBuilder()
+        readModelBuilder = new ReadModelBuilder(connection)
         readModelBuilder.eventHandlers = [
                 new New_device_was_registered_Handler(),
                 new Device_was_locked_out_Handler(),

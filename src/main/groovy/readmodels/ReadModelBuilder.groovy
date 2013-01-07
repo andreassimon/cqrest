@@ -38,10 +38,9 @@ class ReadModelBuilder implements Runnable {
     final String channelLock = 'channel-lock'
 
 
-    private ReadModelBuilder() {
-        def factory = new ConnectionFactory()
+    ReadModelBuilder(Connection connection) {
 
-        this.connection = factory.newConnection()
+        this.connection = connection
         this.channel = connection.createChannel()
 
         declareMessageQueue(connection)

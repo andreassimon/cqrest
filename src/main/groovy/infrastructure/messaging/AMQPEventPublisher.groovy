@@ -14,10 +14,8 @@ class AMQPEventPublisher implements EventPublisher {
     final Connection connection
     Channel channel
 
-    AMQPEventPublisher() {
-        def connectionFactory = new ConnectionFactory()
-        connectionFactory.clientProperties = DEFAULT_AMQP_CLIENT_PROPERTIES
-        connection = connectionFactory.newConnection()
+    AMQPEventPublisher(Connection connection) {
+        this.connection = connection
     }
 
     @Override
@@ -30,7 +28,7 @@ class AMQPEventPublisher implements EventPublisher {
 
     // TODO finalizing lernen!!!
     @Override
-    protected void finalize() throws Throwable {
+    void finalize() throws Throwable {
         try {
             connection.close()
         } catch (Exception) {
