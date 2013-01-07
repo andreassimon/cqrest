@@ -7,6 +7,7 @@ import com.rabbitmq.client.QueueingConsumer
 import groovy.json.JsonSlurper
 import org.springframework.dao.DataAccessException
 import org.springframework.jdbc.core.JdbcTemplate
+import readmodels.eventhandlers.EventHandler
 
 import static infrastructure.messaging.AMQPConstants.*
 
@@ -21,7 +22,18 @@ class ReadModelBuilder implements Runnable {
     QueueingConsumer consumer
     JsonSlurper slurper = new JsonSlurper()
 
-    Map<String, Closure> eventHandlers
+    Map<String, EventHandler> eventHandlers = new DefaultHashMap<String, EventHandler>(new EventHandler() {
+
+        @Override
+        String getEventName() {
+            return null
+        }
+
+        @Override
+        void handleEvent(JdbcTemplate jdbcTemplate, eventName, eventAttributes) {
+            System.err.println "Unknown event name: ${eventName}"
+        }
+    } )
 
     final String channelLock = 'channel-lock'
 
@@ -31,37 +43,25 @@ class ReadModelBuilder implements Runnable {
         this.connection = connection
         this.channel = channel
 
-
-        eventHandlers = new DefaultHashMap<String, Closure>({ eventName, _eventAttributes -> System.err.println "Unknown event name: ${eventName}" })
-        eventHandlers.put 'New device was registered', { jdbc, eventName, eventAttributes ->
-            try {
-                final rowsAffected = jdbc.update("INSERT INTO DeviceSummary (deviceId, deviceName) VALUES (?, ?);", UUID.fromString(eventAttributes.deviceId), eventAttributes.deviceName);
-                println "updated $rowsAffected rows"
-            } catch (DataAccessException ex) {
-                println "Error executing insert to DeviceSummary"
-                ex.printStackTrace()
-            }
-        }.curry(jdbcTemplate)
-        eventHandlers.put 'Device was unregistered', { jdbc, eventName, eventAttributes ->
-            jdbc.update("DELETE FROM DeviceSummary WHERE deviceId = ?;", eventAttributes.deviceId);
-        }.curry(jdbcTemplate)
-        eventHandlers.put 'Device was locked out', { jdbc, eventName, eventAttributes ->
-            jdbc.update("UPDATE DeviceSummary SET locked = true WHERE deviceid = ?;", eventAttributes.deviceId);
-        }.curry(jdbcTemplate)
-
         consumer = new QueueingConsumer(channel)
 
         channel.basicConsume(MESSAGE_QUEUE, NO_AUTO_ACK, consumer)
     }
 
+    def setEventHandlers(List<EventHandler> eventHandlersObjects) {
+        eventHandlersObjects.each { eventHandlerObject ->
+            eventHandlers[eventHandlerObject.eventName] = eventHandlerObject
+        }
+    }
+
     static def declareMessageQueue(Connection connection, Channel channel) {
         try {
             channel.queueDelete(MESSAGE_QUEUE, ALWAYS, ALWAYS)
-        } catch(IOException) {
+        } catch (IOException) {
         } finally {
             try {
                 channel.close()
-            } catch (AlreadyClosedException) { }
+            } catch (AlreadyClosedException) {}
             channel = connection.createChannel()
         }
         final declareOk = channel.queueDeclare(MESSAGE_QUEUE, NOT_DURABLE, EXCLUSIVE, AUTO_DELETE, NO_ADDITIONAL_ARGUMENTS)
@@ -79,7 +79,7 @@ class ReadModelBuilder implements Runnable {
     }
 
     void start() {
-        thread = new Thread(this)
+        thread = new Thread(this, 'read-model-builder')
         thread.start()
     }
 
@@ -108,7 +108,7 @@ class ReadModelBuilder implements Runnable {
                 def jsonMap = slurper.parseText(message)
 
                 jsonMap.each { String eventName, eventAttributes ->
-                   eventHandlers[eventName].call(eventName, eventAttributes)
+                    eventHandlers[eventName].handleEvent(jdbcTemplate, eventName, eventAttributes)
                 }
                 synchronized (channelLock) {
                     channel.basicAck(delivery.envelope.deliveryTag, SINGLE_MESSAGE)

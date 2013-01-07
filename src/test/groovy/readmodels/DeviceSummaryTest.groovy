@@ -4,9 +4,9 @@ import com.rabbitmq.client.*
 import groovy.json.*
 import org.junit.*
 import org.springframework.jdbc.core.JdbcTemplate
+import readmodels.eventhandlers.*
 
 import static infrastructure.messaging.AMQPConstants.*
-import static org.junit.Assert.*
 import static org.mockito.Mockito.*
 
 class DeviceSummaryTest {
@@ -31,7 +31,13 @@ class DeviceSummaryTest {
 
         readModelBuilder = ReadModelBuilder.newInstance(jdbcTemplate)
         readModelBuilder.purgeQueue()
+        readModelBuilder.eventHandlers = [
+                new New_device_was_registered_Handler(),
+                new Device_was_locked_out_Handler(),
+                new Device_was_unregistered_Handler()
+        ]
         readModelBuilder.start()
+
     }
 
     @Test

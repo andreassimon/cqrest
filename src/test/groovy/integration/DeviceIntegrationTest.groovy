@@ -1,15 +1,12 @@
 package integration
 
-import com.rabbitmq.client.ConnectionFactory
-import domain.commands.CommandRouter
-import domain.commands.Register_new_device
+import domain.commands.*
 import infrastructure.messaging.AMQPEventPublisher
 import org.junit.*
 import org.postgresql.ds.PGSimpleDataSource
 import org.springframework.jdbc.core.JdbcTemplate
-import readmodels.DeviceSummary
-import readmodels.ReadModelBuilder
-import readmodels.ReadModelRepository
+import readmodels.*
+import readmodels.eventhandlers.*
 import utilities.InMemoryRepository
 
 import javax.sql.DataSource
@@ -49,6 +46,11 @@ class DeviceIntegrationTest {
 
         readModelRepository = new ReadModelRepository(jdbcTemplate)
         readModelBuilder = ReadModelBuilder.newInstance(jdbcTemplate)
+        readModelBuilder.eventHandlers = [
+                new New_device_was_registered_Handler(),
+                new Device_was_locked_out_Handler(),
+                new Device_was_unregistered_Handler()
+        ]
         readModelBuilder.start()
     }
 
