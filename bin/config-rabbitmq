@@ -1,0 +1,8 @@
+#!/bin/bash
+sudo rabbitmqctl add_vhost one-os-dev
+sudo rabbitmqctl add_vhost one-os-test
+sudo rabbitmqctl add_vhost one-os-prod
+
+sudo rabbitmqctl set_permissions -p one-os-dev  guest ".*" ".*" ".*"
+sudo rabbitmqctl set_permissions -p one-os-test guest ".*" ".*" ".*"
+sudo rabbitmqctl set_permissions -p one-os-prod guest ".*" ".*" ".*"
