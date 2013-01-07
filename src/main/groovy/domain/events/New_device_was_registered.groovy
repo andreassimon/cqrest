@@ -7,8 +7,13 @@ class New_device_was_registered extends Event<Device> {
     final String deviceName
 
     New_device_was_registered(UUID deviceId, String deviceName) {
+        super()
         this.deviceId = deviceId
         this.deviceName = deviceName
+    }
+
+    New_device_was_registered(Map attributes) {
+        super(attributes)
     }
 
     // TODO How to implement applyTo()?

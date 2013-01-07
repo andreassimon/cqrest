@@ -9,6 +9,13 @@ abstract class Event<T> {
         this.timestamp = new Date()
     }
 
+    Event(Map attributes) {
+        this()
+        attributes.each {k, v ->
+            this[k] = v
+        }
+    }
+
     String getName() {
         this.class.name.split('\\.')[-1].replaceAll('_', ' ')
     }

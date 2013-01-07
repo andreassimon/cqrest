@@ -21,7 +21,7 @@ class ReadModelBuilder implements Runnable {
     JsonSlurper slurper = new JsonSlurper()
 
 
-    final Map<String, EventHandler> eventHandlers = new DefaultHashMap<String, EventHandler>(new EventHandler() {
+    private final Map<String, EventHandler> eventHandlers = new DefaultHashMap<String, EventHandler>(new EventHandler() {
 
         @Override
         String getEventName() {
@@ -51,9 +51,20 @@ class ReadModelBuilder implements Runnable {
         channel.basicConsume(MESSAGE_QUEUE, NO_AUTO_ACK, consumer)
     }
 
-    def setEventHandlers(List<EventHandler> eventHandlersObjects) {
+    void setEventHandlers(List<EventHandler> eventHandlersObjects) {
         eventHandlersObjects.each { eventHandlerObject ->
             eventHandlers[eventHandlerObject.eventName] = eventHandlerObject
+        }
+    }
+
+    /**
+     * TODO Das ist ne Kruecke, weil ich nicht rausgefunden habe, wie ich start() aufrufen kann, wenn es keine Property ist
+     * Vielleicht durch ne FactoryBean loesen
+     * @param shouldStart
+     */
+    void setStart(boolean shouldStart) {
+        if (shouldStart) {
+            start()
         }
     }
 
@@ -131,8 +142,16 @@ class ReadModelBuilder implements Runnable {
     }
 
     void closeResources() {
-        channel.close()
-        connection.close()
+        closeResource channel
+        closeResource connection
+    }
+
+    void closeResource(resource) {
+        try {
+            resource.close()
+        } catch (Exception) {
+            // catchall
+        }
     }
 
     static class DefaultHashMap<K, V> extends HashMap<K, V> {

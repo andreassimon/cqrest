@@ -12,11 +12,11 @@ class ReadModelRepository {
     }
 
     def getAll(Class<?> readModelClass) {
-        final result = jdbcTemplate.queryForList("SELECT * from ${readModelClass.simpleName}")
-        result.collect { map ->
+        final records = jdbcTemplate.queryForList("SELECT * from ${readModelClass.simpleName}")
+        records.collect { map ->
             def newEntitiy = readModelClass.newInstance()
             map.each { key, value ->
-                newEntitiy[key] = value
+                newEntitiy[key.toLowerCase()] = value
             }
             newEntitiy
         }
