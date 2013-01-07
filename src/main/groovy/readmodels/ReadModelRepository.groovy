@@ -5,6 +5,8 @@ import org.springframework.jdbc.core.JdbcTemplate
 class ReadModelRepository {
     JdbcTemplate jdbcTemplate
 
+    ReadModelRepository() { }
+
     ReadModelRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate
     }
