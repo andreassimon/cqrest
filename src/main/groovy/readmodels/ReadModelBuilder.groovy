@@ -8,7 +8,9 @@ import readmodels.eventhandlers.EventHandler
 import static infrastructure.messaging.AMQPConstants.*
 
 class ReadModelBuilder implements Runnable {
-    public static final String MESSAGE_QUEUE = "event-queue"
+    static final String MESSAGE_QUEUE = "event-queue"
+    static final long CONSUMER_TIMEOUT = 10
+
     Thread thread
     JdbcTemplate jdbcTemplate
 
@@ -18,7 +20,8 @@ class ReadModelBuilder implements Runnable {
     QueueingConsumer consumer
     JsonSlurper slurper = new JsonSlurper()
 
-    Map<String, EventHandler> eventHandlers = new DefaultHashMap<String, EventHandler>(new EventHandler() {
+
+    final Map<String, EventHandler> eventHandlers = new DefaultHashMap<String, EventHandler>(new EventHandler() {
 
         @Override
         String getEventName() {
@@ -29,6 +32,7 @@ class ReadModelBuilder implements Runnable {
         void handleEvent(JdbcTemplate jdbcTemplate, eventName, eventAttributes) {
             System.err.println "Unknown event name: ${eventName}"
         }
+
     } )
 
     final String channelLock = 'channel-lock'
@@ -40,7 +44,7 @@ class ReadModelBuilder implements Runnable {
         this.connection = factory.newConnection()
         this.channel = connection.createChannel()
 
-        declareMessageQueue(connection, channel)
+        declareMessageQueue(connection)
 
         consumer = new QueueingConsumer(channel)
 
@@ -54,18 +58,26 @@ class ReadModelBuilder implements Runnable {
         }
     }
 
-    static def declareMessageQueue(Connection connection, Channel channel) {
+    static def declareMessageQueue(Connection connection) {
+        withChannel(connection) {
+            queueDelete(MESSAGE_QUEUE, ALWAYS, ALWAYS)
+        }
+
+        def channel = connection.createChannel()
+        final declareOk = channel.queueDeclare(MESSAGE_QUEUE, NOT_DURABLE, EXCLUSIVE, AUTO_DELETE, NO_ADDITIONAL_ARGUMENTS)
+        return [declareOk, channel]
+    }
+
+    private static void withChannel(Connection connection, Closure channelClosure) {
+        def channel = connection.createChannel()
         try {
-            channel.queueDelete(MESSAGE_QUEUE, ALWAYS, ALWAYS)
+            channel.with(channelClosure)
         } catch (IOException) {
         } finally {
             try {
                 channel.close()
             } catch (AlreadyClosedException) {}
-            channel = connection.createChannel()
         }
-        final declareOk = channel.queueDeclare(MESSAGE_QUEUE, NOT_DURABLE, EXCLUSIVE, AUTO_DELETE, NO_ADDITIONAL_ARGUMENTS)
-        return [declareOk, channel]
     }
 
 
@@ -92,17 +104,19 @@ class ReadModelBuilder implements Runnable {
             try {
                 QueueingConsumer.Delivery delivery
                 synchronized (channelLock) {
-                    delivery = consumer.nextDelivery();
+                    delivery = consumer.nextDelivery(CONSUMER_TIMEOUT);
                 }
-                def message = new String(delivery.getBody());
+                if (delivery) {
+                    def message = new String(delivery.getBody());
 
-                def jsonMap = slurper.parseText(message)
+                    def jsonMap = slurper.parseText(message)
 
-                jsonMap.each { String eventName, eventAttributes ->
-                    eventHandlers[eventName].handleEvent(jdbcTemplate, eventName, eventAttributes)
-                }
-                synchronized (channelLock) {
-                    channel.basicAck(delivery.envelope.deliveryTag, SINGLE_MESSAGE)
+                    jsonMap.each { String eventName, eventAttributes ->
+                        eventHandlers[eventName].handleEvent(jdbcTemplate, eventName, eventAttributes)
+                    }
+                    synchronized (channelLock) {
+                        channel.basicAck(delivery.envelope.deliveryTag, SINGLE_MESSAGE)
+                    }
                 }
 
                 if (Thread.interrupted()) {

@@ -16,6 +16,21 @@ import static org.junit.Assert.assertThat
 class AMQPEventPublisherTest {
 
     def eventPublisher = new AMQPEventPublisher()
+    Connection connection
+    Consumer consumer
+    Channel consumerChannel
+
+    @Before
+    public void setUp() throws Exception {
+        ConnectionFactory factory = new ConnectionFactory();
+        connection = factory.newConnection();
+
+        consumerChannel = connection.createChannel()
+        consumerChannel.queueDeclare(ReadModelBuilder.MESSAGE_QUEUE, NOT_DURABLE, EXCLUSIVE, AUTO_DELETE, NO_ADDITIONAL_ARGUMENTS)
+
+        consumer = new QueueingConsumer(consumerChannel);
+        consumerChannel.basicConsume(ReadModelBuilder.MESSAGE_QUEUE, AUTO_ACK, consumer);
+    }
 
 
     @Test
@@ -27,18 +42,15 @@ class AMQPEventPublisherTest {
         assertThat receivedMessage(), is(equalTo(toJSON(event)))
     }
 
+
     private String receivedMessage() {
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("localhost");
-        AMQConnection connection = factory.newConnection();
-        Channel channel = connection.createChannel();
-
-        channel.queueDeclare(ReadModelBuilder.MESSAGE_QUEUE, NOT_DURABLE, NOT_EXCLUSIVE, NO_AUTO_DELETE, NO_ADDITIONAL_ARGUMENTS);
-
-        QueueingConsumer consumer = new QueueingConsumer(channel);
-        channel.basicConsume(ReadModelBuilder.MESSAGE_QUEUE, AUTO_ACK, consumer);
-
         QueueingConsumer.Delivery delivery = consumer.nextDelivery();
         return new String(delivery.getBody());
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        consumerChannel.close()
+        connection.close()
     }
 }

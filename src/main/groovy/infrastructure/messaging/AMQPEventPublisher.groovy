@@ -12,22 +12,30 @@ import static infrastructure.utilities.GenericEventSerializer.toJSON
 
 class AMQPEventPublisher implements EventPublisher {
     final Connection connection
-    final Channel channel
+    Channel channel
 
     AMQPEventPublisher() {
         def connectionFactory = new ConnectionFactory()
         connectionFactory.clientProperties = DEFAULT_AMQP_CLIENT_PROPERTIES
         connection = connectionFactory.newConnection()
-        channel = connection.createChannel()
-
-        channel.queueDeclare(ReadModelBuilder.MESSAGE_QUEUE, NOT_DURABLE, NOT_EXCLUSIVE, NO_AUTO_DELETE, NO_ADDITIONAL_ARGUMENTS);
     }
 
     @Override
     void publish(Event<?> event) {
+        channel = connection.createChannel()
         channel.basicPublish DEFAULT_EXCHANGE, ReadModelBuilder.MESSAGE_QUEUE, NO_PROPERTIES, toJSON(event).bytes
 
         channel.close()
-        connection.close()
+    }
+
+    // TODO finalizing lernen!!!
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            connection.close()
+        } catch (Exception) {
+        } finally {
+            super.finalize()
+        }
     }
 }
