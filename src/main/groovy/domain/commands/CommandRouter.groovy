@@ -9,6 +9,6 @@ class CommandRouter {
     }
 
     private def handlerFor(command) {
-        Class.forName("domain.commandhandler.${command.class.name.split('\\.')[-1]}_Handler").newInstance(repository, eventPublisher)
+        command.class.classLoader.loadClass("domain.commandhandler.${command.class.name.split('\\.')[-1]}_Handler").newInstance(repository, eventPublisher)
     }
 }
