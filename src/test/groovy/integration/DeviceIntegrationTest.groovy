@@ -24,6 +24,7 @@ class DeviceIntegrationTest {
     @Before
     public void setUp() throws Exception {
         def factory = new ConnectionFactory()
+        factory.virtualHost = 'one-os-test'
         def connection = factory.newConnection()
 
         def amqpEventPublisher = new AMQPEventPublisher(connection)

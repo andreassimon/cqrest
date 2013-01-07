@@ -25,6 +25,7 @@ class DeviceSummaryTest {
     @Before
     public void setUp() throws Exception {
         def connectionFactory = new ConnectionFactory()
+        connectionFactory.virtualHost = 'one-os-test'
 
         connection = connectionFactory.newConnection()
         producerChannel = connection.createChannel()

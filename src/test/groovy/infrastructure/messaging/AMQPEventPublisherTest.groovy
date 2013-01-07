@@ -23,6 +23,7 @@ class AMQPEventPublisherTest {
     @Before
     public void setUp() throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
+        factory.virtualHost = 'one-os-test'
         connection = factory.newConnection();
 
         eventPublisher = new AMQPEventPublisher(connection)
