@@ -33,6 +33,7 @@ class DeviceSummaryTest {
         readModelBuilder = new ReadModelBuilder(connection)
         readModelBuilder.purgeQueue()
         readModelBuilder.eventHandlers = [
+                new New_user_was_created_Handler(),
                 new New_device_was_registered_Handler(),
                 new Device_was_locked_out_Handler(),
                 new Device_was_unregistered_Handler()

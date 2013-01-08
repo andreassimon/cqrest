@@ -9,10 +9,10 @@ class New_user_was_created extends Event<User> {
     final def eMail
 
     New_user_was_created(newUserUUID, firstName, lastName, eMail) {
-        this.eMail = eMail
-        this.lastName = lastName
-        this.firstName = firstName
         this.newUserUUID = newUserUUID
+        this.firstName = firstName
+        this.lastName = lastName
+        this.eMail = eMail
     }
 
     @Override
