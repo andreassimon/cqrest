@@ -2,7 +2,7 @@ package domain.events
 
 import domain.aggregates.User
 
-class New_user_was_created extends Event<User> {
+class New_user_was_created extends UserEvent {
     final def newUserUUID
     final def firstName
     final def lastName
@@ -13,6 +13,15 @@ class New_user_was_created extends Event<User> {
         this.firstName = firstName
         this.lastName = lastName
         this.eMail = eMail
+    }
+
+    New_user_was_created(Map attributes) {
+        super(attributes)
+    }
+
+    @Override
+    UUID getAggregateId() {
+        return newUserUUID
     }
 
     @Override

@@ -2,7 +2,7 @@ package domain.events
 
 import domain.aggregates.Device
 
-class Device_was_unregistered extends Event<Device> {
+class Device_was_unregistered extends DeviceEvent {
     final UUID deviceId
 
     Device_was_unregistered(UUID deviceId) {
@@ -12,6 +12,11 @@ class Device_was_unregistered extends Event<Device> {
     @Override
     Device applyTo(Device device) {
         device.unregistered = true
+    }
+
+    @Override
+    UUID getAggregateId() {
+        return deviceId
     }
 
     @Override

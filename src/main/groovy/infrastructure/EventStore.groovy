@@ -8,6 +8,12 @@ class EventStore {
     JdbcTemplate jdbcTemplate
 
     def save(event) {
-        jdbcTemplate.update("INSERT INTO events (EventName,Attributes,Timestamp) VALUES (?,?,?);", event.name, toJSON(event), event.timestamp)
+        jdbcTemplate.update(
+            "INSERT INTO Events (AggregateClassName, AggregateId, EventName, Attributes, Timestamp) VALUES (?,?,?,?,?);",
+                event.aggregateClassName,
+                event.aggregateId,
+                event.name,
+                toJSON(event),
+                event.timestamp)
     }
 }

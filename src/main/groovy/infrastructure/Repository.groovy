@@ -10,7 +10,7 @@ class Repository {
     // TODO Unterschiedliche DBMS gehen unterschiedlich mit der Gross- / Kleinschreibung von
     //      Attributen um. Das macht das Mapping problematisch.
     def getEventsFor(Class aggregateClass, entityId) {
-        final records = jdbcTemplate.queryForList('SELECT * from events;')
+        final records = jdbcTemplate.queryForList('SELECT * from events WHERE AggregateClassName = ? AND AggregateId = ?;', aggregateClass.canonicalName, entityId)
         records.collect { record ->
             def simpleEventClassName = record['EVENTNAME'].replaceAll(' ', '_')
             def fullEventClassName = 'domain.events.' + simpleEventClassName

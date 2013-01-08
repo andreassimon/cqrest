@@ -28,7 +28,7 @@ class EventStoreTest {
 
         final jdbcTemplate = new JdbcTemplate(dataSource)
         jdbcTemplate.execute("DROP TABLE IF EXISTS events;")
-        jdbcTemplate.execute("CREATE TABLE events(EventName VARCHAR(255), Attributes TEXT, Timestamp TIMESTAMP);")
+        jdbcTemplate.execute("CREATE TABLE Events(AggregateClassName VARCHAR(255), AggregateId UUID, EventName VARCHAR(255), Attributes TEXT, Timestamp TIMESTAMP);")
         eventStore.jdbcTemplate = jdbcTemplate
         final event = new New_device_was_registered(UUID.randomUUID(), "Device1")
         eventStore.save(event)

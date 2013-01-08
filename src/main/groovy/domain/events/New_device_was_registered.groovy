@@ -2,7 +2,7 @@ package domain.events
 
 import domain.aggregates.Device
 
-class New_device_was_registered extends Event<Device> {
+class New_device_was_registered extends DeviceEvent {
     final UUID deviceId
     final String deviceName
 
@@ -14,6 +14,11 @@ class New_device_was_registered extends Event<Device> {
 
     New_device_was_registered(Map attributes) {
         super(attributes)
+    }
+
+    @Override
+    UUID getAggregateId() {
+        return deviceId
     }
 
     // TODO How to implement applyTo()?

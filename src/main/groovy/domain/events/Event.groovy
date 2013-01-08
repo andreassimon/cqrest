@@ -16,6 +16,10 @@ abstract class Event<T> {
         }
     }
 
+    abstract String getAggregateClassName()
+
+    abstract UUID getAggregateId()
+
     String getName() {
         this.class.name.split('\\.')[-1].replaceAll('_', ' ')
     }
@@ -26,7 +30,7 @@ abstract class Event<T> {
 
     Map<String, String> attributes() {
         return properties.findAll({
-            key, value -> ! ['class', 'name'].contains(key)  // key != 'class' && key != 'name'
+            key, value -> ! ['aggregateClassName', 'aggregateId', 'class', 'name'].contains(key)  // key != 'class' && key != 'name'
         }).collectEntries { k, v -> [(k): v.toString()] }
     }
 
