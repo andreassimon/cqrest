@@ -16,7 +16,7 @@ class New_user_was_created_Handler implements readmodels.eventhandlers.EventHand
             final rowsAffected = jdbcTemplate.update(
                 "INSERT INTO UserSummary (userId,  firstName, lastName, eMail) VALUES (?, ?, ?, ?);",
                     UUID.fromString(eventAttributes.newUserUUID),
-                    eventAttributes.frstName,
+                    eventAttributes.firstName,
                     eventAttributes.lastName,
                     eventAttributes.eMail
             );
