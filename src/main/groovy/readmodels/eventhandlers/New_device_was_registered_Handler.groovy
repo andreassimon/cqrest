@@ -14,7 +14,7 @@ class New_device_was_registered_Handler implements readmodels.eventhandlers.Even
     void handleEvent(JdbcTemplate jdbcTemplate, eventName, eventAttributes) {
         try {
             final rowsAffected = jdbcTemplate.update("INSERT INTO DeviceSummary (deviceId, deviceName) VALUES (?, ?);", UUID.fromString(eventAttributes.deviceId), eventAttributes.deviceName);
-            println "updated $rowsAffected rows"
+            println "Added $rowsAffected ${rowsAffected == 1 ? 'row' : 'rows'} to DeviceSummary"
         } catch (DataAccessException ex) {
             println "Error executing insert to DeviceSummary"
             ex.printStackTrace()

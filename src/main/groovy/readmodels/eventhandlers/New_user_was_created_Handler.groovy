@@ -20,7 +20,7 @@ class New_user_was_created_Handler implements readmodels.eventhandlers.EventHand
                     eventAttributes.lastName,
                     eventAttributes.eMail
             );
-            println "added $rowsAffected rows to UserSummary"
+            println "Added $rowsAffected ${rowsAffected == 1 ? 'row' : 'rows'} to UserSummary"
         } catch (DataAccessException ex) {
             println "Error executing insert to UserSummary"
             ex.printStackTrace()
