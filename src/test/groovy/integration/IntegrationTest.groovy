@@ -101,11 +101,20 @@ abstract class IntegrationTest {
             '    deviceName VARCHAR(25)' +
             ');'
         )
+        jdbcTemplate.execute(
+            'CREATE TABLE UserSummary (' +
+            '    userId uuid PRIMARY KEY,' +
+            '    firstName VARCHAR(255),' +
+            '    lastName  VARCHAR(255),' +
+            '    eMail     VARCHAR(255)' +
+            ');'
+        )
     }
 
     void dropTables(JdbcTemplate jdbcTemplate) {
         jdbcTemplate.execute('DROP TABLE IF EXISTS Events;')
         jdbcTemplate.execute('DROP TABLE IF EXISTS DeviceSummary;')
+        jdbcTemplate.execute('DROP TABLE IF EXISTS UserSummary;')
     }
 
 }
