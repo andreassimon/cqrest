@@ -1,16 +1,12 @@
 package utilities
 
-import domain.aggregates.Device
 import domain.events.Event
+import infrastructure.Repository
 
-class InMemoryRepository {
+class InMemoryRepository implements Repository {
     def history = []
 
-    Device getDevice(deviceId) {
-        return null
-    }
-
-    def getEventsFor(Class clazz, entityId) {
+    def getEventsFor(Class aggregateClass, UUID aggregateId) {
         return history
     }
 }

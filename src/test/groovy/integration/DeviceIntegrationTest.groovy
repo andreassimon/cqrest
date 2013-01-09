@@ -2,6 +2,7 @@ package integration
 
 import com.rabbitmq.client.ConnectionFactory
 import domain.commands.*
+import infrastructure.Repository
 import infrastructure.messaging.AMQPEventPublisher
 import org.junit.*
 import org.postgresql.ds.PGSimpleDataSource
@@ -28,11 +29,11 @@ class DeviceIntegrationTest {
         def connection = factory.newConnection()
 
         def amqpEventPublisher = new AMQPEventPublisher(connection)
-        def inMemoryRepository = new InMemoryRepository()
+        Repository repository = new InMemoryRepository()
 
         commandRouter = new CommandRouter()
         commandRouter.eventPublisher = amqpEventPublisher
-        commandRouter.repository     = inMemoryRepository
+        commandRouter.repository     = repository
 
         DataSource dataSource = new PGSimpleDataSource()
         dataSource.user = 'user12'
