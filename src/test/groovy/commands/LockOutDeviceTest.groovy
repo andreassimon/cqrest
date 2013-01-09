@@ -10,10 +10,12 @@ class LockOutDeviceTest extends CommandSideTest {
     @Test
     void should_lock_out_existing_device() {
         given {
-            New_device_was_registered(deviceId, "andreas-thinkpad")
+            New_device_was_registered(
+                    deviceId:  deviceId,
+                    deviceName: "andreas-thinkpad")
         }
 
-        when(new Lock_out_device(deviceId))
+        when(new Lock_out_device(deviceId: deviceId))
 
         then {
             Device_was_locked_out(deviceId)
@@ -24,6 +26,6 @@ class LockOutDeviceTest extends CommandSideTest {
     void should_throw_Exception_when_locking_a_non_existent_device() {
         given {}
 
-        when(new Lock_out_device(deviceId))
+        when(new Lock_out_device(deviceId: deviceId))
     }
 }

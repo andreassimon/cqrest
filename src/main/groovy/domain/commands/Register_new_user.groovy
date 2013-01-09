@@ -6,10 +6,10 @@ class Register_new_user {
     private final def lastName
     private final def eMail
 
-    Register_new_user(newUserUUID, firstName, lastName, eMail) {
-        this.eMail = eMail
-        this.lastName = lastName
-        this.firstName = firstName
-        this.newUserUUID = newUserUUID
+    Register_new_user(Map attrs) {
+        this.newUserUUID = attrs.newUserUUID
+        this.firstName = attrs.firstName
+        this.lastName = attrs.lastName
+        this.eMail = attrs.eMail
     }
 }

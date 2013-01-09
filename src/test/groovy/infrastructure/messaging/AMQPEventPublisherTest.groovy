@@ -38,7 +38,7 @@ class AMQPEventPublisherTest {
 
     @Test
     public void should_send_a_serialized_event_to_the_message_broker() {
-        final Event<Device> event = new New_device_was_registered(randomUUID(), "new device name")
+        final Event<Device> event = new New_device_was_registered(deviceId: randomUUID(), deviceName: "new device name")
 
         eventPublisher.publish(event)
 

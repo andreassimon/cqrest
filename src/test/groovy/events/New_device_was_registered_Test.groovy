@@ -16,8 +16,8 @@ class New_device_was_registered_Test {
 
     @Test
     public void events_are_equal_when_device_id_and_deviceName_are_equal() {
-        def event1 = new New_device_was_registered(deviceId, deviceName)
-        def event2 = new New_device_was_registered(deviceId, deviceName)
+        def event1 = new New_device_was_registered(deviceId: deviceId, deviceName: deviceName)
+        def event2 = new New_device_was_registered(deviceId: deviceId, deviceName: deviceName)
 
         Assert.assertThat(event1, CoreMatchers.equalTo(event2))
     }

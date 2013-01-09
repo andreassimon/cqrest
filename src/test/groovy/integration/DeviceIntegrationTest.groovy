@@ -65,7 +65,7 @@ class DeviceIntegrationTest {
     void should_build_read_model_from_command() {
         final deviceId = UUID.randomUUID()
         final deviceName = 'new device'
-        commandRouter.route new Register_new_device(deviceId, deviceName)
+        commandRouter.route new Register_new_device(deviceId: deviceId, deviceName: deviceName)
 
         Thread.sleep(100)
 

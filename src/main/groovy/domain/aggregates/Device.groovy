@@ -23,7 +23,10 @@ class Device {
            throw new DeviceAlreadyExists(deviceId)
         }
         eventPublisher.publish(
-            new New_device_was_registered(command.deviceId, command.deviceName)
+            new New_device_was_registered(
+                   deviceId: command.deviceId,
+                   deviceName: command.deviceName
+            )
         )
     }
 
@@ -32,7 +35,7 @@ class Device {
     }
 
     void handle(Unregister_new_device command, eventPublisher) {
-        eventPublisher.publish(new Device_was_unregistered(command.deviceId))
+        eventPublisher.publish(new Device_was_unregistered(deviceId: command.deviceId))
     }
 
     void apply(List<Event<Device>> events) {

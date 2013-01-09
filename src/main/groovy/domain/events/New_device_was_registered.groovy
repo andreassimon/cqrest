@@ -6,14 +6,19 @@ class New_device_was_registered extends DeviceEvent {
     final UUID deviceId
     final String deviceName
 
-    New_device_was_registered(UUID deviceId, String deviceName) {
+    New_device_was_registered(Map attributes) {
         super()
-        this.deviceId = deviceId
-        this.deviceName = deviceName
+        assert attributes != null
+        deviceId = toUUID(attributes.deviceId)
+        deviceName = attributes.deviceName
     }
 
-    New_device_was_registered(Map attributes) {
-        super(attributes)
+    def toUUID(String uuid) {
+        UUID.fromString(uuid)
+    }
+
+    def toUUID(UUID uuid) {
+        uuid
     }
 
     @Override

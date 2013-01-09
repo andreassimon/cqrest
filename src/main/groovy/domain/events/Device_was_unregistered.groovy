@@ -5,8 +5,9 @@ import domain.aggregates.Device
 class Device_was_unregistered extends DeviceEvent {
     final UUID deviceId
 
-    Device_was_unregistered(UUID deviceId) {
-        this.deviceId = deviceId
+    Device_was_unregistered(Map attributes) {
+        super()
+        deviceId = attributes.deviceId
     }
 
     @Override

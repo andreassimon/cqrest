@@ -9,13 +9,6 @@ abstract class Event<T> {
         this.timestamp = new Date()
     }
 
-    Event(Map attributes) {
-        this()
-        attributes.each {k, v ->
-            this[k] = v
-        }
-    }
-
     abstract String getAggregateClassName()
 
     abstract UUID getAggregateId()

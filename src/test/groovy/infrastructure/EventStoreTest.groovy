@@ -30,7 +30,7 @@ class EventStoreTest {
         jdbcTemplate.execute("DROP TABLE IF EXISTS events;")
         jdbcTemplate.execute("CREATE TABLE Events(AggregateClassName VARCHAR(255), AggregateId UUID, EventName VARCHAR(255), Attributes TEXT, Timestamp TIMESTAMP);")
         eventStore.jdbcTemplate = jdbcTemplate
-        final event = new New_device_was_registered(UUID.randomUUID(), "Device1")
+        final event = new New_device_was_registered(deviceId: randomUUID(), deviceName: "Device1")
         eventStore.save(event)
 
         def repository = new Repository()
@@ -38,11 +38,7 @@ class EventStoreTest {
         final history = repository.getEventsFor(Device, event.deviceId)
 
         assertThat history, equalTo([
-            [
-                eventname: 'New device was registered',
-                attributes: "{\"New device was registered\":{\"deviceId\":\"${event.deviceId}\",\"timestamp\":\"${event.timestamp}\",\"deviceName\":\"Device1\"}}".toString(),
-                timestamp: new Timestamp(event.timestamp.time)
-            ]
+            new New_device_was_registered(deviceId: event.deviceId, deviceName: 'Device1')
         ])
     }
 

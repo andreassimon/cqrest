@@ -9,7 +9,12 @@ class RegisterNewUserTest extends CommandSideTest {
         def newUserUUID = UUID.randomUUID()
 
         given {}
-        when(new Register_new_user(newUserUUID, "Christian", "Remfert", "c.remfert@one-os.de"))
+        when(new Register_new_user(
+                newUserUUID: newUserUUID,
+                firstName: "Christian",
+                lastName: "Remfert",
+                eMail: "c.remfert@one-os.de"
+        ))
 
         then {
             New_user_was_created(newUserUUID, "Christian", "Remfert", "c.remfert@one-os.de")
