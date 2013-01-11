@@ -1,6 +1,6 @@
 package commands
 
-import domain.commands.Register_new_user
+import domain.commands.Register_user
 import org.junit.Test
 
 class RegisterNewUserTest extends CommandSideTest {
@@ -9,15 +9,16 @@ class RegisterNewUserTest extends CommandSideTest {
         def newUserUUID = UUID.randomUUID()
 
         given {}
-        when(new Register_new_user(
+        when(new Register_user(
                 newUserUUID: newUserUUID,
                 firstName: "Christian",
                 lastName: "Remfert",
-                eMail: "c.remfert@one-os.de"
+                eMail: "c.remfert@one-os.de",
+                password: "optimus"
         ))
 
         then {
-            New_user_was_created(newUserUUID, "Christian", "Remfert", "c.remfert@one-os.de")
+            User_was_registered(newUserUUID, "Christian", "Remfert", "c.remfert@one-os.de", 'optimus')
         }
     }
 }

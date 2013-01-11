@@ -2,20 +2,22 @@ package domain.events
 
 import domain.aggregates.User
 
-class New_user_was_created extends UserEvent {
+class User_was_registered extends UserEvent {
     final def newUserUUID
     final def firstName
     final def lastName
     final def eMail
+    final String password
 
-    New_user_was_created(newUserUUID, firstName, lastName, eMail) {
+    User_was_registered(newUserUUID, firstName, lastName, eMail, String password) {
         this.newUserUUID = newUserUUID
         this.firstName = firstName
         this.lastName = lastName
         this.eMail = eMail
+        this.password = password
     }
 
-    New_user_was_created(Map attributes) {
+    User_was_registered(Map attributes) {
         super(attributes)
     }
 
@@ -30,6 +32,7 @@ class New_user_was_created extends UserEvent {
         user.firstName = firstName
         user.lastName = lastName
         user.eMail = eMail
+        user.password = password
 
         return user
     }

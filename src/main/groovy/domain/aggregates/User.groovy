@@ -1,15 +1,22 @@
 package domain.aggregates
 
-import domain.commands.Register_new_user
-import domain.events.New_user_was_created
+import domain.commands.Register_user
+import domain.events.User_was_registered
 
 class User {
     def uuid
     def firstName
     def lastName
     def eMail
+    def password
 
-    def handle(Register_new_user command, eventPublisher) {
-        eventPublisher.publish(new New_user_was_created(command.newUserUUID, command.firstName, command.lastName, command.eMail))
+    def handle(Register_user command, eventPublisher) {
+        eventPublisher.publish(new User_was_registered(
+            command.newUserUUID,
+            command.firstName,
+            command.lastName,
+            command.eMail,
+            command.password
+        ))
     }
 }

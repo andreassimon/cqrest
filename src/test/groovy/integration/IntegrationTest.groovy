@@ -29,7 +29,7 @@ abstract class IntegrationTest {
 
         readModelBuilder = new ReadModelBuilder(getAmqpConnection())
         readModelBuilder.eventHandlers = [
-            new New_user_was_created_Handler(),
+            new User_was_registered_Handler(),
             new New_device_was_registered_Handler(),
             new Device_was_locked_out_Handler(),
             new Device_was_unregistered_Handler()
@@ -106,7 +106,15 @@ abstract class IntegrationTest {
             '    userId uuid PRIMARY KEY,' +
             '    firstName VARCHAR(255),' +
             '    lastName  VARCHAR(255),' +
-            '    eMail     VARCHAR(255)' +
+            '    eMail         VARCHAR(255),' +
+            '    htmlTableRow  TEXT' +
+            ');'
+        )
+        jdbcTemplate.execute(
+            'CREATE TABLE Login (' +
+            '    userId uuid PRIMARY KEY,' +
+            '    eMail       VARCHAR(255),' +
+            '    password    VARCHAR(255)' +
             ');'
         )
     }
@@ -115,6 +123,7 @@ abstract class IntegrationTest {
         jdbcTemplate.execute('DROP TABLE IF EXISTS Events;')
         jdbcTemplate.execute('DROP TABLE IF EXISTS DeviceSummary;')
         jdbcTemplate.execute('DROP TABLE IF EXISTS UserSummary;')
+        jdbcTemplate.execute('DROP TABLE IF EXISTS Login;')
     }
 
 }

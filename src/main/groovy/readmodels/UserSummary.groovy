@@ -5,6 +5,7 @@ class UserSummary {
     String firstName
     String lastName
     String eMail
+    String htmlTableRow
 
     @Override
     String toString() {
@@ -36,7 +37,14 @@ class UserSummary {
         this.eMail = email
     }
 
+    void setHtmltablerow(htmlTableRow) {
+        this.htmlTableRow = htmlTableRow
+    }
+
     boolean equals(Object that) {
+        if (this.class != that.class) {
+            return false
+        }
         this.userId == that.userId &&
         this.firstName == that.firstName &&
         this.lastName == that.lastName &&

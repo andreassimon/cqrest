@@ -12,6 +12,6 @@ class Device_was_unregistered_Handler implements readmodels.eventhandlers.EventH
     @Override
     void handleEvent(JdbcTemplate jdbcTemplate, eventName, eventAttributes) {
         final rowsAffected = jdbcTemplate.update("DELETE FROM DeviceSummary WHERE deviceId = ?;", eventAttributes.deviceId);
-        println "Deleted $rowsAffected ${rowsAffected == 1 ? 'row' : 'rows'} from UserSummary"
+//        println "Deleted $rowsAffected ${rowsAffected == 1 ? 'row' : 'rows'} from UserSummary"
     }
 }

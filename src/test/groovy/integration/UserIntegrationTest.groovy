@@ -1,8 +1,8 @@
 package integration
 
-import domain.commands.Register_new_user
+import domain.commands.Register_user
 import org.junit.*
-import readmodels.UserSummary
+import readmodels.*
 
 import static java.util.UUID.randomUUID
 import static org.hamcrest.Matchers.equalTo
@@ -24,14 +24,37 @@ class UserIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    void should_build_read_model_from_command() {
+    void should_build_user_summary_from_command() {
         final userId = randomUUID()
-        commandRouter.route(new Register_new_user(newUserUUID: userId, firstName: 'Andreas', lastName: 'Simon', eMail: 'a.simon@one-os.de'))
+        commandRouter.route(new Register_user(
+            newUserUUID: userId,
+            firstName: 'Andreas',
+            lastName: 'Simon',
+            eMail: 'a.simon@one-os.de',
+            password: 'optimus'
+        ))
 
         Thread.sleep(100)
 
         final allUserSummaries = readModelRepository.getAll(UserSummary)
         assertThat allUserSummaries, equalTo([new UserSummary(userId, 'Andreas', 'Simon', 'a.simon@one-os.de')])
+    }
+
+    @Test
+    void should_build_login_from_command() {
+        final userId = randomUUID()
+        commandRouter.route(new Register_user(
+            newUserUUID: userId,
+            firstName: 'Andreas',
+            lastName: 'Simon',
+            eMail: 'a.simon@one-os.de',
+            password: 'optimus'
+        ))
+
+        Thread.sleep(100)
+
+        final allLogins = readModelRepository.getAll(Login)
+        assertThat allLogins, equalTo([new Login(userId, 'a.simon@one-os.de', 'optimus')])
     }
 
 }
