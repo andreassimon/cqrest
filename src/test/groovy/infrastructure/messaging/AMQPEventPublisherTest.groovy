@@ -1,17 +1,16 @@
 package infrastructure.messaging
 
 import com.rabbitmq.client.*
-import com.rabbitmq.client.impl.AMQConnection
-import domain.aggregates.Device
+
 import domain.events.*
 import org.junit.*
-import readmodels.ReadModelBuilder
 
 import static infrastructure.messaging.AMQPConstants.*
 import static infrastructure.utilities.GenericEventSerializer.toJSON
 import static java.util.UUID.randomUUID
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.assertThat
+import domain.aggregates.Device
 
 class AMQPEventPublisherTest {
 
@@ -29,10 +28,11 @@ class AMQPEventPublisherTest {
         eventPublisher = new AMQPEventPublisher(connection)
 
         consumerChannel = connection.createChannel()
-        consumerChannel.queueDeclare(ReadModelBuilder.MESSAGE_QUEUE, NOT_DURABLE, EXCLUSIVE, AUTO_DELETE, NO_ADDITIONAL_ARGUMENTS)
+        def declareOk = consumerChannel.queueDeclare()
+        consumerChannel.queueBind(declareOk.queue, AMQPEventPublisher.EVENT_EXCHANGE, 'New device was registered')
 
         consumer = new QueueingConsumer(consumerChannel);
-        consumerChannel.basicConsume(ReadModelBuilder.MESSAGE_QUEUE, AUTO_ACK, consumer);
+        consumerChannel.basicConsume(declareOk.queue, AUTO_ACK, consumer);
     }
 
 

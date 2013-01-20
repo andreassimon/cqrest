@@ -1,10 +1,11 @@
 package domain.aggregates
 
+import domain.events.Device_was_locked_out
+import domain.events.Device_was_unregistered
+
 import domain.commands.Lock_out_device
 import domain.commands.Register_new_device
 import domain.commands.Unregister_new_device
-import domain.events.Device_was_locked_out
-import domain.events.Device_was_unregistered
 import domain.events.Event
 import domain.events.New_device_was_registered
 

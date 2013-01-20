@@ -2,6 +2,7 @@ package domain.events
 
 import domain.aggregates.Device
 
+
 class Device_was_unregistered extends DeviceEvent {
     final UUID deviceId
 

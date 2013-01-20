@@ -1,12 +1,11 @@
 package events
 
-import domain.aggregates.Device
-import domain.events.New_device_was_registered
 import org.hamcrest.CoreMatchers
 import org.junit.Assert
 import org.junit.Test
 
 import static java.util.UUID.randomUUID
+import domain.events.New_device_was_registered
 
 class New_device_was_registered_Test {
 

@@ -1,8 +1,8 @@
 package commands
 
-import domain.commands.*
-import domain.events.*
 import org.junit.*
+import domain.commands.Lock_out_device
+import domain.commands.UnknownDeviceException
 
 class LockOutDeviceTest extends CommandSideTest {
     def deviceId = UUID.randomUUID()

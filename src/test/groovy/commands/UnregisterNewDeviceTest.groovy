@@ -1,9 +1,7 @@
 package commands
 
-import domain.aggregates.Device
-import domain.commands.Register_new_device
-import domain.commands.Unregister_new_device
 import org.junit.Test
+import domain.commands.Unregister_new_device
 
 class UnregisterNewDeviceTest extends CommandSideTest {
     def deviceUUID = UUID.randomUUID()

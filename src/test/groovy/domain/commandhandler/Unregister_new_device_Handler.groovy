@@ -1,10 +1,8 @@
 package domain.commandhandler
 
-import domain.aggregates.Device
-import domain.commands.Register_new_device
 import domain.commands.UnknownDeviceException
 import domain.commands.Unregister_new_device
-import domain.events.Event
+import domain.aggregates.Device
 
 class Unregister_new_device_Handler extends CommandHandler {
 

@@ -1,7 +1,7 @@
 package infrastructure.utilities
 
 import domain.events.New_device_was_registered
-import org.junit.*
+import org.junit.Test
 
 import static java.util.UUID.randomUUID
 import static org.hamcrest.CoreMatchers.equalTo

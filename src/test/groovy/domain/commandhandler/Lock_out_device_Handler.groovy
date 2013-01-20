@@ -1,7 +1,7 @@
 package domain.commandhandler
 
-import domain.aggregates.Device
 import domain.commands.UnknownDeviceException
+import domain.aggregates.Device
 
 class Lock_out_device_Handler extends CommandHandler {
     Lock_out_device_Handler(repository, eventPublisher) {
@@ -10,7 +10,7 @@ class Lock_out_device_Handler extends CommandHandler {
 
     def handle(command) {
 
-        def deviceHistory = repository.getEventsFor(Device.class, command.deviceId)
+        def deviceHistory = repository.getEventsFor(Device, command.deviceId)
         Device device = deviceHistory.inject null, { device, event ->
             event.applyTo device
         }

@@ -1,7 +1,5 @@
 package infrastructure
 
-import domain.aggregates.Device
-import domain.events.New_device_was_registered
 import org.junit.*
 import org.postgresql.ds.PGSimpleDataSource
 import org.springframework.jdbc.core.JdbcTemplate
@@ -12,6 +10,8 @@ import java.sql.Timestamp
 import static java.util.UUID.randomUUID
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.assertThat
+import domain.events.New_device_was_registered
+import domain.aggregates.Device
 
 class EventStoreTest {
 

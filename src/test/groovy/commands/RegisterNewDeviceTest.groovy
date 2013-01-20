@@ -1,7 +1,7 @@
 package commands
 
-import domain.commands.Register_new_device
 import org.junit.*
+import domain.commands.Register_new_device
 
 class RegisterNewDeviceTest extends CommandSideTest {
 

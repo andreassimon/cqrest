@@ -2,22 +2,22 @@ package infrastructure.messaging
 
 import com.rabbitmq.client.Channel
 import com.rabbitmq.client.Connection
-import com.rabbitmq.client.ConnectionFactory
 import domain.events.Event
 import framework.EventPublisher
-import readmodels.ReadModelBuilder
 
-import static infrastructure.messaging.AMQPConstants.*
+import static infrastructure.messaging.AMQPConstants.NO_PROPERTIES
 import static infrastructure.utilities.GenericEventSerializer.toJSON
 
 class AMQPEventPublisher implements EventPublisher {
+    static final String EVENT_EXCHANGE = "EventExchange"
+
     final Connection connection
     Channel channel
 
     AMQPEventPublisher(Connection connection) {
         this.connection = connection
         Channel channel = this.connection.createChannel()
-        channel.exchangeDeclare("EventExchange", "topic")
+        channel.exchangeDeclare(EVENT_EXCHANGE, "topic")
     }
 
     @Override
