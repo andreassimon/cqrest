@@ -16,12 +16,15 @@ class AMQPEventPublisher implements EventPublisher {
 
     AMQPEventPublisher(Connection connection) {
         this.connection = connection
+        Channel channel = this.connection.createChannel()
+        channel.exchangeDeclare("EventExchange", "topic")
     }
 
     @Override
     void publish(Event<?> event) {
         channel = connection.createChannel()
-        channel.basicPublish DEFAULT_EXCHANGE, ReadModelBuilder.MESSAGE_QUEUE, NO_PROPERTIES, toJSON(event).bytes
+
+        channel.basicPublish "EventExchange", event.name, NO_PROPERTIES, toJSON(event).bytes
 
         channel.close()
     }
