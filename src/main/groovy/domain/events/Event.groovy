@@ -1,6 +1,8 @@
 package domain.events
 
 abstract class Event<T> {
+    private static final List<String> UNSERIALIZED_PROPERTIES = ['aggregateClass', 'aggregateClassName', 'aggregateId', 'class', 'name']
+
     abstract T applyTo(T t)
 
     final Date timestamp
@@ -9,7 +11,11 @@ abstract class Event<T> {
         this.timestamp = new Date()
     }
 
-    abstract String getAggregateClassName()
+    String getAggregateClassName() {
+        return aggregateClass.canonicalName
+    }
+
+    protected abstract Class<T> getAggregateClass()
 
     abstract UUID getAggregateId()
 
@@ -22,8 +28,8 @@ abstract class Event<T> {
     }
 
     Map<String, String> attributes() {
-        return properties.findAll({
-            key, value -> ! ['aggregateClassName', 'aggregateId', 'class', 'name'].contains(key)  // key != 'class' && key != 'name'
+        return properties.findAll({ key, value ->
+            ! UNSERIALIZED_PROPERTIES.contains(key)
         }).collectEntries { k, v -> [(k): v.toString()] }
     }
 
