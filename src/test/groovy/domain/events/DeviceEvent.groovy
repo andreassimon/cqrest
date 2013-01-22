@@ -2,7 +2,7 @@ package domain.events
 
 import domain.aggregates.Device
 
-abstract class DeviceEvent extends domain.events.Event<Device> {
+abstract class DeviceEvent extends Event<Device> {
     DeviceEvent() {
         super()
     }
