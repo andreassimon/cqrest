@@ -8,9 +8,19 @@ class CommandRouter {
         handlerFor(command).handle(command)
     }
 
-    private def handlerFor(command) {
-        final commandHandlerClassName = "domain.commandhandler.${command.class.name.split('\\.')[-1]}_Handler"
-        final commandHandlerClass = command.class.classLoader.loadClass(commandHandlerClassName)
-        commandHandlerClass.newInstance(repository, eventPublisher)
+    private def handlerFor(command, attempt = 0) {
+        final ClassLoader classLoader = command.class.classLoader
+        final String commandHandlerClassName = "domain.commandhandler.${command.class.simpleName}_Handler"
+        final Class commandHandlerClass = classLoader.loadClass(commandHandlerClassName)
+
+        try {
+            return commandHandlerClass.newInstance(repository, eventPublisher)
+        } catch (Exception e) {
+            println "${e.message} occurred"
+            if(attempt < 10) {
+                sleep(10)
+                return handlerFor(command, attempt + 1)
+            }
+        }
     }
 }
