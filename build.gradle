@@ -5,11 +5,14 @@ apply plugin: 'maven'
 group   = 'one-os.prototypes'
 version = '1.0.0-SNAPSHOT'
 
+defaultTasks 'clean', 'install'
+
 install {
     repositories.mavenInstaller {
         pom.artifactId = 'cqrs-core'
     }
 }
+install.dependsOn test
 
 task sourceJar(type: Jar) {
     from sourceSets.main.groovy
