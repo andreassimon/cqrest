@@ -11,7 +11,7 @@ class Unregister_new_device_Handler extends CommandHandler {
     }
 
     void handle(Unregister_new_device command) {
-        def deviceHistory = repository.getEventsFor(Device.class, command.deviceId)
+        def deviceHistory = repository.getEventsFor('Device', command.deviceId)
         Device device = deviceHistory.inject null, { device, event ->
             event.applyTo device
         }

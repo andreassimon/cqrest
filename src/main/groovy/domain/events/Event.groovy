@@ -1,23 +1,9 @@
 package domain.events
 
 abstract class Event<T> {
-    private static final List<String> UNSERIALIZED_PROPERTIES = ['aggregateClass', 'aggregateClassName', 'aggregateId', 'class', 'name']
+    private static final List<String> UNSERIALIZED_PROPERTIES = ['applicationName', 'boundedContextName', 'aggregateClass', 'aggregateName', 'aggregateClassName', 'aggregateId', 'class', 'name']
 
     abstract T applyTo(T t)
-
-    final Date timestamp
-
-    Event() {
-        this.timestamp = new Date()
-    }
-
-    String getAggregateClassName() {
-        return aggregateClass.canonicalName
-    }
-
-    protected abstract Class<T> getAggregateClass()
-
-    abstract UUID getAggregateId()
 
     String getName() {
         this.class.name.split('\\.')[-1].replaceAll('_', ' ')

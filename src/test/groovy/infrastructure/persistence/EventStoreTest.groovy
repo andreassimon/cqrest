@@ -1,4 +1,4 @@
-package infrastructure
+package infrastructure.persistence
 
 import org.junit.*
 import org.postgresql.ds.PGSimpleDataSource
@@ -12,11 +12,14 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.assertThat
 import domain.events.New_device_was_registered
 import domain.aggregates.Device
+import domain.events.EventEnvelope
+import infrastructure.persistence.JdbcEventStore
 
 class EventStoreTest {
 
     DataSource dataSource
     JdbcTemplate jdbcTemplate
+    JdbcEventStore eventStore
 
     @Before
     public void setUp() throws Exception {
@@ -26,21 +29,20 @@ class EventStoreTest {
         dataSource.databaseName = 'one-os-cqrs'
 
         jdbcTemplate = new JdbcTemplate(dataSource)
-        jdbcTemplate.execute("DROP TABLE IF EXISTS Events;")
-        jdbcTemplate.execute("CREATE TABLE Events(AggregateClassName VARCHAR(255), AggregateId UUID, EventName VARCHAR(255), Attributes TEXT, Timestamp TIMESTAMP);")
+
+        eventStore = new JdbcEventStore(jdbcTemplate: jdbcTemplate)
+
+        eventStore.createTable()
     }
 
     @Test
     public void should_insert_new_event() throws Exception {
-        EventStore eventStore = new EventStore()
-        eventStore.jdbcTemplate = jdbcTemplate
-        JdbcRepository repository = new JdbcRepository()
-        repository.jdbcTemplate = jdbcTemplate
-        final event = new New_device_was_registered(deviceId: randomUUID(), deviceName: "Device1")
+        def deviceId = randomUUID()
+        final event = new New_device_was_registered(deviceId: deviceId, deviceName: "Device1")
+        final eventEnvelope = new EventEnvelope<Device>('CQRS Core Library', 'Tests', 'Device', deviceId, event)
+        eventStore.save(eventEnvelope)
 
-        eventStore.save(event)
-
-        final history = repository.getEventsFor(Device, event.deviceId)
+        final history = eventStore.getEventsFor('CQRS Core Library', 'Tests', 'Device', event.deviceId)
 
         assertThat history, equalTo([
             new New_device_was_registered(deviceId: event.deviceId, deviceName: 'Device1')
@@ -50,7 +52,7 @@ class EventStoreTest {
 
 
     @Test
-    public void date_and_timestamp_should_be_comparable() throws Exception {
+    public void date_and_timestamp_are_not_mutually_comparable() throws Exception {
         long currentTimeMillis = System.currentTimeMillis()
 
         Date date = new Date(currentTimeMillis)

@@ -10,7 +10,7 @@ class Lock_out_device_Handler extends CommandHandler {
 
     def handle(command) {
 
-        def deviceHistory = repository.getEventsFor(Device, command.deviceId)
+        def deviceHistory = repository.getEventsFor('Device', command.deviceId)
         Device device = deviceHistory.inject null, { device, event ->
             event.applyTo device
         }

@@ -12,7 +12,7 @@ class Register_new_device_Handler extends CommandHandler {
     void handle(Register_new_device command) {
         Device device = new Device()
 
-        device.apply(repository.getEventsFor(Device.class, command.deviceId))
+        device.apply(repository.getEventsFor('Device', command.deviceId))
 
         device.handle(command, eventPublisher)
     }

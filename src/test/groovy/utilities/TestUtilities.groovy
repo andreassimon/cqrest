@@ -1,14 +1,30 @@
 package utilities
 
 import domain.events.Event
-import infrastructure.Repository
+import infrastructure.persistence.EventStore
+import domain.events.EventEnvelope
 
-class InMemoryRepository implements Repository {
+class InMemoryEventStore implements EventStore {
     def history = []
 
-    def getEventsFor(Class aggregateClass, UUID aggregateId) {
+    @Override
+    def save(EventEnvelope eventEnvelope) {
+        throw new IllegalAccessError('Not implemented in InMemoryEventStore')
+    }
+
+    def getAggregate(Class aggregateClass, UUID deviceId) {
+        def aggregate = aggregateClass.newInstance()
+
+        aggregate.apply(getEventsFor(aggregateClass, deviceId))
+
+        return aggregate
+    }
+
+    @Override
+    def getEventsFor(String applicationName = '', String boundedContextName = '', String aggregateName, UUID aggregateId) {
         return history
     }
+
 }
 
 class InMemoryEventPublisher {

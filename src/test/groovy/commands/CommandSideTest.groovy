@@ -3,13 +3,13 @@ package commands
 import domain.commands.CommandRouter
 import org.junit.Before
 import utilities.InMemoryEventPublisher
-import utilities.InMemoryRepository
+import utilities.InMemoryEventStore
 
 import static org.hamcrest.CoreMatchers.equalTo
 import static org.junit.Assert.assertThat
 
 abstract class CommandSideTest {
-    def repository = new InMemoryRepository()
+    def repository = new InMemoryEventStore()
     def eventPublisher = new InMemoryEventPublisher()
     def commandRouter
 
