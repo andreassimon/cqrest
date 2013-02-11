@@ -2,7 +2,8 @@ package commands
 
 import org.junit.*
 import domain.commands.Lock_out_device
-import domain.commands.UnknownDeviceException
+
+import infrastructure.persistence.UnknownAggregate
 
 class LockOutDeviceTest extends CommandSideTest {
     def deviceId = UUID.randomUUID()
@@ -22,7 +23,7 @@ class LockOutDeviceTest extends CommandSideTest {
         }
     }
 
-    @Test(expected = UnknownDeviceException.class)
+    @Test(expected = UnknownAggregate.class)
     void should_throw_Exception_when_locking_a_non_existent_device() {
         given {}
 

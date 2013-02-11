@@ -1,9 +1,9 @@
 package commands
 
 import org.junit.Test
-import domain.commands.Unregister_new_device
+import domain.commands.Unregister_device
 
-class UnregisterNewDeviceTest extends CommandSideTest {
+class UnregisterDeviceTest extends CommandSideTest {
     def deviceUUID = UUID.randomUUID()
 
     @Test
@@ -12,7 +12,7 @@ class UnregisterNewDeviceTest extends CommandSideTest {
             New_device_was_registered(deviceId: deviceUUID, deviceName: "andreas-thinkpad")
         }
 
-        when(new Unregister_new_device(deviceId: deviceUUID))
+        when(new Unregister_device(deviceId: deviceUUID))
 
         then {
             Device_was_unregistered(deviceId: deviceUUID)

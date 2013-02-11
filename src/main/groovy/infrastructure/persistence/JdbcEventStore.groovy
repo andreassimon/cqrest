@@ -6,7 +6,7 @@ import domain.events.EventEnvelope
 import groovy.json.JsonSlurper
 
 
-class JdbcEventStore implements EventStore {
+class JdbcEventStore extends DefaultEventStore {
     JdbcTemplate jdbcTemplate
     private JsonSlurper jsonSlurper = new JsonSlurper()
 
@@ -38,21 +38,6 @@ CREATE TABLE events (
                 eventEnvelope.eventName,
                 eventEnvelope.serializedEvent,
                 eventEnvelope.timestamp)
-    }
-
-    def getAggregate(Class aggregateClass, UUID aggregateId) {
-        def aggregateEvents = getEventsFor(aggregateClass, aggregateId)
-        if(aggregateEvents.empty) { return null; }
-
-        def aggregate = aggregateClass.newInstance()
-
-        aggregate.apply(aggregateEvents)
-
-        return aggregate
-//        def deviceHistory = getEventsFor(Device, command.deviceId)
-//        Device device = deviceHistory.inject null, { device, event ->
-//            event.applyTo device
-//        }
     }
 
     // TODO Unterschiedliche DBMS gehen unterschiedlich mit der Gross- / Kleinschreibung von

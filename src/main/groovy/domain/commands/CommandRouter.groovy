@@ -5,7 +5,7 @@ class CommandRouter {
     def eventPublisher
 
     void route(command) {
-        handlerFor(command).handle(command)
+        handlerFor(command).handleInUnitOfWork(command)
     }
 
     private def handlerFor(command, attempt = 0) {
