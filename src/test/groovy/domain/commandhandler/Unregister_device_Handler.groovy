@@ -2,19 +2,23 @@ package domain.commandhandler
 
 import domain.aggregates.Device
 import domain.commands.Unregister_device
-import domain.Repository
+
+import domain.DeviceRepository
 
 class Unregister_device_Handler extends EventSourcingCommandHandler<Unregister_device> {
 
-    Repository repository
+    DeviceRepository repository
 
-    Unregister_device_Handler(repository, eventPublisher) {
-        super(repository, eventPublisher)
-        this.repository = new Repository(eventStore, 'CQRS Core Library', 'Test')
+    DeviceRepository getRepository() {
+        if (repository) {
+            return repository
+        }
+        repository = new DeviceRepository(eventStore)
+        return repository
     }
 
     void handle(Unregister_device command) {
-        Device device = repository.getDevice(command.deviceId)
+        Device device = getRepository().getDevice(command.deviceId)
         device.unregister(command.deviceId, delegateEventPublisher)
     }
 

@@ -9,5 +9,3 @@ class Register_device {
         this.deviceName = attributes.deviceName
     }
 }
-
-

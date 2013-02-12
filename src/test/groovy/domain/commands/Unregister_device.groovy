@@ -7,5 +7,3 @@ class Unregister_device {
         this.deviceId = attributes.deviceId
     }
 }
-
-

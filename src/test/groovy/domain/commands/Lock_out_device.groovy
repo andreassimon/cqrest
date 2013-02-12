@@ -7,6 +7,3 @@ class Lock_out_device {
         this.deviceId = attributes.deviceId
     }
 }
-
-
-class UnknownDeviceException extends RuntimeException {}

@@ -9,7 +9,7 @@ import static org.hamcrest.CoreMatchers.equalTo
 import static org.junit.Assert.assertThat
 
 abstract class CommandSideTest {
-    def repository = new InMemoryEventStore()
+    def eventStore = new InMemoryEventStore()
     def eventPublisher = new InMemoryEventPublisher()
     def commandRouter
 
@@ -17,7 +17,7 @@ abstract class CommandSideTest {
     public void setUp() throws Exception {
         commandRouter = new CommandRouter()
 
-        commandRouter.repository = repository
+        commandRouter.eventStore = eventStore
         commandRouter.eventPublisher = eventPublisher
     }
 
@@ -26,7 +26,7 @@ abstract class CommandSideTest {
     }
 
     void given(List history) {
-        repository.history = history
+        eventStore.history = history
     }
 
     void when(command) {
@@ -48,14 +48,3 @@ abstract class CommandSideTest {
     }
 }
 
-class EventCollector {
-    def eventList = []
-
-    def methodMissing(String eventName, arguments) {
-        eventList << Class.forName("domain.events.$eventName").newInstance(arguments)
-    }
-
-    def toList() {
-        eventList
-    }
-}

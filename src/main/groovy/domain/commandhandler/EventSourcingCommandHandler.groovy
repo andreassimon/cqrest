@@ -1,15 +1,15 @@
 package domain.commandhandler
 
-import infrastructure.persistence.DefaultEventStore
+import infrastructure.persistence.EventStore
+import framework.EventPublisher
 
 abstract class EventSourcingCommandHandler<C> {
-    DefaultEventStore eventStore
-    def delegateEventPublisher
+    EventStore eventStore
+    EventPublisher eventPublisher
     UnitOfWork unitOfWork
 
-    EventSourcingCommandHandler(eventStore, eventPublisher) {
-        this.eventStore = eventStore
-        this.delegateEventPublisher = eventPublisher
+    EventPublisher getDelegateEventPublisher() {
+        return eventPublisher
     }
 
     void handleInUnitOfWork(C command) {

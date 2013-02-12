@@ -1,8 +1,11 @@
 package domain.commands
 
+import infrastructure.persistence.EventStore
+import framework.EventPublisher
+
 class CommandRouter {
-    def repository
-    def eventPublisher
+    EventStore eventStore
+    EventPublisher eventPublisher
 
     void route(command) {
         handlerFor(command).handleInUnitOfWork(command)
@@ -14,7 +17,10 @@ class CommandRouter {
         final Class commandHandlerClass = classLoader.loadClass(commandHandlerClassName)
 
         try {
-            return commandHandlerClass.newInstance(repository, eventPublisher)
+            def commandHandlerInstance = commandHandlerClass.newInstance()
+            commandHandlerInstance.eventStore = eventStore
+            commandHandlerInstance.eventPublisher = eventPublisher
+            return commandHandlerInstance
         } catch (Exception e) {
             println "${e.message} occurred"
             if(attempt < 10) {

@@ -2,18 +2,22 @@ package domain.commandhandler
 
 import domain.aggregates.Device
 import domain.commands.Lock_out_device
-import domain.Repository
+
+import domain.DeviceRepository
 
 class Lock_out_device_Handler extends EventSourcingCommandHandler<Lock_out_device> {
-    Repository repository
+    DeviceRepository repository
 
-    Lock_out_device_Handler(repository, eventPublisher) {
-        super(repository, eventPublisher)
-        this.repository = new Repository(eventStore, 'CQRS Core Library', 'Test')
+    DeviceRepository getRepository() {
+        if (repository) {
+            return repository
+        }
+        repository = new DeviceRepository(eventStore)
+        return repository
     }
 
     void handle(Lock_out_device command) {
-        Device device = repository.getDevice(command.deviceId)
+        Device device = getRepository().getDevice(command.deviceId)
 
         device.lockOut(command.deviceId, delegateEventPublisher)
     }
