@@ -1,38 +1,53 @@
 package infrastructure.persistence
 
-import org.junit.*
-import org.postgresql.ds.PGSimpleDataSource
+import domain.aggregates.Device
+import domain.events.EventEnvelope
+import domain.events.New_device_was_registered
+import org.h2.jdbcx.JdbcDataSource
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import org.springframework.jdbc.core.JdbcTemplate
 
-import javax.sql.DataSource
+import java.sql.Connection
 import java.sql.Timestamp
+import javax.sql.DataSource
 
 import static java.util.UUID.randomUUID
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.assertThat
-import domain.events.New_device_was_registered
-import domain.aggregates.Device
-import domain.events.EventEnvelope
-import infrastructure.persistence.JdbcEventStore
 
 class EventStoreTest {
 
     DataSource dataSource
     JdbcTemplate jdbcTemplate
     JdbcEventStore eventStore
+    Connection sentinelConnection
 
     @Before
     public void setUp() throws Exception {
-        dataSource = new PGSimpleDataSource()
-        dataSource.user = 'user12'
-        dataSource.password = '34klq*'
-        dataSource.databaseName = 'one-os-cqrs'
+        dataSource = new JdbcDataSource()
+        dataSource.user = 'SA'
+        dataSource.password = ''
+        dataSource.url = 'jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000'
+
+        // See http://stackoverflow.com/questions/8907303/grails-throws-table-xxx-not-found
+        // H2 closes the database when the last connection is closed. For an in-memory database,
+        // closing the connection means the data is lost...
+        // So if you keep one connection open all the time, then you should be fine. You could
+        // call this a 'sentinel' connection.
+        sentinelConnection = dataSource.getConnection()
 
         jdbcTemplate = new JdbcTemplate(dataSource)
 
         eventStore = new JdbcEventStore(jdbcTemplate: jdbcTemplate)
 
         eventStore.createTable()
+    }
+
+    @After
+    public void tearDown() {
+        sentinelConnection.close()
     }
 
     @Test
