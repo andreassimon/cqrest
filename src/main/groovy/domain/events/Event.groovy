@@ -9,10 +9,6 @@ abstract class Event<T> {
         this.class.name.split('\\.')[-1].replaceAll('_', ' ')
     }
 
-    Map<String, Object> toMap() {
-        [(this.name): attributes()]
-    }
-
     Map<String, String> attributes() {
         return properties.findAll({ key, value ->
             ! UNSERIALIZED_PROPERTIES.contains(key)

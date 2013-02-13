@@ -25,7 +25,7 @@ class AMQPEventPublisher implements EventPublisher {
     void publish(EventEnvelope eventEnvelope) {
         channel = connection.createChannel()
 
-        channel.basicPublish "EventExchange", eventEnvelope.eventName, NO_PROPERTIES, toJSON(eventEnvelope.event).bytes
+        channel.basicPublish "EventExchange", eventEnvelope.eventName, NO_PROPERTIES, eventEnvelope.toJSON().bytes
 
         channel.close()
     }

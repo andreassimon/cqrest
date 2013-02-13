@@ -15,7 +15,7 @@ import oneos.test.domain.events.Device_was_registered
 
 class AMQPEventPublisherTest {
 
-    def eventPublisher
+    AMQPEventPublisher eventPublisher
     Connection connection
     Consumer consumer
     Channel consumerChannel
@@ -42,9 +42,10 @@ class AMQPEventPublisherTest {
         def deviceId = randomUUID()
         final Event<Device> event = new Device_was_registered(deviceId: deviceId, deviceName: "new device name")
 
-        eventPublisher.publish(new EventEnvelope<Device>('CQRS Core Library', 'Tests', 'Device', deviceId, event))
+        def eventEnvelope = new EventEnvelope<Device>('CQRS Core Library', 'Tests', 'Device', deviceId, event)
+        eventPublisher.publish(eventEnvelope)
 
-        assertThat receivedMessage(), equalTo(toJSON(event))
+        assertThat receivedMessage(), equalTo(eventEnvelope.toJSON())
     }
 
 

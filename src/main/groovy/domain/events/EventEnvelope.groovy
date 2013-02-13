@@ -4,6 +4,7 @@ import infrastructure.utilities.GenericEventSerializer
 
 class EventEnvelope<AggregateType> {
 
+    static final String TIMESTAMP_FORMAT = 'yyyy-MM-dd HH:mm:ss.SSS'
     final Date timestamp
     final Class<AggregateType> aggregateClass
     final String applicationName
@@ -29,9 +30,13 @@ class EventEnvelope<AggregateType> {
         return GenericEventSerializer.toJSON(event)
     }
 
+    String getSerializedTimestamp() {
+        timestamp.format(TIMESTAMP_FORMAT)
+    }
+
     @Override
     String toString() {
-        "EventEnvelope[$applicationName.$boundedContextName.$aggregateName{$aggregateId} @${timestamp.format('yyyy-MM-dd HH:mm:ss.SSS')} :: <$event>]".toString()
+        "EventEnvelope[$applicationName.$boundedContextName.$aggregateName{$aggregateId} @${serializedTimestamp} :: <$event>]".toString()
     }
 
     @Override
@@ -42,5 +47,18 @@ class EventEnvelope<AggregateType> {
                 this.aggregateId   == that.aggregateId &&
                 this.event         == that.event &&
                 this.timestamp     == that.timestamp
+    }
+
+    String toJSON() {
+        """{\
+"applicationName":"$applicationName",\
+"boundedContextName":"$boundedContextName",\
+"aggregateName":"$aggregateName",\
+"aggregateId":"$aggregateId",\
+"eventName":"${event.name}",\
+"attributes":${GenericEventSerializer.toJSON(event)},\
+"timestamp":"$serializedTimestamp",\
+"":""\
+}"""
     }
 }

@@ -6,7 +6,7 @@ import groovy.json.JsonBuilder
 class GenericEventSerializer {
 
     static String toJSON(Event<?> event) {
-        new JsonBuilder(event.toMap()).toString()
+        new JsonBuilder(event.attributes()).toString()
     }
 
 }

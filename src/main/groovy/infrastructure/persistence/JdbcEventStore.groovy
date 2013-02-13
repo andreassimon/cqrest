@@ -52,7 +52,7 @@ CREATE TABLE events (
             final eventAttributesJson = record['ATTRIBUTES']
             LinkedHashMap<String, String> eventAttributesMap = new JsonSlurper().parseText(eventAttributesJson)
             println eventAttributesMap
-            this.class.classLoader.loadClass(fullEventClassName).newInstance(eventAttributesMap[record['event_name']])
+            this.class.classLoader.loadClass(fullEventClassName).newInstance(eventAttributesMap)
         }
     }
 
