@@ -13,7 +13,7 @@ class RegisterDeviceTest extends CommandSideTest {
         when(new Register_device(deviceId: newDeviceUUID, deviceName: "andreas-thinkpad"))
 
         then {
-            New_device_was_registered(deviceId: newDeviceUUID, deviceName: "andreas-thinkpad")
+            Device_was_registered(deviceId: newDeviceUUID, deviceName: "andreas-thinkpad")
         }
     }
 

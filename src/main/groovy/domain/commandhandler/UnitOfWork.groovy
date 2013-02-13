@@ -2,24 +2,44 @@ package domain.commandhandler
 
 import framework.EventPublisher
 import domain.events.Event
+import domain.events.EventEnvelope
 
-class UnitOfWork implements EventPublisher {
+class UnitOfWork {
 
     EventPublisher delegateEventPublisher
-    List<Event> collectedEvents = new LinkedList<Event>()
+    List<EventEnvelope> collectedEventEnvelopes = new LinkedList<EventEnvelope>()
+    String applicationName
+    String boundedContextName
+    String aggregateName
+    UUID aggregateId
 
     UnitOfWork(EventPublisher delegateEventPublisher) {
         this.delegateEventPublisher = delegateEventPublisher
     }
 
-    @Override
+    def append(aggregate) {
+        aggregate
+    }
+
+    def append(Class aggregateClass, Event event) {
+        publish(event)
+    }
+
+    def append(aggregate, Closure closure) {
+        aggregate.unitOfWork = this
+        closure.delegate = aggregate
+        closure()
+    }
+
     void publish(Event event) {
-        collectedEvents.add(event)
+        collectedEventEnvelopes.add(
+            new EventEnvelope(applicationName, boundedContextName, aggregateName, aggregateId, event)
+        )
     }
 
     void flush() {
-        for(Event event in collectedEvents) {
-            delegateEventPublisher.publish(event)
+        for(EventEnvelope eventEnvelope in collectedEventEnvelopes) {
+            delegateEventPublisher.publish(eventEnvelope)
         }
     }
 

@@ -11,7 +11,7 @@ class LockOutDeviceTest extends CommandSideTest {
     @Test
     void should_lock_out_existing_device() {
         given {
-            New_device_was_registered(
+            Device_was_registered(
                     deviceId:  deviceId,
                     deviceName: "andreas-thinkpad")
         }

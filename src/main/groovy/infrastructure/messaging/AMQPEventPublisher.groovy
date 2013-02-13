@@ -7,6 +7,7 @@ import framework.EventPublisher
 
 import static infrastructure.messaging.AMQPConstants.NO_PROPERTIES
 import static infrastructure.utilities.GenericEventSerializer.toJSON
+import domain.events.EventEnvelope
 
 class AMQPEventPublisher implements EventPublisher {
     static final String EVENT_EXCHANGE = "EventExchange"
@@ -21,10 +22,10 @@ class AMQPEventPublisher implements EventPublisher {
     }
 
     @Override
-    void publish(Event<?> event) {
+    void publish(EventEnvelope eventEnvelope) {
         channel = connection.createChannel()
 
-        channel.basicPublish "EventExchange", event.name, NO_PROPERTIES, toJSON(event).bytes
+        channel.basicPublish "EventExchange", eventEnvelope.eventName, NO_PROPERTIES, toJSON(eventEnvelope.event).bytes
 
         channel.close()
     }

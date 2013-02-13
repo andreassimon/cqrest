@@ -7,9 +7,9 @@ class UnregisterDeviceTest extends CommandSideTest {
     def deviceUUID = UUID.randomUUID()
 
     @Test
-    void should_create_new_device() {
+    void should_unregister_the_device() {
         given {
-            New_device_was_registered(deviceId: deviceUUID, deviceName: "andreas-thinkpad")
+            Device_was_registered(deviceId: deviceUUID, deviceName: "andreas-thinkpad")
         }
 
         when(new Unregister_device(deviceId: deviceUUID))

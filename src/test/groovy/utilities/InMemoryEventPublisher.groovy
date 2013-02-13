@@ -1,13 +1,13 @@
 package utilities
 
-import domain.events.Event
+import domain.events.EventEnvelope
 import framework.EventPublisher
 
 class InMemoryEventPublisher implements EventPublisher {
-    def receivedEvents = []
+    def receivedEventEnvelopes = []
 
-    void publish(Event event) {
-        receivedEvents << event
+    void publish(EventEnvelope eventEnvelope) {
+        receivedEventEnvelopes << eventEnvelope.event
     }
 
 }

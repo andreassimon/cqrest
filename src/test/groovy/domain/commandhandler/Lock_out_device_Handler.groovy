@@ -19,7 +19,9 @@ class Lock_out_device_Handler extends EventSourcingCommandHandler<Lock_out_devic
     void handle(Lock_out_device command) {
         Device device = getRepository().getDevice(command.deviceId)
 
-        device.lockOut(command.deviceId, delegateEventPublisher)
+        collectEventsFrom(device) {
+            lockOut(command.deviceId)
+        }
     }
 
 }

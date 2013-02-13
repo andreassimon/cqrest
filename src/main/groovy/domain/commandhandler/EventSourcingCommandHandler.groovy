@@ -2,11 +2,12 @@ package domain.commandhandler
 
 import infrastructure.persistence.EventStore
 import framework.EventPublisher
+import domain.events.Event
 
 abstract class EventSourcingCommandHandler<C> {
     EventStore eventStore
     EventPublisher eventPublisher
-    UnitOfWork unitOfWork
+    private UnitOfWork unitOfWork
 
     EventPublisher getDelegateEventPublisher() {
         return eventPublisher
@@ -21,4 +22,12 @@ abstract class EventSourcingCommandHandler<C> {
     }
 
     abstract void handle(C command)
+
+    protected void publishEvent(Class aggregateClass, Event event) {
+        unitOfWork.append(aggregateClass, event)
+    }
+
+    protected void collectEventsFrom(aggregate, Closure closure) {
+        unitOfWork.append(aggregate, closure)
+    }
 }

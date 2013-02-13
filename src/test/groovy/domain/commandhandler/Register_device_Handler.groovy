@@ -1,8 +1,9 @@
 package domain.commandhandler
 
-import domain.events.New_device_was_registered
 import domain.commands.Register_device
 import domain.DeviceRepository
+import domain.aggregates.Device
+import domain.events.Device_was_registered
 
 class Register_device_Handler extends EventSourcingCommandHandler<Register_device> {
 
@@ -19,12 +20,10 @@ class Register_device_Handler extends EventSourcingCommandHandler<Register_devic
     void handle(Register_device command) {
         getRepository().assertDeviceDoesNotExist(command.deviceId)
 
-        unitOfWork.publish(
-            new New_device_was_registered(
-                deviceId: command.deviceId,
-                deviceName: command.deviceName
-            )
-        )
+        publishEvent(Device, new Device_was_registered(
+            deviceId: command.deviceId,
+            deviceName: command.deviceName
+        ))
     }
 
 }

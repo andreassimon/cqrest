@@ -1,6 +1,6 @@
 package infrastructure.utilities
 
-import domain.events.New_device_was_registered
+import domain.events.Device_was_registered
 import org.junit.Test
 
 import static java.util.UUID.randomUUID
@@ -11,8 +11,8 @@ class GenericEventSerializerTest {
 
     @Test
     public void should_serialize_to_JSON() {
-        def event = new New_device_was_registered(deviceId: randomUUID(), deviceName: "device name")
+        def event = new Device_was_registered(deviceId: randomUUID(), deviceName: "device name")
 
-        assertThat(GenericEventSerializer.toJSON(event), equalTo("""{"New device was registered":{"deviceId":"${event.deviceId}","deviceName":"${event.deviceName}"}}""".toString()))
+        assertThat(GenericEventSerializer.toJSON(event), equalTo("""{"Device was registered":{"deviceId":"${event.deviceId}","deviceName":"${event.deviceName}"}}""".toString()))
     }
 }

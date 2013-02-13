@@ -1,9 +1,9 @@
 package framework
 
-import domain.events.Event
+import domain.events.EventEnvelope
 
 public interface EventPublisher {
 
-    void publish(Event event)
+    void publish(EventEnvelope eventEnvelope)
 
 }

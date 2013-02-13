@@ -29,7 +29,7 @@ class AMQPEventPublisherTest {
 
         consumerChannel = connection.createChannel()
         def declareOk = consumerChannel.queueDeclare()
-        consumerChannel.queueBind(declareOk.queue, AMQPEventPublisher.EVENT_EXCHANGE, 'New device was registered')
+        consumerChannel.queueBind(declareOk.queue, AMQPEventPublisher.EVENT_EXCHANGE, 'Device was registered')
 
         consumer = new QueueingConsumer(consumerChannel);
         consumerChannel.basicConsume(declareOk.queue, AUTO_ACK, consumer);
@@ -38,11 +38,12 @@ class AMQPEventPublisherTest {
 
     @Test
     public void should_send_a_serialized_event_to_the_message_broker() {
-        final Event<Device> event = new New_device_was_registered(deviceId: randomUUID(), deviceName: "new device name")
+        def deviceId = randomUUID()
+        final Event<Device> event = new Device_was_registered(deviceId: deviceId, deviceName: "new device name")
 
-        eventPublisher.publish(event)
+        eventPublisher.publish(new EventEnvelope<Device>('CQRS Core Library', 'Tests', 'Device', deviceId, event))
 
-        assertThat receivedMessage(), is(equalTo(toJSON(event)))
+        assertThat receivedMessage(), equalTo(toJSON(event))
     }
 
 

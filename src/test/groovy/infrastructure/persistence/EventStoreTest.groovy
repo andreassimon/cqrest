@@ -2,7 +2,7 @@ package infrastructure.persistence
 
 import domain.aggregates.Device
 import domain.events.EventEnvelope
-import domain.events.New_device_was_registered
+
 import org.h2.jdbcx.JdbcDataSource
 import org.junit.After
 import org.junit.Before
@@ -16,6 +16,7 @@ import javax.sql.DataSource
 import static java.util.UUID.randomUUID
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.assertThat
+import domain.events.Device_was_registered
 
 class EventStoreTest {
 
@@ -53,14 +54,14 @@ class EventStoreTest {
     @Test
     public void should_insert_new_event() throws Exception {
         def deviceId = randomUUID()
-        final event = new New_device_was_registered(deviceId: deviceId, deviceName: "Device1")
+        final event = new Device_was_registered(deviceId: deviceId, deviceName: "Device1")
         final eventEnvelope = new EventEnvelope<Device>('CQRS Core Library', 'Tests', 'Device', deviceId, event)
         eventStore.save(eventEnvelope)
 
         final history = eventStore.getEventsFor('CQRS Core Library', 'Tests', 'Device', event.deviceId)
 
         assertThat history, equalTo([
-            new New_device_was_registered(deviceId: event.deviceId, deviceName: 'Device1')
+            new Device_was_registered(deviceId: event.deviceId, deviceName: 'Device1')
         ])
     }
 

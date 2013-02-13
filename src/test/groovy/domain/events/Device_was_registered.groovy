@@ -2,11 +2,11 @@ package domain.events
 
 import domain.aggregates.Device
 
-class New_device_was_registered extends DeviceEvent {
+class Device_was_registered extends DeviceEvent {
     final UUID deviceId
     final String deviceName
 
-    New_device_was_registered(Map attributes) {
+    Device_was_registered(Map attributes) {
         super()
         assert attributes != null
         deviceId = toUUID(attributes.deviceId)
@@ -30,7 +30,7 @@ class New_device_was_registered extends DeviceEvent {
     //  * functional (like it is)
     //  * non-functional
     Device applyTo(Device device) {
-        new Device(deviceId)
+        new Device(deviceId: this.deviceId)
     }
 
     // TODO Every Event must have a toString() and an equals() method

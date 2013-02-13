@@ -1,6 +1,6 @@
 package framework
 
-import domain.events.Event
+import domain.events.EventEnvelope
 
 class LoopbackEventPublisher implements EventPublisher {
 
@@ -11,7 +11,7 @@ class LoopbackEventPublisher implements EventPublisher {
     }
 
     @Override
-    void publish(Event<?> event) {
-        aggregate.apply(event)
+    void publish(EventEnvelope eventEnvelope) {
+        eventEnvelope.event.applyTo(aggregate)
     }
 }

@@ -38,7 +38,7 @@ abstract class CommandSideTest {
     }
 
     void then(List expectedEvents) {
-        assertThat(eventPublisher.receivedEvents, equalTo(expectedEvents))
+        assertThat(eventPublisher.receivedEventEnvelopes, equalTo(expectedEvents))
     }
 
     def collectEventsFrom(Closure closure) {
