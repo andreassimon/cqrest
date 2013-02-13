@@ -3,17 +3,19 @@ package commands
 import org.junit.*
 
 import domain.commands.Register_device
+import org.mockito.Matchers
+
+import static org.hamcrest.Matchers.equalTo
+import static org.junit.Assert.assertThat
 
 class RegisterDeviceTest extends CommandSideTest {
 
     @Test
     void should_create_new_device() {
-        def newDeviceUUID = UUID.randomUUID()
-
-        when(new Register_device(deviceId: newDeviceUUID, deviceName: "andreas-thinkpad"))
+        when(new Register_device(deviceName: "andreas-thinkpad"))
 
         then {
-            Device_was_registered(deviceId: newDeviceUUID, deviceName: "andreas-thinkpad")
+            Device_was_registered(deviceName: "andreas-thinkpad")
         }
     }
 

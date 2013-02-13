@@ -5,6 +5,8 @@ import domain.DeviceRepository
 import domain.aggregates.Device
 import domain.events.Device_was_registered
 
+import static java.util.UUID.randomUUID
+
 class Register_device_Handler extends EventSourcingCommandHandler<Register_device> {
 
     DeviceRepository repository
@@ -18,10 +20,11 @@ class Register_device_Handler extends EventSourcingCommandHandler<Register_devic
     }
 
     void handle(Register_device command) {
-        getRepository().assertDeviceDoesNotExist(command.deviceId)
+        def generatedDeviceId = randomUUID()
+        getRepository().assertDeviceDoesNotExist(generatedDeviceId)
 
-        publishEvent(Device, new Device_was_registered(
-            deviceId: command.deviceId,
+        publishEvent(Device, generatedDeviceId, new Device_was_registered(
+            deviceId: generatedDeviceId,
             deviceName: command.deviceName
         ))
     }

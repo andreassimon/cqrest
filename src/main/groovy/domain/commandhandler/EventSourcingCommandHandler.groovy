@@ -23,8 +23,8 @@ abstract class EventSourcingCommandHandler<C> {
 
     abstract void handle(C command)
 
-    protected void publishEvent(Class aggregateClass, Event event) {
-        unitOfWork.append(aggregateClass, event)
+    protected void publishEvent(Class aggregateClass, UUID aggregateId, Event event) {
+        unitOfWork.append(aggregateClass, aggregateId, event)
     }
 
     protected void collectEventsFrom(aggregate, Closure closure) {

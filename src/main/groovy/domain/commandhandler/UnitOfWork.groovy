@@ -21,8 +21,13 @@ class UnitOfWork {
         aggregate
     }
 
-    def append(Class aggregateClass, Event event) {
+    def append(Class aggregateClass, UUID aggregateId, Event event) {
+        this.applicationName = aggregateClass.applicationName
+        this.boundedContextName = aggregateClass.boundedContextName
+        this.aggregateName = aggregateClass.aggregateName
+        this.aggregateId = aggregateId
         publish(event)
+
     }
 
     def append(aggregate, Closure closure) {

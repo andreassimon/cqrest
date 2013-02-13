@@ -7,10 +7,12 @@ import domain.events.Event
 
 class Device extends Aggregate {
 
-    UUID deviceId
+    static String applicationName = 'CQRS Core Library'
+    static String boundedContextName = 'Tests'
+    static String aggregateName = 'Device'
 
-    void lockOut(UUID deviceId) {
-        publishEvent(new Device_was_locked_out(deviceId))
+    void lockOut() {
+        publishEvent(new Device_was_locked_out())
     }
 
     void unregister(UUID deviceId) {

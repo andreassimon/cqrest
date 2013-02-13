@@ -12,13 +12,13 @@ class EventEnvelope<AggregateType> {
     final UUID aggregateId
     final Event<AggregateType> event
 
-    EventEnvelope(Date timestamp = new Date(), String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Event<AggregateType> event) {
-        this.timestamp = timestamp
+    EventEnvelope(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Event<AggregateType> event, Date timestamp = new Date()) {
         this.applicationName = applicationName
         this.boundedContextName = boundedContextName
         this.aggregateName = aggregateName
         this.aggregateId = aggregateId
         this.event = event
+        this.timestamp = timestamp
     }
 
     String getEventName() {
@@ -29,4 +29,18 @@ class EventEnvelope<AggregateType> {
         return GenericEventSerializer.toJSON(event)
     }
 
+    @Override
+    String toString() {
+        "EventEnvelope[$applicationName.$boundedContextName.$aggregateName{$aggregateId} @${timestamp.format('yyyy-MM-dd HH:mm:ss.SSS')} :: <$event>]".toString()
+    }
+
+    @Override
+    boolean equals(that) {
+        this.applicationName == that.applicationName &&
+                this.boundedContextName == that.boundedContextName &&
+                this.aggregateName == that.aggregateName &&
+                this.aggregateId   == that.aggregateId &&
+                this.event         == that.event &&
+                this.timestamp     == that.timestamp
+    }
 }

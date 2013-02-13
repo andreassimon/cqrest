@@ -54,14 +54,14 @@ class EventStoreTest {
     @Test
     public void should_insert_new_event() throws Exception {
         def deviceId = randomUUID()
-        final event = new Device_was_registered(deviceId: deviceId, deviceName: "Device1")
+        final event = new Device_was_registered(deviceName: "Device1")
         final eventEnvelope = new EventEnvelope<Device>('CQRS Core Library', 'Tests', 'Device', deviceId, event)
         eventStore.save(eventEnvelope)
 
-        final history = eventStore.getEventsFor('CQRS Core Library', 'Tests', 'Device', event.deviceId)
+        final history = eventStore.getEventsFor('CQRS Core Library', 'Tests', 'Device', deviceId)
 
         assertThat history, equalTo([
-            new Device_was_registered(deviceId: event.deviceId, deviceName: 'Device1')
+            new Device_was_registered(deviceName: 'Device1')
         ])
     }
 

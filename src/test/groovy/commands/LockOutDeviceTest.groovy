@@ -19,7 +19,7 @@ class LockOutDeviceTest extends CommandSideTest {
         when(new Lock_out_device(deviceId: deviceId))
 
         then {
-            Device_was_locked_out(deviceId)
+            Device_was_locked_out()
         }
     }
 
