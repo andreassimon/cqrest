@@ -1,4 +1,4 @@
-package domain.commandhandler;
+package commandhandler;
 
 import org.junit.Test
 import framework.EventPublisher
@@ -11,7 +11,8 @@ import static org.mockito.Mockito.verify
 import domain.events.EventEnvelope
 
 import static java.util.UUID.randomUUID
-import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.any
+import domain.commandhandler.UnitOfWork;
 
 public class UnitOfWorkTest {
     @Test
