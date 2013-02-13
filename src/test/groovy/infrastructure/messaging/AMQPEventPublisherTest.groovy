@@ -10,7 +10,8 @@ import static infrastructure.utilities.GenericEventSerializer.toJSON
 import static java.util.UUID.randomUUID
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.assertThat
-import domain.aggregates.Device
+import oneos.test.domain.aggregates.Device
+import oneos.test.domain.events.Device_was_registered
 
 class AMQPEventPublisherTest {
 

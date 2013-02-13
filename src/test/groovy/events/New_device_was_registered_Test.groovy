@@ -5,7 +5,7 @@ import org.junit.Assert
 import org.junit.Test
 
 import static java.util.UUID.randomUUID
-import domain.events.Device_was_registered
+import oneos.test.domain.events.Device_was_registered
 
 class Device_was_registered_Test {
 

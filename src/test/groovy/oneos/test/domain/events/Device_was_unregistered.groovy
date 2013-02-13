@@ -1,6 +1,6 @@
-package domain.events
+package oneos.test.domain.events
 
-import domain.aggregates.Device
+import oneos.test.domain.aggregates.Device
 
 
 class Device_was_unregistered extends DeviceEvent {

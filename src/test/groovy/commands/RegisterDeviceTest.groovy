@@ -1,12 +1,7 @@
 package commands
 
-import org.junit.*
-
-import domain.commands.Register_device
-import org.mockito.Matchers
-
-import static org.hamcrest.Matchers.equalTo
-import static org.junit.Assert.assertThat
+import oneos.test.domain.commands.Register_device
+import org.junit.Test
 
 class RegisterDeviceTest extends CommandSideTest {
 
@@ -15,7 +10,7 @@ class RegisterDeviceTest extends CommandSideTest {
         when(new Register_device(deviceName: "andreas-thinkpad"))
 
         then {
-            Device_was_registered(deviceName: "andreas-thinkpad")
+            "oneos.test.domain.events.Device_was_registered"(deviceName: "andreas-thinkpad")
         }
     }
 

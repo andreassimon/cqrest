@@ -1,4 +1,4 @@
-package domain.commands
+package oneos.test.domain.commands
 
 class Unregister_device {
     final UUID deviceId

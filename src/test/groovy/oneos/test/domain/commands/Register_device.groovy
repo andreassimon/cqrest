@@ -1,4 +1,4 @@
-package domain.commands
+package oneos.test.domain.commands
 
 class Register_device {
     final String deviceName

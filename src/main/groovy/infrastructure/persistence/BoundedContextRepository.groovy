@@ -1,8 +1,5 @@
 package infrastructure.persistence
 
-import infrastructure.persistence.EventStore
-import infrastructure.persistence.UnknownAggregate
-
 abstract class BoundedContextRepository {
 
     private EventStore eventStore
@@ -26,7 +23,7 @@ abstract class BoundedContextRepository {
     }
 
     protected getAggregate(String aggregateName, Class aggregateClass, UUID aggregateId) throws UnknownAggregate {
-        eventStore.getAggregate(applicationName, boundedContextName, aggregateName, aggregateClass, aggregateId)
+        eventStore.getAggregate(applicationName, boundedContextName, aggregateName, aggregateClass, aggregateId, 'domain.events.')
     }
 
 }

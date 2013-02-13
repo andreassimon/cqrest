@@ -1,8 +1,9 @@
-package domain.aggregates
+package oneos.test.domain.aggregates
 
-import domain.events.Device_was_locked_out
-import domain.events.Device_was_unregistered
+import oneos.test.domain.events.Device_was_locked_out
+import oneos.test.domain.events.Device_was_unregistered
 
+import domain.aggregates.Aggregate
 import domain.events.Event
 
 class Device extends Aggregate {

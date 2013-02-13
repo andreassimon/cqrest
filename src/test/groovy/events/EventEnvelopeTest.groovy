@@ -1,10 +1,13 @@
-package domain.events;
+package events;
 
 import org.junit.Test
 
 import static org.junit.Assert.assertThat
 import static org.hamcrest.Matchers.equalTo
-import static java.util.UUID.randomUUID;
+import static java.util.UUID.randomUUID
+import oneos.test.domain.events.Device_was_registered
+import domain.events.Event
+import domain.events.EventEnvelope;
 
 public class EventEnvelopeTest {
     String applicationName = 'CQRS Core Library'

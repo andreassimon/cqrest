@@ -1,9 +1,9 @@
 package commands
 
 import org.junit.*
-import domain.commands.Lock_out_device
 
 import infrastructure.persistence.UnknownAggregate
+import oneos.test.domain.commands.Lock_out_device
 
 class LockOutDeviceTest extends CommandSideTest {
     def deviceId = UUID.randomUUID()
@@ -11,7 +11,7 @@ class LockOutDeviceTest extends CommandSideTest {
     @Test
     void should_lock_out_existing_device() {
         given {
-            Device_was_registered(
+            "oneos.test.domain.events.Device_was_registered"(
                     deviceId:  deviceId,
                     deviceName: "andreas-thinkpad")
         }
@@ -19,7 +19,7 @@ class LockOutDeviceTest extends CommandSideTest {
         when(new Lock_out_device(deviceId: deviceId))
 
         then {
-            Device_was_locked_out()
+            "oneos.test.domain.events.Device_was_locked_out"()
         }
     }
 

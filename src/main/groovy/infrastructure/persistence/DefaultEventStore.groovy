@@ -6,8 +6,8 @@ abstract class DefaultEventStore implements EventStore {
 
     abstract save(EventEnvelope eventEnvelope)
 
-    def getAggregate(String applicationName, String boundedContextName, String aggregateName, Class aggregateClass, UUID aggregateId) throws UnknownAggregate {
-        def aggregateEvents = getEventsFor(applicationName, boundedContextName, aggregateName, aggregateId)
+    def getAggregate(String applicationName, String boundedContextName, String aggregateName, Class aggregateClass, UUID aggregateId, String eventPackageName) throws UnknownAggregate {
+        def aggregateEvents = getEventsFor(applicationName, boundedContextName, aggregateName, aggregateId, eventPackageName)
         if(aggregateEvents.empty) { throw new UnknownAggregate(aggregateClass, aggregateId) }
 
         def aggregate = aggregateClass.newInstance()
@@ -21,6 +21,6 @@ abstract class DefaultEventStore implements EventStore {
 //        }
     }
 
-    abstract getEventsFor(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId)
+    abstract getEventsFor(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, String eventPackageName)
 
 }

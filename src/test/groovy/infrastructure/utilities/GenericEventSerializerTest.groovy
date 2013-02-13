@@ -1,11 +1,11 @@
 package infrastructure.utilities
 
-import domain.events.Device_was_registered
 import org.junit.Test
 
 import static java.util.UUID.randomUUID
 import static org.hamcrest.CoreMatchers.equalTo
 import static org.junit.Assert.assertThat
+import oneos.test.domain.events.Device_was_registered
 
 class GenericEventSerializerTest {
 

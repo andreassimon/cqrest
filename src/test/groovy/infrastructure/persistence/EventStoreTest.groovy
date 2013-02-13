@@ -1,6 +1,5 @@
 package infrastructure.persistence
 
-import domain.aggregates.Device
 import domain.events.EventEnvelope
 
 import org.h2.jdbcx.JdbcDataSource
@@ -16,7 +15,8 @@ import javax.sql.DataSource
 import static java.util.UUID.randomUUID
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.assertThat
-import domain.events.Device_was_registered
+import oneos.test.domain.events.Device_was_registered
+import oneos.test.domain.aggregates.Device
 
 class EventStoreTest {
 
@@ -58,7 +58,7 @@ class EventStoreTest {
         final eventEnvelope = new EventEnvelope<Device>('CQRS Core Library', 'Tests', 'Device', deviceId, event)
         eventStore.save(eventEnvelope)
 
-        final history = eventStore.getEventsFor('CQRS Core Library', 'Tests', 'Device', deviceId)
+        final history = eventStore.getEventsFor('CQRS Core Library', 'Tests', 'Device', deviceId, 'oneos.test.domain.events.')
 
         assertThat history, equalTo([
             new Device_was_registered(deviceName: 'Device1')

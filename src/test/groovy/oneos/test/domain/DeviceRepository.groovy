@@ -1,4 +1,4 @@
-package domain
+package oneos.test.domain
 
 import infrastructure.persistence.BoundedContextRepository
 import infrastructure.persistence.EventStore
@@ -11,10 +11,10 @@ class DeviceRepository extends BoundedContextRepository {
     }
 
     void assertDeviceDoesNotExist(UUID deviceId) {
-        assertAggregateDoesNotExist('Device', domain.aggregates.Device, deviceId)
+        assertAggregateDoesNotExist('Device', oneos.test.domain.aggregates.Device, deviceId)
     }
 
     def getDevice(UUID deviceId) throws UnknownAggregate {
-        getAggregate('Device', domain.aggregates.Device, deviceId)
+        getAggregate('Device', oneos.test.domain.aggregates.Device, deviceId)
     }
 }

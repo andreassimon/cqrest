@@ -1,9 +1,10 @@
-package domain.commandhandler
+package oneos.test.domain.commandhandler
 
-import domain.aggregates.Device
-import domain.commands.Lock_out_device
+import oneos.test.domain.commands.Lock_out_device
+import oneos.test.domain.DeviceRepository
+import oneos.test.domain.aggregates.Device
+import domain.commandhandler.EventSourcingCommandHandler
 
-import domain.DeviceRepository
 
 class Lock_out_device_Handler extends EventSourcingCommandHandler<Lock_out_device> {
     DeviceRepository repository

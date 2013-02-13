@@ -1,6 +1,8 @@
-package domain.events
+package oneos.test.domain.events
 
-import domain.aggregates.Device
+import oneos.test.domain.aggregates.Device
+import domain.events.Event
+
 
 abstract class DeviceEvent extends Event<Device> {
     final String applicationName    = "CQRS Core Library"

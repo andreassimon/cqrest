@@ -2,15 +2,15 @@ package infrastructure.persistence;
 
 import org.junit.Test
 import domain.events.EventEnvelope
-import domain.events.Device_was_registered
 import org.h2.jdbcx.JdbcDataSource
 import org.springframework.jdbc.core.JdbcTemplate
 import javax.sql.DataSource
 import java.sql.Connection
-import domain.aggregates.Device
 
 import static org.junit.Assert.assertThat
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.notNullValue
+import oneos.test.domain.events.Device_was_registered
+import oneos.test.domain.aggregates.Device;
 
 public class PersistentEventPublisherTest {
     private static final String APPLICATION_NAME = 'CQRS Core Library'
@@ -41,6 +41,6 @@ public class PersistentEventPublisherTest {
         def deviceId = UUID.randomUUID()
         eventPublisher.publish(new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, deviceId, new Device_was_registered(deviceId: deviceId, deviceName: 'new device')))
 
-        assertThat eventStore.getAggregate(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, Device, deviceId), notNullValue()
+        assertThat eventStore.getAggregate(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, Device, deviceId, 'oneos.test.domain.events.'), notNullValue()
     }
 }

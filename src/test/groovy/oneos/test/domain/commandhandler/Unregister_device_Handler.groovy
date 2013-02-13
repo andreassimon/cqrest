@@ -1,8 +1,9 @@
-package domain.commandhandler
+package oneos.test.domain.commandhandler
 
-import domain.commands.Unregister_device
+import oneos.test.domain.commands.Unregister_device
+import oneos.test.domain.DeviceRepository
+import domain.commandhandler.EventSourcingCommandHandler
 
-import domain.DeviceRepository
 
 class Unregister_device_Handler extends EventSourcingCommandHandler<Unregister_device> {
 

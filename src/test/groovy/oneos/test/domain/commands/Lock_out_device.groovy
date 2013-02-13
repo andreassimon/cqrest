@@ -1,4 +1,4 @@
-package domain.commands
+package oneos.test.domain.commands
 
 class Lock_out_device {
     final UUID deviceId
