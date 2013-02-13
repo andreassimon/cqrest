@@ -6,8 +6,12 @@ import domain.events.Event
 
 abstract class EventSourcingCommandHandler<C> {
     EventStore eventStore
-    EventPublisher eventPublisher
+    private EventPublisher eventPublisher
     private UnitOfWork unitOfWork
+
+    void setEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher
+    }
 
     EventPublisher getDelegateEventPublisher() {
         return eventPublisher
