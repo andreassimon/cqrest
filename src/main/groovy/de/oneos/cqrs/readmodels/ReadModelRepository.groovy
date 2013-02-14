@@ -1,4 +1,4 @@
-package readmodels
+package de.oneos.cqrs.readmodels
 
 import org.springframework.jdbc.core.JdbcTemplate
 
