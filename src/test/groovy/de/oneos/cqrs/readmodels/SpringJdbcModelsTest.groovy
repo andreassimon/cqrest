@@ -51,18 +51,28 @@ class SpringJdbcModelsTest {
 
     @Test
     void should_build_delete_projection() {
-        def projections = {
-            project(eventName: 'Device was deregistered') { models, event ->
-                models.findAll { model ->
-                    model.id == UUID.fromString(event.aggregateId)
-                }.delete()
-            }
-        }
+        def event = [
+            aggregateId: UUID.randomUUID().toString(),
+            attributes: [
+                camelCaseProperty: 'SAMPLE READ MODEL NAME'
+            ]
+        ]
+
+        springJdbcModels.findAll { SampleReadModel model ->
+            model.id == UUID.fromString(event.aggregateId)
+            model.camelCaseProperty == event.attributes.camelCaseProperty
+        }.delete()
+
+
+        springJdbcModels.materialize()
+
+        verify(jdbcTemplate).update('DELETE FROM sample_read_model WHERE id = ? AND camel_case_property = ?', UUID.fromString(event.aggregateId), event.attributes.camelCaseProperty)
     }
 
     static class SampleReadModel {
 
         UUID id
         String camelCaseProperty
+
     }
 }
