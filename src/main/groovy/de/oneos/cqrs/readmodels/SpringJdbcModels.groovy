@@ -5,14 +5,24 @@ import org.springframework.jdbc.core.JdbcOperations
 class SpringJdbcModels implements Models {
     JdbcOperations jdbcTemplate
 
-    private newModelInstance
+    Map update = [
+        sql: '',
+        args: null
+    ]
 
     void add(newModelInstance) {
-        this.newModelInstance = newModelInstance
+        this.update = [
+            sql: "INSERT INTO ${tableName(newModelInstance)}(${modelAttributeNames(newModelInstance).join(', ')}) VALUES (${modelAttributeNames(newModelInstance).collect {'?'}.join(', ')});",
+            args: modelAttributes(newModelInstance)
+        ]
+    }
+
+    def findAll(Closure filter) {
+        new Selection(this, filter)
     }
 
     void materialize() {
-        jdbcTemplate.update("INSERT INTO ${tableName(newModelInstance)}(${modelAttributeNames(newModelInstance).join(', ')}) VALUES (${modelAttributeNames(newModelInstance).collect {'?'}.join(', ')});", modelAttributes(newModelInstance))
+        jdbcTemplate.update(update.sql, update.args)
     }
 
     Object[] modelAttributes(modelInstance) {
@@ -31,7 +41,7 @@ class SpringJdbcModels implements Models {
         toSnakeCase(modelInstance.class.simpleName)
     }
 
-    private String toSnakeCase(String modelClassName) {
-        modelClassName.replaceAll(/(.)([A-Z])/, '$1_$2').toLowerCase()
+    static String toSnakeCase(String camelCaseName) {
+        camelCaseName.replaceAll(/(.)([A-Z])/, '$1_$2').toLowerCase()
     }
 }
