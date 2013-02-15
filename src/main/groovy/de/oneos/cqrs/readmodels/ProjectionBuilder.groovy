@@ -3,12 +3,17 @@ package de.oneos.cqrs.readmodels
 class ProjectionBuilder {
     List builtProjections
 
-    List<Projection> buildFrom(Closure closure) {
+    private ProjectionBuilder() {
         builtProjections = []
-        closure.delegate = this
+    }
+
+
+    static List<Projection> buildFrom(Closure closure) {
+        ProjectionBuilder instance = new ProjectionBuilder()
+        closure.delegate = instance
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure()
-        return builtProjections
+        return instance.builtProjections
     }
 
     void project(Map eventFilter, Closure function) {
