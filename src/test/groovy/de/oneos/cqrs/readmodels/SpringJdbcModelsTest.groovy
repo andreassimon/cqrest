@@ -5,31 +5,35 @@ import org.springframework.jdbc.core.JdbcOperations
 
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.verify
+import org.junit.Before
 
 class SpringJdbcModelsTest {
     JdbcOperations jdbcTemplate = mock(JdbcOperations)
 
+    SpringJdbcModels springJdbcModels
+
+    @Before
+    void setUp() {
+        springJdbcModels = new SpringJdbcModels(jdbcTemplate: jdbcTemplate)
+    }
+
+
     @Test
     void should_build_create_projection() {
-        def eventFilterA = [eventName: 'Device was registered']
-        def projectionFunctionA = { models, event ->
-            models.add(new SampleReadModel(
-                    id: UUID.fromString(event.aggregateId),
-                    name: event.attributes.name
-            ))
-        }
-
-        Projection projection = new Projection(eventFilter: eventFilterA, function: projectionFunctionA)
-        SpringJdbcModels springJdbcModels = new SpringJdbcModels(jdbcTemplate: jdbcTemplate)
         def event = [
             aggregateId: UUID.randomUUID().toString(),
             attributes: [
-                name: 'SAMPLE READ MODEL NAME'
+                camelCaseProperty: 'SAMPLE READ MODEL NAME'
             ]
         ]
-        projection.applyTo(springJdbcModels, event)
 
-        verify(jdbcTemplate).update('INSERT INTO sample_read_model(id, name) VALUES (?, ?);', UUID.fromString(event.aggregateId), event.attributes.name)
+        springJdbcModels.add(new SampleReadModel(
+            id: UUID.fromString(event.aggregateId),
+            camelCaseProperty: event.attributes.camelCaseProperty
+        ))
+        springJdbcModels.materialize()
+
+        verify(jdbcTemplate).update('INSERT INTO sample_read_model(id, camel_case_property) VALUES (?, ?);', UUID.fromString(event.aggregateId), event.attributes.camelCaseProperty)
     }
 
     @Test
@@ -59,6 +63,6 @@ class SpringJdbcModelsTest {
     static class SampleReadModel {
 
         UUID id
-        String name
+        String camelCaseProperty
     }
 }

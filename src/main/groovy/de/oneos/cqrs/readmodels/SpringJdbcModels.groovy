@@ -16,9 +16,7 @@ class SpringJdbcModels implements Models {
     }
 
     Object[] modelAttributes(modelInstance) {
-        persistedProperties(modelInstance).collect { property ->
-            property.value
-        }
+        persistedProperties(modelInstance).collect { it.value }
     }
 
     private Map persistedProperties(modelInstance) {
@@ -26,10 +24,14 @@ class SpringJdbcModels implements Models {
     }
 
     List<String> modelAttributeNames(modelInstance) {
-        persistedProperties(modelInstance).collect { it.key }
+        persistedProperties(modelInstance).collect { toSnakeCase(it.key) }
     }
 
     String tableName(modelInstance) {
-        modelInstance.class.simpleName.replaceAll(/(.)([A-Z])/, '$1_$2').toLowerCase()
+        toSnakeCase(modelInstance.class.simpleName)
+    }
+
+    private String toSnakeCase(String modelClassName) {
+        modelClassName.replaceAll(/(.)([A-Z])/, '$1_$2').toLowerCase()
     }
 }
