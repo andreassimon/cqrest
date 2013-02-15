@@ -58,10 +58,10 @@ class SpringJdbcModelsTest {
             ]
         ]
 
-        springJdbcModels.findAll { SampleReadModel model ->
+        springJdbcModels.removeAll { SampleReadModel model ->
             model.id == UUID.fromString(event.aggregateId)
             model.camelCaseProperty == event.attributes.camelCaseProperty
-        }.delete()
+        }
 
 
         springJdbcModels.materialize()

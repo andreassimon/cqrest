@@ -21,6 +21,10 @@ class SpringJdbcModels implements Models {
         new Selection(this, filter)
     }
 
+    def removeAll(Closure filter) {
+        new Selection(this, filter).delete()
+    }
+
     void materialize() {
         jdbcTemplate.update(update.sql, update.args)
     }
