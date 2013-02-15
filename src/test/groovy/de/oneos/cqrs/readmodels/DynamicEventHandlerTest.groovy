@@ -10,7 +10,7 @@ import static org.hamcrest.Matchers.equalTo
 import static org.junit.Assert.assertThat
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
-import org.junit.Ignore
+
 import com.rabbitmq.client.Envelope
 import domain.events.EventEnvelope
 import domain.events.Event

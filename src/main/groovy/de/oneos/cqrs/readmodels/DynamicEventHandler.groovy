@@ -1,42 +1,12 @@
 package de.oneos.cqrs.readmodels
 
-import com.rabbitmq.client.DefaultConsumer
-import com.rabbitmq.client.AMQP
-import com.rabbitmq.client.Envelope
-
-import static infrastructure.messaging.AMQPConstants.SINGLE_MESSAGE
-import groovy.json.JsonSlurper
-import org.springframework.jdbc.core.JdbcTemplate
-import javax.sql.DataSource
 import org.apache.commons.logging.LogFactory
-import com.rabbitmq.client.Channel
+import org.springframework.jdbc.core.JdbcTemplate
+
+import javax.sql.DataSource
 
 class DynamicEventHandler {
     private static final log = LogFactory.getLog(this)
-
-    private static class EventConsumer extends DefaultConsumer {
-        def slurper = new JsonSlurper()
-        DynamicEventHandler eventHandler
-
-        EventConsumer(DynamicEventHandler eventHandler, Channel channel) {
-            super(channel)
-            this.eventHandler = eventHandler
-        }
-
-        void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) {
-            def message = new String(body);
-
-            def jsonMap = slurper.parseText(message)
-
-            try {
-                eventHandler.handleEvent(jsonMap)
-            } catch (Exception e) {
-                log.info "Exception was raised when handling event '${jsonMap.eventName}' ${jsonMap.attributes}", e
-            }
-            channel.basicAck(envelope.deliveryTag, SINGLE_MESSAGE)
-        }
-
-    }
 
     String eventName
     DataSource dataSource
