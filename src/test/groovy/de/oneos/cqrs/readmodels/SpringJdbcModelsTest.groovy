@@ -21,15 +21,15 @@ class SpringJdbcModelsTest {
     @Test
     void should_build_create_projection() {
         def event = [
-            aggregateId: UUID.randomUUID().toString(),
-            attributes: [
-                camelCaseProperty: 'SAMPLE READ MODEL NAME'
-            ]
+                aggregateId: UUID.randomUUID().toString(),
+                attributes: [
+                        camelCaseProperty: 'SAMPLE READ MODEL NAME'
+                ]
         ]
 
         springJdbcModels.add(new SampleReadModel(
-            id: UUID.fromString(event.aggregateId),
-            camelCaseProperty: event.attributes.camelCaseProperty
+                id: UUID.fromString(event.aggregateId),
+                camelCaseProperty: event.attributes.camelCaseProperty
         ))
         springJdbcModels.materialize()
 
@@ -59,10 +59,10 @@ class SpringJdbcModelsTest {
     @Test
     void should_build_delete_projection() {
         def event = [
-            aggregateId: UUID.randomUUID().toString(),
-            attributes: [
-                camelCaseProperty: 'SAMPLE READ MODEL NAME'
-            ]
+                aggregateId: UUID.randomUUID().toString(),
+                attributes: [
+                        camelCaseProperty: 'SAMPLE READ MODEL NAME'
+                ]
         ]
 
         springJdbcModels.removeAll { SampleReadModel model ->

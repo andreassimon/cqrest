@@ -17,12 +17,12 @@ class SpringJdbcModels implements Models {
         ]
     }
 
-    def findAll(Closure filter) {
-        new Selection(this, filter)
+    Selection findAll(Closure filter) {
+        new SpringJdbcSelection(this, filter)
     }
 
-    def removeAll(Closure filter) {
-        new Selection(this, filter).delete()
+    void removeAll(Closure filter) {
+        new SpringJdbcSelection(this, filter).delete()
     }
 
     void materialize() {
