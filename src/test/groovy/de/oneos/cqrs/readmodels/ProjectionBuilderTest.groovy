@@ -4,7 +4,6 @@ import org.junit.Test
 
 import static org.hamcrest.Matchers.equalTo
 import static org.junit.Assert.assertThat
-import org.junit.Ignore
 
 class ProjectionBuilderTest {
 
@@ -12,16 +11,16 @@ class ProjectionBuilderTest {
 
     def eventFilterA = [eventName: 'Device was registered']
     def projectionFunctionA = { models, event ->
-        models.add(new DeviceDetails(
+        models.add(new SampleReadModel(
                 deviceId: UUID.fromString(event.aggregateId),
-                deviceName: event.attributes.deviceName
+                deviceName: event.attributes.name
         ))
     }
 
     def eventFilterB = [eventName: 'Device was locked out']
     def projectionFunctionB = { models, event ->
         models.findAll { model ->
-            model.deviceId == UUID.fromString(event.aggregateId)
+            model.Id == UUID.fromString(event.aggregateId)
         }.each { model ->
             model.locked = true
         }
@@ -43,7 +42,7 @@ class ProjectionBuilderTest {
     }
 
 
-    static class DeviceDetails {
+    static class SampleReadModel {
 
         UUID deviceId
         String deviceName

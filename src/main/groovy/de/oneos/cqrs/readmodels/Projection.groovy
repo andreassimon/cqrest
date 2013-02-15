@@ -15,4 +15,9 @@ class Projection {
         this.eventFilter == that.eventFilter &&
         this.function == that.function
     }
+
+    Models applyTo(Models models, deserializedEvent) {
+        function(models, deserializedEvent)
+        models.materialize()
+    }
 }
