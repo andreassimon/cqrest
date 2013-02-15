@@ -38,15 +38,22 @@ class SpringJdbcModelsTest {
 
     @Test
     void should_build_update_projection() {
-        def projections = {
-            project(eventName: 'Device was locked out') { models, event ->
-                models.findAll { model ->
-                    model.id == UUID.fromString(event.aggregateId)
-                }.each { model ->
-                    model.locked = true
-                }
-            }
+        def event = [
+                aggregateId: UUID.randomUUID().toString(),
+                attributes: [
+                        camelCaseProperty: 'SAMPLE READ MODEL NAME'
+                ]
+        ]
+
+        springJdbcModels.findAll { SampleReadModel model ->
+            model.id == UUID.fromString(event.aggregateId)
+        }.each { model ->
+            model.camelCaseProperty = event.attributes.camelCaseProperty
         }
+
+        springJdbcModels.materialize()
+
+        verify(jdbcTemplate).update('UPDATE sample_read_model SET camel_case_property = ? WHERE id = ?;', event.attributes.camelCaseProperty, UUID.fromString(event.aggregateId))
     }
 
     @Test
