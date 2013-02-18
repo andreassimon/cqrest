@@ -61,4 +61,8 @@ class EventEnvelope<AggregateType> {
 "":""\
 }"""
     }
+
+    void applyEventTo(aggregate) {
+        event.applyTo(aggregate)
+    }
 }

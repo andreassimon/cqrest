@@ -12,6 +12,6 @@ class LoopbackEventPublisher implements EventPublisher {
 
     @Override
     void publish(EventEnvelope eventEnvelope) {
-        eventEnvelope.event.applyTo(aggregate)
+        eventEnvelope.applyEventTo(aggregate)
     }
 }
