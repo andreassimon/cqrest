@@ -1,6 +1,6 @@
-package de.oneos.cqrs.readmodels
+package de.oneos.cqrs.readmodels.springjdbc
 
-class ConstrainedProperty {
+protected class ConstrainedProperty {
     private static final boolean COMPARISON_IS_UNDEFINED_FOR_SYMBOLIC_PROPERTIES = true
 
     String propertyName

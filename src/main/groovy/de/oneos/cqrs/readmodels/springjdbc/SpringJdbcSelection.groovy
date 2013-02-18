@@ -1,6 +1,8 @@
-package de.oneos.cqrs.readmodels
+package de.oneos.cqrs.readmodels.springjdbc
 
-class SpringJdbcSelection implements Selection {
+import de.oneos.cqrs.readmodels.Selection
+
+protected class SpringJdbcSelection implements Selection {
     SpringJdbcModels springJdbcModels
     Closure filter
     Class filteredModelClass

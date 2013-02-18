@@ -1,6 +1,6 @@
-package de.oneos.cqrs.readmodels
+package de.oneos.cqrs.readmodels.springjdbc
 
-class UpdatedProperty {
+protected class UpdatedProperty {
 
     String propertyName
     def updatedValue

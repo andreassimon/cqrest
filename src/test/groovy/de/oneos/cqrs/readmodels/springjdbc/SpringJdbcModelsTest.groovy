@@ -1,4 +1,4 @@
-package de.oneos.cqrs.readmodels
+package de.oneos.cqrs.readmodels.springjdbc
 
 import org.junit.Test
 import org.springframework.jdbc.core.JdbcOperations

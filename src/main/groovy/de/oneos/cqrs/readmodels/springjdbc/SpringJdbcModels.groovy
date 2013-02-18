@@ -1,6 +1,8 @@
-package de.oneos.cqrs.readmodels
+package de.oneos.cqrs.readmodels.springjdbc
 
 import org.springframework.jdbc.core.JdbcOperations
+import de.oneos.cqrs.readmodels.Models
+import de.oneos.cqrs.readmodels.Selection
 
 class SpringJdbcModels implements Models {
     JdbcOperations jdbcTemplate
