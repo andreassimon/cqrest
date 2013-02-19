@@ -16,8 +16,12 @@ class FunctionalProjection implements Projection {
         this.function == that.function
     }
 
-    Models applyTo(Models models, deserializedEvent) {
-        function(models, deserializedEvent)
+    Boolean isApplicableTo(event) {
+        eventFilter.matches(event)
+    }
+
+    Models applyTo(Models models, event) {
+        function(models, event)
         models.materialize()
     }
 }
