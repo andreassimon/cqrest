@@ -27,12 +27,22 @@ class MapEventFilter implements EventFilter {
 
     @Override
     boolean matches(event) {
-        if(event.applicationName != this.applicationName) { return false }
-        if(event.boundedContextName != this.boundedContextName) { return false }
-        if(event.aggregateName != this.aggregateName) { return false }
-        if(event.eventName != this.eventName) { return false }
+        if(this.doesNotMatchApplicationNameOf(event)) { return false }
+        if(this.doesNotMatchBoundedContextNameOf(event)) { return false }
+        if(this.doesNotMatchAggregateNameOf(event)) { return false }
+        if(this.doesNotMatchEventNameOf(event)) { return false }
         return true
     }
+
+    private doesNotMatchApplicationNameOf(event) { applicationNameIsConstrained() && event.applicationName != this.applicationName }
+    private doesNotMatchBoundedContextNameOf(event) { boundedContextNameIsConstrained() && event.boundedContextName != this.boundedContextName }
+    private doesNotMatchAggregateNameOf(event) { aggregateNameIsConstrained() && event.aggregateName != this.aggregateName }
+    private doesNotMatchEventNameOf(event) { eventNameIsConstrained() && event.eventName != this.eventName }
+
+    private Boolean applicationNameIsConstrained() { return this.applicationName }
+    private Boolean boundedContextNameIsConstrained() { return this.boundedContextName }
+    private Boolean aggregateNameIsConstrained() { return this.aggregateName }
+    private Boolean eventNameIsConstrained() { return this.eventName }
 
     private String getApplicationName() { eventConstraints.applicationName }
     private String getBoundedContextName() { eventConstraints.boundedContextName }

@@ -1,41 +1,46 @@
 package de.oneos.cqrs.readmodels
 
-import org.junit.Test
-import org.junit.Ignore
-
-import static org.hamcrest.Matchers.equalTo
-import static org.junit.Assert.assertThat
-import static org.junit.Assert.fail
+import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
-import org.hamcrest.Description
-
-import static org.hamcrest.Matchers.not
 import org.junit.Before
+import org.junit.Test
+
+import static org.hamcrest.Matchers.equalTo
+import static org.hamcrest.Matchers.not
+import static org.junit.Assert.assertThat
 
 class MapEventFilterTest {
 
-    def eventConstraints = [
-        applicationName: 'APPLICATION NAME',
-        boundedContextName: 'BOUNDED CONTEXT NAME',
-        aggregateName: 'AGGREGATE NAME',
-        eventName: 'AN EVENT NAME'
-    ]
-
+    def eventConstraints
     def matchingEvent
-
-    def eventFilter = new MapEventFilter(eventConstraints)
+    def eventFilter
 
     @Before
     void setUp() {
-        def emc = new ExpandoMetaClass(LinkedHashMap)
-        emc.but = { Map differingAttributes ->
+        def expandedMapClass = new ExpandoMetaClass(LinkedHashMap)
+        expandedMapClass.but = { Map differingAttributes ->
             delegate + differingAttributes
         }
-        emc.initialize()
+        expandedMapClass.without = { String key ->
+            Map truncatedMap = delegate.clone()
+            truncatedMap.remove(key)
+            return truncatedMap
+        }
+        expandedMapClass.initialize()
+
+        eventConstraints = new LinkedHashMap(
+            applicationName: 'APPLICATION NAME',
+            boundedContextName: 'BOUNDED CONTEXT NAME',
+            aggregateName: 'AGGREGATE NAME',
+            eventName: 'AN EVENT NAME'
+        )
+        eventConstraints.metaClass = expandedMapClass
 
         matchingEvent = new LinkedHashMap(eventConstraints)
-        matchingEvent.metaClass = emc
+        matchingEvent.metaClass = expandedMapClass
+
+        eventFilter = new MapEventFilter(eventConstraints)
     }
 
     @Test
@@ -85,8 +90,22 @@ class MapEventFilterTest {
     }
 
     @Test
+    void should_match_events_with_a_different_application_name__if_the_filter_has_a_wildcard_at_application_name() {
+        eventFilter = new MapEventFilter(eventConstraints.without('applicationName'))
+
+        assertThat eventFilter, matches(matchingEvent.but(applicationName: 'A DIFFERENT APPLICATION NAME'))
+    }
+
+    @Test
     void should_not_match_events_with_a_different_bounded_context_name() {
         assertThat eventFilter, not(matches(matchingEvent.but(boundedContextName: 'A DIFFERENT BOUNDED CONTEXT NAME')))
+    }
+
+    @Test
+    void should_match_events_with_a_different_bounded_context_name__if_the_filter_has_a_wildcard_at_bounded_context_name() {
+        eventFilter = new MapEventFilter(eventConstraints.without('boundedContextName'))
+
+        assertThat eventFilter, matches(matchingEvent.but(boundedContextName: 'A DIFFERENT BOUNDED CONTEXT NAME'))
     }
 
     @Test
@@ -95,7 +114,22 @@ class MapEventFilterTest {
     }
 
     @Test
+    void should_match_events_with_a_different_aggregate_name__if_the_filter_has_a_wildcard_at_aggregate_name() {
+        eventFilter = new MapEventFilter(eventConstraints.without('aggregateName'))
+
+        assertThat eventFilter, matches(matchingEvent.but(aggregateName: 'A DIFFERENT AGGREGATE NAME'))
+    }
+
+    @Test
     void should_not_match_events_with_a_different_event_name() {
         assertThat eventFilter, not(matches(matchingEvent.but(eventName: 'A DIFFERENT EVENT NAME')))
     }
+
+    @Test
+    void should_match_events_with_a_different_event_name__if_the_filter_has_a_wildcard_at_event_name() {
+        eventFilter = new MapEventFilter(eventConstraints.without('eventName'))
+
+        assertThat eventFilter, matches(matchingEvent.but(eventName: 'A DIFFERENT EVENT NAME'))
+    }
+
 }
