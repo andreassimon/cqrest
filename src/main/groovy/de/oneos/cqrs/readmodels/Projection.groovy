@@ -1,23 +1,7 @@
 package de.oneos.cqrs.readmodels
 
-class Projection {
+public interface Projection {
 
-    EventFilter eventFilter
-    Closure function
+    Models applyTo(Models models, deserializedEvent)
 
-    @Override
-    String toString() {
-        "Projection<$eventFilter, ${function.toString()}>"
-    }
-
-    @Override
-    boolean equals(Object that) {
-        this.eventFilter == that.eventFilter &&
-        this.function == that.function
-    }
-
-    Models applyTo(Models models, deserializedEvent) {
-        function(models, deserializedEvent)
-        models.materialize()
-    }
 }

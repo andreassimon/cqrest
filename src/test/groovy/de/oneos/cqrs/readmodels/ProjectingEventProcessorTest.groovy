@@ -4,6 +4,7 @@ import org.junit.Test
 
 import static org.mockito.Mockito.*
 import org.junit.Ignore
+import org.junit.Before
 
 
 class ProjectingEventProcessorTest {
@@ -25,20 +26,45 @@ class ProjectingEventProcessorTest {
         eventName: 'EVENT B'
     )
 
+    Collection<Projection> someProjections = [
+        new FunctionalProjection(function: {}, eventFilter: eventFilterA),
+        new FunctionalProjection(function: {}, eventFilter: eventFilterB)
+    ]
+
+    def readModels = new StubbedModels()
+
+    @Before
+    void setUp() {
+        projectingEventProcessor = new ProjectingEventProcessor()
+    }
+
+
     @Test
     void should_register_all_projections_at_the_given_EventSupplier() {
-        projectingEventProcessor = new ProjectingEventProcessor()
-        projectingEventProcessor.add projectionWith(eventFilter: eventFilterA)
-        projectingEventProcessor.add projectionWith(eventFilter: eventFilterB)
+        someProjections.each { projectingEventProcessor.add it }
 
         projectingEventProcessor.subscribeForEventsAt(eventSupplier)
 
-        verify(eventSupplier).subscribeTo(eventFilterA, projectingEventProcessor)
-        verify(eventSupplier).subscribeTo(eventFilterB, projectingEventProcessor)
+        someProjections.each {
+           verify(eventSupplier).subscribeTo(it.eventFilter, projectingEventProcessor)
+        }
     }
 
-    private projectionWith(Map config) {
-        new Projection([function: {}] + config)
+
+    @Test
+    void should_pass_the_read_models_to_projections() {
+        projectingEventProcessor.readModels = readModels
+        projectingEventProcessor.add mock(Projection)
+
+        projectingEventProcessor.process(anEvent)
+
+        projectingEventProcessor.projections.each { projection ->
+            verify(projection).applyTo(eq(readModels), anyObject())
+        }
+    }
+
+    def getAnEvent() {
+        []
     }
 
     @Ignore("Must be implemented!") // depends on EventFilterTest
