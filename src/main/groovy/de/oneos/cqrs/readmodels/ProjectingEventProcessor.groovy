@@ -16,7 +16,9 @@ class ProjectingEventProcessor implements EventProcessor {
     }
 
     void process(event) {
-        projections.each {
+        projections.findAll {
+            it.isApplicableTo(event)
+        }.each {
             it.applyTo(readModels, event)
         }
     }

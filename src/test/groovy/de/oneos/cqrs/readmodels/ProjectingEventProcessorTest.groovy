@@ -31,10 +31,12 @@ class ProjectingEventProcessorTest {
         new FunctionalProjection(function: {}, eventFilter: eventFilterB)
     ]
 
+    def projection
     def readModels = new StubbedModels()
 
     @Before
     void setUp() {
+        projection = mock(Projection)
         projectingEventProcessor = new ProjectingEventProcessor()
     }
 
@@ -53,8 +55,9 @@ class ProjectingEventProcessorTest {
 
     @Test
     void should_pass_the_read_models_to_projections() {
+        when(projection.isApplicableTo(anEvent)).thenReturn(true)
         projectingEventProcessor.readModels = readModels
-        projectingEventProcessor.add mock(Projection)
+        projectingEventProcessor.add projection
 
         projectingEventProcessor.process(anEvent)
 
@@ -63,15 +66,25 @@ class ProjectingEventProcessorTest {
         }
     }
 
-    def getAnEvent() {
-        []
+    def getAnEvent() { [:] }
+
+    @Test
+    void should_forward_events_to_any_matching_projection() {
+        when(projection.isApplicableTo(anEvent)).thenReturn(true)
+        projectingEventProcessor.add projection
+
+        projectingEventProcessor.process(anEvent)
+
+        verify(projection).applyTo(any(Models), eq(anEvent))
     }
 
-    @Ignore("Must be implemented!") // depends on EventFilterTest
     @Test
-    void should_drop_events_that_do_not_match_any_filter() {}
+    void should_drop_events_that_do_not_match_any_filter() {
+        when(projection.isApplicableTo(anEvent)).thenReturn(false)
+        projectingEventProcessor.add projection
 
-    @Ignore("Must be implemented!") // depends on EventFilterTest
-    @Test
-    void should_forward_events_to_the_matching_projection() {}
+        projectingEventProcessor.process(anEvent)
+
+        verify(projection, never()).applyTo(any(Models), eq(anEvent))
+    }
 }
