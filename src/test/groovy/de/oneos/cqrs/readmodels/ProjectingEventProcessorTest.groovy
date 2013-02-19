@@ -11,19 +11,19 @@ class ProjectingEventProcessorTest {
 
     ProjectingEventProcessor projectingEventProcessor
 
-    def eventFilterA = [
+    EventFilter eventFilterA = new MapEventFilter(
         applicationName: 'APPLICATION NAME',
         boundedContextName: 'BOUNDED CONTEXT NAME',
         aggregateName: 'AGGREGATE NAME',
         eventName: 'EVENT A'
-    ]
+    )
 
-    def eventFilterB = [
+    EventFilter eventFilterB = new MapEventFilter(
         applicationName: 'APPLICATION NAME',
         boundedContextName: 'BOUNDED CONTEXT NAME',
         aggregateName: 'AGGREGATE NAME',
         eventName: 'EVENT B'
-    ]
+    )
 
     @Test
     void should_register_all_projections_at_the_given_EventSupplier() {

@@ -17,6 +17,6 @@ class ProjectionBuilder {
     }
 
     void project(Map eventFilter, Closure function) {
-        builtProjections << new Projection(eventFilter: eventFilter, function: function)
+        builtProjections << new Projection(eventFilter: new MapEventFilter(eventFilter), function: function)
     }
 }

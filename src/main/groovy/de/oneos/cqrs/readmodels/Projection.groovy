@@ -2,7 +2,7 @@ package de.oneos.cqrs.readmodels
 
 class Projection {
 
-    Map eventFilter
+    EventFilter eventFilter
     Closure function
 
     @Override

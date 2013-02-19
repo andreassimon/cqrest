@@ -4,9 +4,9 @@ class ProjectingEventProcessor implements EventProcessor {
 
     List projections = []
 
-    def subscribeForEventsAt(EventSupplier eventDeliveryAdapter) {
+    def subscribeForEventsAt(EventSupplier eventSupplier) {
         projections.each {
-            eventDeliveryAdapter.subscribeTo(it.eventFilter, this)
+            eventSupplier.subscribeTo(it.eventFilter, this)
         }
     }
 
