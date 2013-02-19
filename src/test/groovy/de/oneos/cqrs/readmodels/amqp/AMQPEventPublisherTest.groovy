@@ -1,17 +1,17 @@
-package infrastructure.messaging
+package de.oneos.cqrs.readmodels.amqp
 
-import com.rabbitmq.client.*
-
-import domain.events.*
-import org.junit.*
-
-import static infrastructure.messaging.AMQPConstants.*
-import static infrastructure.utilities.GenericEventSerializer.toJSON
-import static java.util.UUID.randomUUID
-import static org.hamcrest.CoreMatchers.*
-import static org.junit.Assert.assertThat
+import domain.events.Event
+import domain.events.EventEnvelope
 import oneos.test.domain.aggregates.Device
 import oneos.test.domain.events.Device_was_registered
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+import com.rabbitmq.client.*
+
+import static java.util.UUID.randomUUID
+import static org.hamcrest.CoreMatchers.equalTo
+import static org.junit.Assert.assertThat
 
 class AMQPEventPublisherTest {
 
@@ -33,7 +33,7 @@ class AMQPEventPublisherTest {
         consumerChannel.queueBind(declareOk.queue, AMQPEventPublisher.EVENT_EXCHANGE, 'Device was registered')
 
         consumer = new QueueingConsumer(consumerChannel);
-        consumerChannel.basicConsume(declareOk.queue, AUTO_ACK, consumer);
+        consumerChannel.basicConsume(declareOk.queue, de.oneos.cqrs.readmodels.amqp.AMQPConstants.AUTO_ACK, consumer);
     }
 
 

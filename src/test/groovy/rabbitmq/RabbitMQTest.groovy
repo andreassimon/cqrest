@@ -3,7 +3,7 @@ package rabbitmq
 import com.rabbitmq.client.*
 import org.junit.*
 
-import static infrastructure.messaging.AMQPConstants.*
+import static de.oneos.cqrs.readmodels.amqp.AMQPConstants.*
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.assertThat
 

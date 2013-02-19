@@ -1,12 +1,12 @@
 package de.oneos.cqrs.readmodels
 
-import com.rabbitmq.client.DefaultConsumer
-import groovy.json.JsonSlurper
-import com.rabbitmq.client.Channel
-import com.rabbitmq.client.Envelope
 import com.rabbitmq.client.AMQP
+import com.rabbitmq.client.Channel
+import com.rabbitmq.client.DefaultConsumer
+import com.rabbitmq.client.Envelope
+import groovy.json.JsonSlurper
 
-import static infrastructure.messaging.AMQPConstants.*
+import static de.oneos.cqrs.readmodels.amqp.AMQPConstants.SINGLE_MESSAGE
 
 class EventConsumer extends DefaultConsumer {
     def slurper = new JsonSlurper()
@@ -31,4 +31,3 @@ class EventConsumer extends DefaultConsumer {
     }
 
 }
-

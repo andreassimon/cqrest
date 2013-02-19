@@ -1,12 +1,10 @@
-package infrastructure.messaging
+package de.oneos.cqrs.readmodels.amqp
 
 import com.rabbitmq.client.Channel
 import com.rabbitmq.client.Connection
-import domain.events.Event
+
 import framework.EventPublisher
 
-import static infrastructure.messaging.AMQPConstants.NO_PROPERTIES
-import static infrastructure.utilities.GenericEventSerializer.toJSON
 import domain.events.EventEnvelope
 
 class AMQPEventPublisher implements EventPublisher {
@@ -25,7 +23,7 @@ class AMQPEventPublisher implements EventPublisher {
     void publish(EventEnvelope eventEnvelope) {
         channel = connection.createChannel()
 
-        channel.basicPublish "EventExchange", eventEnvelope.eventName, NO_PROPERTIES, eventEnvelope.toJSON().bytes
+        channel.basicPublish "EventExchange", eventEnvelope.eventName, de.oneos.cqrs.readmodels.amqp.AMQPConstants.NO_PROPERTIES, eventEnvelope.toJSON().bytes
 
         channel.close()
     }
