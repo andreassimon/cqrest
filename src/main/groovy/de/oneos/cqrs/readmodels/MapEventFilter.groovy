@@ -3,7 +3,7 @@ package de.oneos.cqrs.readmodels
 class MapEventFilter implements EventFilter {
     Map<String, String> eventConstraints
 
-    MapEventFilter(Map<String, String> eventConstraints) {
+    MapEventFilter(Map<String, String> eventConstraints = [:]) {
         this.eventConstraints = eventConstraints
     }
 
@@ -44,8 +44,8 @@ class MapEventFilter implements EventFilter {
     private Boolean aggregateNameIsConstrained() { return this.aggregateName }
     private Boolean eventNameIsConstrained() { return this.eventName }
 
-    private String getApplicationName() { eventConstraints.applicationName }
-    private String getBoundedContextName() { eventConstraints.boundedContextName }
-    private String getAggregateName() { eventConstraints.aggregateName }
-    private String getEventName() { eventConstraints.eventName }
+    String getApplicationName() { eventConstraints.applicationName }
+    String getBoundedContextName() { eventConstraints.boundedContextName }
+    String getAggregateName() { eventConstraints.aggregateName }
+    String getEventName() { eventConstraints.eventName }
 }

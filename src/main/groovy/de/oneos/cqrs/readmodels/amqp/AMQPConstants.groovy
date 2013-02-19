@@ -43,4 +43,6 @@ class AMQPConstants {
     static final String DIRECT_EXCHANGE = 'direct'
     static final String FANOUT_EXCHANGE = 'fanout'
     static final String TOPIC_EXCHANGE  = 'topic'
+
+    static final String EVENT_EXCHANGE_NAME = "EventExchange"
 }
