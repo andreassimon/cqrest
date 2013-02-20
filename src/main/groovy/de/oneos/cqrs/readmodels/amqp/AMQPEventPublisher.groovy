@@ -2,30 +2,34 @@ package de.oneos.cqrs.readmodels.amqp
 
 import com.rabbitmq.client.Channel
 import com.rabbitmq.client.Connection
-
+import domain.events.EventEnvelope
 import framework.EventPublisher
 
-import domain.events.EventEnvelope
+import static de.oneos.cqrs.readmodels.amqp.AMQPConstants.*
 
 class AMQPEventPublisher implements EventPublisher {
-    static final String EVENT_EXCHANGE = "EventExchange"
-
     final Connection connection
     Channel channel
 
     AMQPEventPublisher(Connection connection) {
         this.connection = connection
         Channel channel = this.connection.createChannel()
-        channel.exchangeDeclare(EVENT_EXCHANGE, "topic")
+        channel.exchangeDeclare(EVENT_EXCHANGE_NAME, TOPIC_EXCHANGE)
     }
 
     @Override
     void publish(EventEnvelope eventEnvelope) {
         channel = connection.createChannel()
 
-        channel.basicPublish "EventExchange", eventEnvelope.eventName, de.oneos.cqrs.readmodels.amqp.AMQPConstants.NO_PROPERTIES, eventEnvelope.toJSON().bytes
+        channel.basicPublish "EventExchange", routingKey(eventEnvelope), de.oneos.cqrs.readmodels.amqp.AMQPConstants.NO_PROPERTIES, eventEnvelope.toJSON().bytes
 
         channel.close()
+    }
+
+    private routingKey(EventEnvelope eventEnvelope) {
+        ['applicationName', 'boundedContextName', 'aggregateName', 'eventName'].collect {
+            eventEnvelope[it]
+        }.join('.')
     }
 
     // TODO finalizing lernen!!!

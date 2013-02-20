@@ -30,7 +30,7 @@ class AMQPEventPublisherTest {
 
         consumerChannel = connection.createChannel()
         def declareOk = consumerChannel.queueDeclare()
-        consumerChannel.queueBind(declareOk.queue, AMQPEventPublisher.EVENT_EXCHANGE, 'Device was registered')
+        consumerChannel.queueBind(declareOk.queue, AMQPConstants.EVENT_EXCHANGE_NAME, '*.*.*.Device was registered')
 
         consumer = new QueueingConsumer(consumerChannel);
         consumerChannel.basicConsume(declareOk.queue, de.oneos.cqrs.readmodels.amqp.AMQPConstants.AUTO_ACK, consumer);
