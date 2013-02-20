@@ -44,8 +44,13 @@ class MapEventFilter implements EventFilter {
     private Boolean aggregateNameIsConstrained() { return this.aggregateName }
     private Boolean eventNameIsConstrained() { return this.eventName }
 
-    String getApplicationName() { eventConstraints.applicationName }
-    String getBoundedContextName() { eventConstraints.boundedContextName }
-    String getAggregateName() { eventConstraints.aggregateName }
-    String getEventName() { eventConstraints.eventName }
+    private String getApplicationName() { eventConstraints.applicationName }
+    private String getBoundedContextName() { eventConstraints.boundedContextName }
+    private String getAggregateName() { eventConstraints.aggregateName }
+    private String getEventName() { eventConstraints.eventName }
+
+    @Override
+    def withConstrainedValues(List<String> constrainedValues, Closure callback) {
+        callback(constrainedValues.collect { this[it] })
+    }
 }

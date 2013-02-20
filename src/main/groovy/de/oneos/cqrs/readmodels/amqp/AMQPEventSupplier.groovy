@@ -10,9 +10,9 @@ class AMQPEventSupplier implements EventSupplier {
     String queueName
 
     static String routingKey(EventFilter eventFilter) {
-        ['applicationName', 'boundedContextName', 'aggregateName', 'eventName'].collect {
-            eventFilter[it] ?: '*'
-        }.join('.')
+        eventFilter.withConstrainedValues(['applicationName', 'boundedContextName', 'aggregateName', 'eventName']) { constrainedValues ->
+            constrainedValues.collect { it ?: '*' }.join('.')
+        }
     }
 
     void setChannel(Channel channel) {

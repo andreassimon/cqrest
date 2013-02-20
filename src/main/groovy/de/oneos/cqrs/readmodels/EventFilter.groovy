@@ -4,9 +4,6 @@ interface EventFilter {
 
     boolean matches(event)
 
-    String getApplicationName()
-    String getBoundedContextName()
-    String getAggregateName()
-    String getEventName()
+    def withConstrainedValues(List<String> constrainedValues, Closure callback)
 
 }
