@@ -3,7 +3,7 @@ package commands
 import domain.commands.CommandRouter
 import org.junit.Before
 import utilities.InMemoryEventPublisher
-import utilities.InMemoryEventStore
+import de.oneos.cqrs.eventstore.inmemory.InMemoryEventStore
 
 import static org.hamcrest.CoreMatchers.equalTo
 import static org.junit.Assert.assertThat

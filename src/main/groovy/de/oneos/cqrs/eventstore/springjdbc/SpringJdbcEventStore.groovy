@@ -64,14 +64,21 @@ CREATE TABLE events (
         unitOfWork.aggregateName = aggregateName
         unitOfWork.aggregateId = aggregateId
 
+        def properties = Collections.synchronizedMap([:])
 
         ExpandoMetaClass expandoAggregateClass = new ExpandoMetaClass(aggregateClass)
+        expandoAggregateClass.setUnitOfWork = { _unitOfWork ->
+            properties[System.identityHashCode(delegate) + "unitOfWork"] = _unitOfWork
+        }
+        expandoAggregateClass.getUnitOfWork = { ->
+            properties[System.identityHashCode(delegate) + "unitOfWork"]
+        }
         expandoAggregateClass.publishEvent = { event ->
-            unitOfWork.publish(event)
+            delegate.unitOfWork.publish(event)
         }
         expandoAggregateClass.flush = { ->
             try {
-                unitOfWork.flush()
+                delegate.unitOfWork.flush()
             } catch(DuplicateKeyException e) {
                 throw new StaleStateException(e)
             }
@@ -81,6 +88,7 @@ CREATE TABLE events (
 
         def aggregateInstance = aggregateClass.newInstance()
         aggregateInstance.metaClass = expandoAggregateClass
+        aggregateInstance.unitOfWork = unitOfWork
 
         return aggregateEvents.inject(aggregateInstance) { aggregate, event ->
             event.applyTo(aggregate)

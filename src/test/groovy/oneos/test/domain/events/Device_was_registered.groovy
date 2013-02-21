@@ -16,11 +16,8 @@ class Device_was_registered extends DeviceEvent {
         return deviceId
     }
 
-    // TODO How to implement applyTo()?
-    //  * functional (like it is)
-    //  * non-functional
     Device applyTo(Device device) {
-        new Device()
+        device
     }
 
     // TODO Every Event must have a toString() and an equals() method
