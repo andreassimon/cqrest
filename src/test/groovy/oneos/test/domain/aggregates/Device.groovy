@@ -3,10 +3,9 @@ package oneos.test.domain.aggregates
 import oneos.test.domain.events.Device_was_locked_out
 import oneos.test.domain.events.Device_was_unregistered
 
-import domain.aggregates.Aggregate
 import domain.events.Event
 
-class Device extends Aggregate {
+class Device {
 
     static String applicationName = 'CQRS Core Library'
     static String boundedContextName = 'Tests'
