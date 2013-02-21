@@ -1,7 +1,6 @@
 package de.oneos.cqrs.eventstore.springjdbc
 
-import domain.events.EventEnvelope
-
+import de.oneos.cqrs.eventstore.EventStore_ContractTest
 import org.h2.jdbcx.JdbcDataSource
 import org.junit.After
 import org.junit.Before
@@ -12,21 +11,18 @@ import java.sql.Connection
 import java.sql.Timestamp
 import javax.sql.DataSource
 
-import static java.util.UUID.randomUUID
-import static org.hamcrest.CoreMatchers.*
+import static org.hamcrest.Matchers.equalTo
+import static org.hamcrest.Matchers.not
 import static org.junit.Assert.assertThat
-import oneos.test.domain.events.Device_was_registered
-import oneos.test.domain.aggregates.Device
 
-class SpringJdbcEventStoreTest {
+class SpringJdbcEventStoreTest extends EventStore_ContractTest {
 
     DataSource dataSource
     JdbcTemplate jdbcTemplate
-    SpringJdbcEventStore eventStore
     Connection sentinelConnection
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         dataSource = new JdbcDataSource()
         dataSource.user = 'SA'
         dataSource.password = ''
@@ -46,27 +42,6 @@ class SpringJdbcEventStoreTest {
         eventStore.createTable()
     }
 
-    @After
-    public void tearDown() {
-        sentinelConnection.close()
-    }
-
-    @Test
-    public void should_insert_new_event() throws Exception {
-        def deviceId = randomUUID()
-        final event = new Device_was_registered(deviceName: "Device1")
-        final eventEnvelope = new EventEnvelope<Device>('CQRS Core Library', 'Tests', 'Device', deviceId, event)
-        eventStore.save(eventEnvelope)
-
-        final history = eventStore.getEventsFor('CQRS Core Library', 'Tests', 'Device', deviceId, 'oneos.test.domain.events.')
-
-        assertThat history, equalTo([
-            new Device_was_registered(deviceName: 'Device1')
-        ])
-    }
-
-
-
     @Test
     public void date_and_timestamp_are_not_mutually_comparable() throws Exception {
         long currentTimeMillis = System.currentTimeMillis()
@@ -76,6 +51,11 @@ class SpringJdbcEventStoreTest {
 
         assertThat date, equalTo(timestamp)
         assertThat timestamp, not(equalTo(date))
+    }
+
+    @After
+    public void tearDown() {
+        sentinelConnection.close()
     }
 
 }
