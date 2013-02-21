@@ -19,6 +19,4 @@ abstract class DefaultEventStore implements EventStore {
         return aggregate
     }
 
-    abstract getEventsFor(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, String eventPackageName)
-
 }

@@ -9,7 +9,6 @@ import de.oneos.cqrs.eventstore.DefaultEventStore
 
 class SpringJdbcEventStore extends DefaultEventStore {
     JdbcTemplate jdbcTemplate
-    private JsonSlurper jsonSlurper = new JsonSlurper()
 
     void createTable() {
         jdbcTemplate.execute("DROP TABLE IF EXISTS events;")
@@ -45,14 +44,13 @@ CREATE TABLE events (
     //      Attributen um. Das macht das Mapping problematisch.
     @Override
     def getEventsFor(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, String eventPackageName) {
-        final records = jdbcTemplate.queryForList('SELECT * from events WHERE application_name = ? AND bounded_context_name = ?AND aggregate_name = ? AND aggregate_id = ?;', applicationName, boundedContextName, aggregateName, aggregateId)
+        final records = jdbcTemplate.queryForList('SELECT * from events WHERE application_name = ? AND bounded_context_name = ? AND aggregate_name = ? AND aggregate_id = ?;', applicationName, boundedContextName, aggregateName, aggregateId)
         records.collect { record ->
             def simpleEventClassName = record['event_name'].replaceAll(' ', '_')
             def fullEventClassName = eventPackageName + simpleEventClassName
 
             final eventAttributesJson = record['ATTRIBUTES']
             LinkedHashMap<String, String> eventAttributesMap = new JsonSlurper().parseText(eventAttributesJson)
-            println eventAttributesMap
             this.class.classLoader.loadClass(fullEventClassName).newInstance(eventAttributesMap)
         }
     }
