@@ -1,6 +1,6 @@
 package de.oneos.cqrs.eventstore.springjdbc
 
-import de.oneos.cqrs.eventstore.DefaultEventStore
+import de.oneos.cqrs.eventstore.EventStore
 import de.oneos.cqrs.eventstore.StaleStateException
 import de.oneos.cqrs.eventstore.UnitOfWork
 import de.oneos.cqrs.eventstore.UnknownAggregate
@@ -10,7 +10,7 @@ import infrastructure.persistence.PersistentEventPublisher
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.jdbc.core.JdbcTemplate
 
-class SpringJdbcEventStore extends DefaultEventStore {
+class SpringJdbcEventStore implements EventStore {
     JdbcTemplate jdbcTemplate
 
     void createTable() {
