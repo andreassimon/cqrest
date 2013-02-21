@@ -12,6 +12,7 @@ import com.rabbitmq.client.*
 import static java.util.UUID.randomUUID
 import static org.hamcrest.CoreMatchers.equalTo
 import static org.junit.Assert.assertThat
+import framework.PublishingException
 
 class AMQPEventPublisherTest {
 
@@ -20,8 +21,11 @@ class AMQPEventPublisherTest {
     Consumer consumer
     Channel consumerChannel
 
+    UUID deviceId = randomUUID()
+    final Event<Device> anEvent = new Device_was_registered(deviceId: deviceId, deviceName: "new device name")
+
     @Before
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
         factory.virtualHost = 'one-os-test'
         connection = factory.newConnection();
@@ -38,16 +42,18 @@ class AMQPEventPublisherTest {
 
 
     @Test
-    public void should_send_a_serialized_event_to_the_message_broker() {
-        def deviceId = randomUUID()
-        final Event<Device> event = new Device_was_registered(deviceId: deviceId, deviceName: "new device name")
-
-        def eventEnvelope = new EventEnvelope<Device>('CQRS Core Library', 'Tests', 'Device', deviceId, event)
+    void should_send_a_serialized_event_to_the_message_broker() {
+        def eventEnvelope = new EventEnvelope<Device>('CQRS Core Library', 'Tests', 'Device', deviceId, anEvent)
         eventPublisher.publish(eventEnvelope)
 
         assertThat receivedMessage(), equalTo(eventEnvelope.toJSON())
     }
 
+    @Test(expected = PublishingException)
+    void should_throw_Exception_when_event_coordinate_contains_a_dot() {
+        def eventEnvelope = new EventEnvelope<Device>('CQRS.Core Library', 'CQRS.Tests', 'CQRS.Device', deviceId, anEvent)
+        eventPublisher.publish(eventEnvelope)
+    }
 
     private String receivedMessage() {
         QueueingConsumer.Delivery delivery = consumer.nextDelivery();
@@ -55,7 +61,7 @@ class AMQPEventPublisherTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    void tearDown() throws Exception {
         consumerChannel.close()
         connection.close()
     }

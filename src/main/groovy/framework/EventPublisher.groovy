@@ -4,6 +4,6 @@ import domain.events.EventEnvelope
 
 public interface EventPublisher {
 
-    void publish(EventEnvelope eventEnvelope)
+    void publish(EventEnvelope eventEnvelope) throws PublishingException
 
 }
