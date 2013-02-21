@@ -1,7 +1,7 @@
 package de.oneos.cqrs.eventstore
 
 import domain.events.EventEnvelope
-import de.oneos.cqrs.eventstore.EventStore
+
 import infrastructure.persistence.UnknownAggregate
 
 abstract class DefaultEventStore implements EventStore {
@@ -12,11 +12,9 @@ abstract class DefaultEventStore implements EventStore {
         def aggregateEvents = getEventsFor(applicationName, boundedContextName, aggregateName, aggregateId, eventPackageName)
         if(aggregateEvents.empty) { throw new UnknownAggregate(aggregateClass, aggregateId) }
 
-        def aggregate = aggregateClass.newInstance()
-
-        aggregate.apply(aggregateEvents)
-
-        return aggregate
+        return aggregateEvents.inject(aggregateClass.newInstance()) { aggregate, event ->
+            event.applyTo(aggregate)
+        }
     }
 
 }
