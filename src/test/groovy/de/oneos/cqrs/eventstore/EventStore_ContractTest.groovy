@@ -44,6 +44,19 @@ abstract class EventStore_ContractTest {
 
     @Test(expected = StaleStateException)
     void should_prevent_race_conditions() {
+        createBusinessAggregate(aggregateId)
+
+        BusinessAggregate instance1 = getBusinessAggregate(aggregateId)
+        BusinessAggregate instance2 = getBusinessAggregate(aggregateId)
+
+        instance1.callBusinessMethod()
+        instance1.flush()
+
+        instance2.callAnotherBusinessMethod()
+        instance2.flush()
+    }
+
+    private createBusinessAggregate(UUID aggregateId) {
         eventStore.save(new EventEnvelope(
             APPLICATION_NAME,
             BOUNDED_CONTEXT_NAME,
@@ -51,8 +64,10 @@ abstract class EventStore_ContractTest {
             aggregateId,
             new BusinessAggregate_was_created()
         ))
+    }
 
-        def instance1 = eventStore.getAggregate(
+    private getBusinessAggregate(UUID aggregateId) {
+        eventStore.getAggregate(
             APPLICATION_NAME,
             BOUNDED_CONTEXT_NAME,
             AGGREGATE_NAME,
@@ -60,8 +75,8 @@ abstract class EventStore_ContractTest {
             aggregateId,
             'de.oneos.cqrs.eventstore.'
         )
+    }
 
-        def instance2 = eventStore.getAggregate(
             APPLICATION_NAME,
             BOUNDED_CONTEXT_NAME,
             AGGREGATE_NAME,
