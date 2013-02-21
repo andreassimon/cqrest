@@ -8,22 +8,44 @@ import org.junit.Test
 import static java.util.UUID.randomUUID
 import static org.hamcrest.CoreMatchers.equalTo
 import static org.junit.Assert.assertThat
+import domain.events.Event
 
 abstract class EventStore_ContractTest {
+    protected static final String APPLICATION_NAME = 'CQRS Core Library'
+    protected static final String BOUNDED_CONTEXT_NAME = 'Tests'
+    protected static final String AGGREGATE_NAME = 'Device'
     EventStore eventStore
 
+    UUID aggregateId = randomUUID()
+    EventEnvelope eventEnvelope = new EventEnvelope<Device>(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, aggregateId, aBusinessEvent())
+
+
     @Test
-    public void should_insert_new_event() throws Exception {
-        def deviceId = randomUUID()
-        final event = new Device_was_registered(deviceName: "Device1")
-        final eventEnvelope = new EventEnvelope<Device>('CQRS Core Library', 'Tests', 'Device', deviceId, event)
+    void should_insert_new_event() throws Exception {
         eventStore.save(eventEnvelope)
 
-        final history = eventStore.getEventsFor('CQRS Core Library', 'Tests', 'Device', deviceId, 'oneos.test.domain.events.')
+        List<Event> history = eventStore.getEventsFor(
+            eventEnvelope.applicationName,
+            eventEnvelope.boundedContextName,
+            eventEnvelope.aggregateName,
+            eventEnvelope.aggregateId,
+            'oneos.test.domain.events.'
+        )
 
         assertThat history, equalTo([
-            new Device_was_registered(deviceName: 'Device1')
+            eventEnvelope.event
         ])
     }
+
+    private aBusinessEvent() {
+        new Device_was_registered(deviceName: "Device1")
+    }
+
+    @Test
+    void should_prevent_race_conditions() {
+
+    }
+
+
 
 }

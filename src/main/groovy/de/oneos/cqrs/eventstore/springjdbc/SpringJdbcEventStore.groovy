@@ -43,7 +43,7 @@ CREATE TABLE events (
     // TODO Unterschiedliche DBMS gehen unterschiedlich mit der Gross- / Kleinschreibung von
     //      Attributen um. Das macht das Mapping problematisch.
     @Override
-    def getEventsFor(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, String eventPackageName) {
+    List getEventsFor(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, String eventPackageName) {
         final records = jdbcTemplate.queryForList('SELECT * from events WHERE application_name = ? AND bounded_context_name = ? AND aggregate_name = ? AND aggregate_id = ?;', applicationName, boundedContextName, aggregateName, aggregateId)
         records.collect { record ->
             def simpleEventClassName = record['event_name'].replaceAll(' ', '_')

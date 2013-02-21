@@ -12,7 +12,7 @@ class InMemoryEventStore extends DefaultEventStore {
     }
 
     @Override
-    def getEventsFor(String applicationName = '', String boundedContextName = '', String aggregateName, UUID aggregateId, String eventPackageName) {
+    List getEventsFor(String applicationName = '', String boundedContextName = '', String aggregateName, UUID aggregateId, String eventPackageName) {
         return history
     }
 
