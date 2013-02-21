@@ -1,6 +1,6 @@
 package domain.commands
 
-import infrastructure.persistence.EventStore
+import de.oneos.cqrs.eventstore.EventStore
 import framework.EventPublisher
 
 class CommandRouter {

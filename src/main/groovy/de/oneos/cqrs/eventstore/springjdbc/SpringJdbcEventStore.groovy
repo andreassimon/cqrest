@@ -1,12 +1,13 @@
-package infrastructure.persistence
+package de.oneos.cqrs.eventstore.springjdbc
 
 import org.springframework.jdbc.core.JdbcTemplate
 
 import domain.events.EventEnvelope
 import groovy.json.JsonSlurper
+import de.oneos.cqrs.eventstore.DefaultEventStore
 
 
-class JdbcEventStore extends DefaultEventStore {
+class SpringJdbcEventStore extends DefaultEventStore {
     JdbcTemplate jdbcTemplate
     private JsonSlurper jsonSlurper = new JsonSlurper()
 

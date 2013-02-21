@@ -1,4 +1,4 @@
-package infrastructure.persistence
+package de.oneos.cqrs.eventstore.springjdbc
 
 import domain.events.EventEnvelope
 
@@ -18,11 +18,11 @@ import static org.junit.Assert.assertThat
 import oneos.test.domain.events.Device_was_registered
 import oneos.test.domain.aggregates.Device
 
-class EventStoreTest {
+class SpringJdbcEventStoreTest {
 
     DataSource dataSource
     JdbcTemplate jdbcTemplate
-    JdbcEventStore eventStore
+    SpringJdbcEventStore eventStore
     Connection sentinelConnection
 
     @Before
@@ -41,7 +41,7 @@ class EventStoreTest {
 
         jdbcTemplate = new JdbcTemplate(dataSource)
 
-        eventStore = new JdbcEventStore(jdbcTemplate: jdbcTemplate)
+        eventStore = new SpringJdbcEventStore(jdbcTemplate: jdbcTemplate)
 
         eventStore.createTable()
     }

@@ -1,6 +1,8 @@
-package infrastructure.persistence
+package de.oneos.cqrs.eventstore
 
 import domain.events.EventEnvelope
+import de.oneos.cqrs.eventstore.EventStore
+import infrastructure.persistence.UnknownAggregate
 
 abstract class DefaultEventStore implements EventStore {
 
@@ -15,10 +17,6 @@ abstract class DefaultEventStore implements EventStore {
         aggregate.apply(aggregateEvents)
 
         return aggregate
-//        def deviceHistory = getEventsFor(Device, command.deviceId)
-//        Device device = deviceHistory.inject null, { device, event ->
-//            event.applyTo device
-//        }
     }
 
     abstract getEventsFor(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, String eventPackageName)

@@ -1,6 +1,6 @@
 package utilities
 
-import infrastructure.persistence.DefaultEventStore
+import de.oneos.cqrs.eventstore.DefaultEventStore
 import domain.events.EventEnvelope
 
 class InMemoryEventStore extends DefaultEventStore {

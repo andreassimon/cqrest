@@ -3,6 +3,7 @@ package infrastructure.persistence
 import framework.EventPublisher
 
 import domain.events.EventEnvelope
+import de.oneos.cqrs.eventstore.EventStore
 
 class PersistentEventPublisher implements EventPublisher {
 

@@ -1,9 +1,14 @@
 package infrastructure.persistence;
 
+
+import de.oneos.cqrs.eventstore.EventStore
+import de.oneos.cqrs.eventstore.springjdbc.SpringJdbcEventStore
+
 import org.junit.Test
 import domain.events.EventEnvelope
 import org.h2.jdbcx.JdbcDataSource
 import org.springframework.jdbc.core.JdbcTemplate
+
 import javax.sql.DataSource
 import java.sql.Connection
 
@@ -11,6 +16,7 @@ import static org.junit.Assert.assertThat
 import static org.hamcrest.Matchers.notNullValue
 import oneos.test.domain.events.Device_was_registered
 import oneos.test.domain.aggregates.Device;
+
 
 public class PersistentEventPublisherTest {
     private static final String APPLICATION_NAME = 'CQRS Core Library'
@@ -33,7 +39,7 @@ public class PersistentEventPublisherTest {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource)
 
-        EventStore eventStore = new JdbcEventStore(jdbcTemplate: jdbcTemplate)
+        EventStore eventStore = new SpringJdbcEventStore(jdbcTemplate: jdbcTemplate)
         eventStore.createTable()
 
         PersistentEventPublisher eventPublisher = new PersistentEventPublisher(eventStore)

@@ -1,5 +1,7 @@
 package infrastructure.persistence
 
+import de.oneos.cqrs.eventstore.EventStore
+
 abstract class BoundedContextRepository {
 
     private EventStore eventStore
