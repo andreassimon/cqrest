@@ -13,6 +13,8 @@ import org.springframework.jdbc.core.JdbcTemplate
 class SpringJdbcEventStore implements EventStore {
     JdbcTemplate jdbcTemplate
 
+    Map<Integer, UnitOfWork> unitsOfWork = Collections.synchronizedMap([:])
+
     void createTable() {
         jdbcTemplate.execute("DROP TABLE IF EXISTS events;")
         jdbcTemplate.execute('''\
@@ -54,8 +56,7 @@ CREATE TABLE events (
 
     @Override
     def getAggregate(String applicationName, String boundedContextName, String aggregateName, Class aggregateClass, UUID aggregateId, String eventPackageName) {
-        def superInstance = super
-        def aggregateEvents = superInstance.getEventsFor(applicationName, boundedContextName, aggregateName, aggregateId, eventPackageName)
+        def aggregateEvents = getEventsFor(applicationName, boundedContextName, aggregateName, aggregateId, eventPackageName)
         if(aggregateEvents.empty) { throw new UnknownAggregate(aggregateClass, aggregateId) }
 
         UnitOfWork unitOfWork = new UnitOfWork(new PersistentEventPublisher(eventStore: this))
@@ -64,14 +65,22 @@ CREATE TABLE events (
         unitOfWork.aggregateName = aggregateName
         unitOfWork.aggregateId = aggregateId
 
-        def properties = Collections.synchronizedMap([:])
+        def aggregateInstance = aggregateClass.newInstance()
+        aggregateInstance.metaClass = expando(aggregateClass)
+        aggregateInstance.unitOfWork = unitOfWork
 
-        ExpandoMetaClass expandoAggregateClass = new ExpandoMetaClass(aggregateClass)
-        expandoAggregateClass.setUnitOfWork = { _unitOfWork ->
-            properties[System.identityHashCode(delegate) + "unitOfWork"] = _unitOfWork
+        return aggregateEvents.inject(aggregateInstance) { aggregate, event ->
+            event.applyTo(aggregate)
         }
-        expandoAggregateClass.getUnitOfWork = { ->
-            properties[System.identityHashCode(delegate) + "unitOfWork"]
+    }
+
+    private expando(Class aggregateClass) {
+        ExpandoMetaClass expandoAggregateClass = new ExpandoMetaClass(aggregateClass)
+        expandoAggregateClass.setUnitOfWork = { unitOfWork ->
+            unitsOfWork[System.identityHashCode(delegate)] = unitOfWork
+        }
+        expandoAggregateClass.getUnitOfWork = {->
+            unitsOfWork[System.identityHashCode(delegate)]
         }
         expandoAggregateClass.publishEvent = { event ->
             delegate.unitOfWork.publish(event)
@@ -84,15 +93,7 @@ CREATE TABLE events (
             }
         }
         expandoAggregateClass.initialize()
-
-
-        def aggregateInstance = aggregateClass.newInstance()
-        aggregateInstance.metaClass = expandoAggregateClass
-        aggregateInstance.unitOfWork = unitOfWork
-
-        return aggregateEvents.inject(aggregateInstance) { aggregate, event ->
-            event.applyTo(aggregate)
-        }
+        expandoAggregateClass
     }
 
     @Override
