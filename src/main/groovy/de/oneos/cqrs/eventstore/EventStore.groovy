@@ -1,7 +1,6 @@
 package de.oneos.cqrs.eventstore
 
 import domain.events.EventEnvelope
-import infrastructure.persistence.UnknownAggregate
 
 public interface EventStore {
 

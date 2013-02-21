@@ -38,13 +38,15 @@ class UnitOfWork {
 
     void publish(Event event) {
         collectedEventEnvelopes.add(
-            new EventEnvelope(applicationName, boundedContextName, aggregateName, aggregateId, event)
+            new EventEnvelope(applicationName, boundedContextName, aggregateName, aggregateId, event, 0, currentDate())
         )
     }
 
+    Date currentDate() { new Date() }
+
     void flush() {
-        for(EventEnvelope eventEnvelope in collectedEventEnvelopes) {
-            delegateEventPublisher.publish(eventEnvelope)
+        collectedEventEnvelopes.each {
+            delegateEventPublisher.publish(it)
         }
     }
 

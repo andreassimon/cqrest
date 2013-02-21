@@ -1,6 +1,8 @@
 package infrastructure.persistence
 
+import de.oneos.cqrs.eventstore.AggregateAlreadyExists
 import de.oneos.cqrs.eventstore.EventStore
+import de.oneos.cqrs.eventstore.UnknownAggregate
 
 abstract class BoundedContextRepository {
 

@@ -16,6 +16,7 @@ public class EventEnvelopeTest {
     String aggregateName = 'Aggregate'
     UUID aggregateId = randomUUID()
     Event event = new Device_was_registered(deviceId: aggregateId, deviceName: 'a device')
+    int sequenceNumber = 17
     Date timestamp = new Date()
 
     JsonSlurper jsonSlurper = new JsonSlurper()
@@ -23,14 +24,14 @@ public class EventEnvelopeTest {
 
     @Test
     public void toString__should_produce_sensible_output() {
-        EventEnvelope envelope = new EventEnvelope(applicationName, boundedContextName, aggregateName, aggregateId, event, timestamp)
+        EventEnvelope envelope = new EventEnvelope(applicationName, boundedContextName, aggregateName, aggregateId, event, sequenceNumber, timestamp)
 
-        assertThat envelope.toString(), equalTo("EventEnvelope[$applicationName.$boundedContextName.$aggregateName{$aggregateId} @${timestamp.format('yyyy-MM-dd HH:mm:ss.SSS')} :: <$event>]".toString())
+        assertThat envelope.toString(), equalTo("EventEnvelope[$applicationName.$boundedContextName.$aggregateName{$aggregateId}#$sequenceNumber @${timestamp.format('yyyy-MM-dd HH:mm:ss.SSS')} :: <$event>]".toString())
     }
 
     @Test
     void toJSON__should_serialize_metadata_and_event_attributes() {
-        EventEnvelope envelope = new EventEnvelope(applicationName, boundedContextName, aggregateName, aggregateId, event, timestamp)
+        EventEnvelope envelope = new EventEnvelope(applicationName, boundedContextName, aggregateName, aggregateId, event, sequenceNumber, timestamp)
 
         String json = envelope.toJSON()
 
@@ -46,8 +47,8 @@ public class EventEnvelopeTest {
 
     @Test
     public void equals__should_be_true_for_envelopes_with_equal_attributes() {
-        EventEnvelope envelopeA = new EventEnvelope(applicationName, boundedContextName, aggregateName, aggregateId, event, timestamp)
-        EventEnvelope envelopeB = new EventEnvelope(applicationName, boundedContextName, aggregateName, aggregateId, event, timestamp)
+        EventEnvelope envelopeA = new EventEnvelope(applicationName, boundedContextName, aggregateName, aggregateId, event, sequenceNumber, timestamp)
+        EventEnvelope envelopeB = new EventEnvelope(applicationName, boundedContextName, aggregateName, aggregateId, event, sequenceNumber, timestamp)
 
         assertThat envelopeA, equalTo(envelopeB)
     }

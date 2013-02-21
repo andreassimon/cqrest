@@ -11,13 +11,15 @@ class EventEnvelope<AggregateType> {
     final String boundedContextName
     final String aggregateName
     final UUID aggregateId
+    final Integer sequenceNumber
     final Event<AggregateType> event
 
-    EventEnvelope(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Event<AggregateType> event, Date timestamp = new Date()) {
+    EventEnvelope(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Event<AggregateType> event, int sequenceNumber = 0, Date timestamp = new Date()) {
         this.applicationName = applicationName
         this.boundedContextName = boundedContextName
         this.aggregateName = aggregateName
         this.aggregateId = aggregateId
+        this.sequenceNumber = sequenceNumber
         this.event = event
         this.timestamp = timestamp
     }
@@ -36,7 +38,7 @@ class EventEnvelope<AggregateType> {
 
     @Override
     String toString() {
-        "EventEnvelope[$applicationName.$boundedContextName.$aggregateName{$aggregateId} @${serializedTimestamp} :: <$event>]".toString()
+        "EventEnvelope[$applicationName.$boundedContextName.$aggregateName{$aggregateId}#$sequenceNumber @${serializedTimestamp} :: <$event>]".toString()
     }
 
     @Override
@@ -46,6 +48,7 @@ class EventEnvelope<AggregateType> {
                 this.aggregateName == that.aggregateName &&
                 this.aggregateId   == that.aggregateId &&
                 this.event         == that.event &&
+                this.sequenceNumber == that.sequenceNumber &&
                 this.timestamp     == that.timestamp
     }
 

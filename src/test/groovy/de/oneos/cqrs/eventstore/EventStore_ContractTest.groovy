@@ -71,8 +71,10 @@ abstract class EventStore_ContractTest {
         )
 
         instance1.callBusinessMethod()
+        instance1.flush()
 
         instance2.callAnotherBusinessMethod()
+        instance2.flush()
     }
 
     static class BusinessAggregate {
