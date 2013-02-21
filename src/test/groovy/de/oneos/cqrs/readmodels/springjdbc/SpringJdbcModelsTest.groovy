@@ -14,7 +14,7 @@ class SpringJdbcModelsTest {
 
     @Before
     void setUp() {
-        springJdbcModels = new SpringJdbcModels(jdbcTemplate: jdbcTemplate)
+        springJdbcModels = new SpringJdbcModels(jdbcTemplate: jdbcTemplate, tableName: 'sample_read_model')
     }
 
 
@@ -33,7 +33,7 @@ class SpringJdbcModelsTest {
         ))
         springJdbcModels.materialize()
 
-        verify(jdbcTemplate).update('INSERT INTO sample_read_model(id, camel_case_property) VALUES (?, ?);', UUID.fromString(event.aggregateId), event.attributes.camelCaseProperty)
+        verify(jdbcTemplate).update('INSERT INTO sample_read_model(id, camel_case_property, version) VALUES (?, ?, ?);', UUID.fromString(event.aggregateId), event.attributes.camelCaseProperty, 0)
     }
 
     @Test

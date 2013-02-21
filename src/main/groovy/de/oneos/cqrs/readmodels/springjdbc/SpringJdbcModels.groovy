@@ -2,13 +2,19 @@ package de.oneos.cqrs.readmodels.springjdbc
 
 import de.oneos.cqrs.readmodels.Models
 import de.oneos.cqrs.readmodels.Selection
+import org.apache.commons.logging.Log
+import org.apache.commons.logging.LogFactory
 import org.springframework.jdbc.core.JdbcOperations
 import org.springframework.jdbc.core.JdbcTemplate
 
 import javax.sql.DataSource
 
 class SpringJdbcModels implements Models {
-    Class readModelClass
+    static Log log = LogFactory.getLog(SpringJdbcModels)
+
+    List<String> nonMappedProperties = ['class']
+
+    String tableName
     JdbcOperations jdbcTemplate
 
     Map update = [
@@ -20,11 +26,16 @@ class SpringJdbcModels implements Models {
         jdbcTemplate = new JdbcTemplate(dataSource)
     }
 
+    void setNonMappedProperties(List<String> nonMappedAttributes) {
+        this.nonMappedProperties = ['class'] + nonMappedAttributes
+    }
+
     void add(newModelInstance) {
         this.update = [
-            sql: "INSERT INTO ${tableName(newModelInstance)}(${modelAttributeNames(newModelInstance).join(', ')}) VALUES (${modelAttributeNames(newModelInstance).collect {'?'}.join(', ')});",
+            sql: "INSERT INTO $tableName(${modelAttributeNames(newModelInstance).join(', ')}) VALUES (${modelAttributeNames(newModelInstance).collect {'?'}.join(', ')});",
             args: modelAttributes(newModelInstance)
         ]
+        log.debug "Executing ${update.sql} with ${update.args}"
     }
 
     Selection findAll(Closure filter) {
@@ -40,18 +51,18 @@ class SpringJdbcModels implements Models {
     }
 
     Object[] modelAttributes(modelInstance) {
-        persistedProperties(modelInstance).collect { it.value }
+        persistedProperties(modelInstance).collect { it.value } + [0]
     }
 
     private Map persistedProperties(modelInstance) {
-        modelInstance.properties.findAll { !['class'].contains(it.key) }
+        modelInstance.properties.findAll { !nonMappedProperties.contains(it.key) }
     }
 
     List<String> modelAttributeNames(modelInstance) {
-        persistedProperties(modelInstance).collect { toSnakeCase(it.key) }
+        persistedProperties(modelInstance).collect { toSnakeCase(it.key) } + ['version']
     }
 
-    String tableName(Class modelClass) {
+    static String tableName(Class modelClass) {
         toSnakeCase(modelClass.simpleName)
     }
 
@@ -65,6 +76,6 @@ class SpringJdbcModels implements Models {
 
     @Override
     String toString() {
-        "${this.class.simpleName}${readModelClass ? "/${tableName(readModelClass)}" : ''}"
+        "${this.class.simpleName}/$tableName"
     }
 }
