@@ -1,4 +1,4 @@
-package commandhandler;
+package de.oneos.cqrs.eventstore;
 
 import org.junit.Test
 import framework.EventPublisher
@@ -10,7 +10,7 @@ import domain.events.EventEnvelope
 
 import static java.util.UUID.randomUUID
 import static org.mockito.Mockito.any
-import domain.commandhandler.UnitOfWork
+
 import oneos.test.domain.events.Device_was_registered
 import oneos.test.domain.aggregates.Device;
 

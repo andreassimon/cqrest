@@ -1,6 +1,6 @@
 package domain.aggregates
 
-import domain.commandhandler.UnitOfWork
+import de.oneos.cqrs.eventstore.UnitOfWork
 import domain.events.Event
 
 class Aggregate {

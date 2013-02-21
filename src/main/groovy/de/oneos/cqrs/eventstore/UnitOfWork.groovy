@@ -1,4 +1,4 @@
-package domain.commandhandler
+package de.oneos.cqrs.eventstore
 
 import framework.EventPublisher
 import domain.events.Event

@@ -3,6 +3,7 @@ package domain.commandhandler
 import de.oneos.cqrs.eventstore.EventStore
 import framework.EventPublisher
 import domain.events.Event
+import de.oneos.cqrs.eventstore.UnitOfWork
 
 abstract class EventSourcingCommandHandler<C> {
     EventStore eventStore
