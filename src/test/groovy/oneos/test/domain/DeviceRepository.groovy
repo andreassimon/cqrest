@@ -2,7 +2,7 @@ package oneos.test.domain
 
 import infrastructure.persistence.BoundedContextRepository
 import de.oneos.cqrs.eventstore.EventStore
-import infrastructure.persistence.UnknownAggregate
+import de.oneos.cqrs.eventstore.UnknownAggregate
 
 class DeviceRepository extends BoundedContextRepository {
 

@@ -2,7 +2,7 @@ package commands
 
 import org.junit.*
 
-import infrastructure.persistence.UnknownAggregate
+import de.oneos.cqrs.eventstore.UnknownAggregate
 import oneos.test.domain.commands.Lock_out_device
 
 class LockOutDeviceTest extends CommandSideTest {

@@ -1,4 +1,4 @@
-package infrastructure.persistence
+package de.oneos.cqrs.eventstore
 
 class UnknownAggregate extends RuntimeException {
     UnknownAggregate(Class aggregateClass, UUID aggregateId) {

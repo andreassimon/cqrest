@@ -1,4 +1,4 @@
-package infrastructure.persistence
+package de.oneos.cqrs.eventstore
 
 class AggregateAlreadyExists extends RuntimeException {
     AggregateAlreadyExists(Class aggregateClass, UUID aggregateId) {
