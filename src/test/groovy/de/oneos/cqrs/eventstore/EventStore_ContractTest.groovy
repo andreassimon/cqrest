@@ -11,9 +11,10 @@ import static org.junit.Assert.assertThat
 import domain.events.Event
 
 abstract class EventStore_ContractTest {
-    protected static final String APPLICATION_NAME = 'CQRS Core Library'
-    protected static final String BOUNDED_CONTEXT_NAME = 'Tests'
-    protected static final String AGGREGATE_NAME = 'Device'
+    static final String APPLICATION_NAME = 'CQRS Core Library'
+    static final String BOUNDED_CONTEXT_NAME = 'Tests'
+    static final String AGGREGATE_NAME = 'Device'
+
     EventStore eventStore
 
     UUID aggregateId = randomUUID()
@@ -41,11 +42,59 @@ abstract class EventStore_ContractTest {
         new Device_was_registered(deviceName: "Device1")
     }
 
-    @Test
+    @Test(expected = StaleStateException)
     void should_prevent_race_conditions() {
+        eventStore.save(new EventEnvelope(
+            APPLICATION_NAME,
+            BOUNDED_CONTEXT_NAME,
+            AGGREGATE_NAME,
+            aggregateId,
+            new BusinessAggregate_was_created()
+        ))
 
+        def instance1 = eventStore.getAggregate(
+            APPLICATION_NAME,
+            BOUNDED_CONTEXT_NAME,
+            AGGREGATE_NAME,
+            BusinessAggregate,
+            aggregateId,
+            'de.oneos.cqrs.eventstore.'
+        )
+
+        def instance2 = eventStore.getAggregate(
+            APPLICATION_NAME,
+            BOUNDED_CONTEXT_NAME,
+            AGGREGATE_NAME,
+            BusinessAggregate,
+            aggregateId,
+            'de.oneos.cqrs.eventstore.'
+        )
+
+        instance1.callBusinessMethod()
+
+        instance2.callAnotherBusinessMethod()
     }
 
+    static class BusinessAggregate {
 
+        void callBusinessMethod() {
+            publishEvent(new A_business_method_was_called())
+        }
 
+        void callAnotherBusinessMethod() {
+            publishEvent(new Another_business_method_was_called())
+        }
+    }
+
+    static class BusinessAggregate_was_created extends Event<BusinessAggregate> {
+        BusinessAggregate applyTo(BusinessAggregate aggregate) { aggregate }
+    }
+
+    static class A_business_method_was_called extends Event<BusinessAggregate> {
+        BusinessAggregate applyTo(BusinessAggregate aggregate) { aggregate }
+    }
+
+    static class Another_business_method_was_called extends Event<BusinessAggregate> {
+        BusinessAggregate applyTo(BusinessAggregate aggregate) { aggregate }
+    }
 }
