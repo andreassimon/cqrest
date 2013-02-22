@@ -77,17 +77,15 @@ abstract class EventStore_ContractTest {
         )
     }
 
-            APPLICATION_NAME,
-            BOUNDED_CONTEXT_NAME,
-            AGGREGATE_NAME,
-            BusinessAggregate,
-            aggregateId,
-            'de.oneos.cqrs.eventstore.'
-        )
+    @Test
+    void should_insert_consecutive_events() {
+        createBusinessAggregate(aggregateId)
 
+        BusinessAggregate instance1 = getBusinessAggregate(aggregateId)
         instance1.callBusinessMethod()
         instance1.flush()
 
+        BusinessAggregate instance2 = getBusinessAggregate(aggregateId)
         instance2.callAnotherBusinessMethod()
         instance2.flush()
     }
