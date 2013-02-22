@@ -10,19 +10,18 @@ import domain.commandhandler.EventSourcingCommandHandler
 
 class Register_device_Handler extends EventSourcingCommandHandler<Register_device> {
 
-    DeviceRepository repository
+    DeviceRepository _repository
 
     DeviceRepository getRepository() {
-        if (repository) {
-            return repository
+        if(!_repository) {
+            _repository = new DeviceRepository(eventStore)
         }
-        repository = new DeviceRepository(eventStore)
-        return repository
+        return _repository
     }
 
     void handle(Register_device command) {
         def generatedDeviceId = randomUUID()
-        getRepository().assertDeviceDoesNotExist(generatedDeviceId)
+        repository.assertDeviceDoesNotExist(generatedDeviceId)
 
         publishEvent(Device, generatedDeviceId, new Device_was_registered(
             deviceId: generatedDeviceId,
