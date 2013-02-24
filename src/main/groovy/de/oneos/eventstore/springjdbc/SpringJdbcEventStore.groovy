@@ -12,6 +12,10 @@ class SpringJdbcEventStore implements EventStore {
 
     JdbcOperations jdbcTemplate
 
+    void dropTable() {
+        jdbcTemplate.execute("DROP TABLE IF EXISTS ${TABLE_NAME};")
+    }
+
     void createTable() {
         jdbcTemplate.execute("""\
 CREATE TABLE ${TABLE_NAME} (

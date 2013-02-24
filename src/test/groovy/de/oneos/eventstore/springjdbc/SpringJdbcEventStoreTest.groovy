@@ -36,4 +36,13 @@ class SpringJdbcEventStoreTest extends EventStore_ContractTest {
         verify(mockJdbcTemplate).execute(contains("CREATE TABLE ${SpringJdbcEventStore.TABLE_NAME}"))
     }
 
+    @Test
+    void dropTable__should_delete_the_events_table() {
+        eventStore.jdbcTemplate = mockJdbcTemplate
+
+        eventStore.dropTable()
+
+        verify(mockJdbcTemplate).execute("DROP TABLE IF EXISTS ${SpringJdbcEventStore.TABLE_NAME};")
+    }
+
 }
