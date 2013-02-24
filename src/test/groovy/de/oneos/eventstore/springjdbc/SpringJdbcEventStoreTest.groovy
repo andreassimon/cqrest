@@ -22,6 +22,8 @@ class SpringJdbcEventStoreTest extends EventStore_ContractTest {
 
     @Before
     void setUp() {
+        super.setUp()
+
         DataSource dataSource = new org.h2.jdbcx.JdbcDataSource()
         dataSource.user = 'SA'
         dataSource.password = ''

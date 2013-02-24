@@ -17,13 +17,17 @@ abstract class EventStore_ContractTest {
 
     abstract EventStore getEventStore()
 
-    EventEnvelope eventEnvelope = new EventEnvelope(
-        APPLICATION_NAME,
-        BOUNDED_CONTEXT_NAME,
-        AGGREGATE_NAME,
-        AGGREGATE_ID,
-        new Business_event_happened()
-    )
+    EventEnvelope eventEnvelope
+
+    void setUp() {
+        eventEnvelope = new EventEnvelope(
+            APPLICATION_NAME,
+            BOUNDED_CONTEXT_NAME,
+            AGGREGATE_NAME,
+            AGGREGATE_ID,
+            new Business_event_happened()
+        )
+    }
 
     @Test
     void should_provide_UnitOfWork_instances() {
@@ -53,6 +57,28 @@ abstract class EventStore_ContractTest {
         def simpleEventClassName = eventName.replaceAll(' ', '_')
         def fullEventClassName = [eventClassPackageName, simpleEventClassName].join('.')
         this.class.classLoader.loadClass(fullEventClassName)
+    }
+
+
+    @Test(expected = IllegalArgumentException)
+    void should_throw_an_exception_when_applicationName_is_null() {
+        eventStore.save(validEnvelopeBut(applicationName: null))
+    }
+
+    EventEnvelope validEnvelopeBut(Map overridden) {
+        new EventEnvelope(
+            overridden.applicationName,
+            BOUNDED_CONTEXT_NAME,
+            AGGREGATE_NAME,
+            AGGREGATE_ID,
+            new Business_event_happened()
+        )
+    }
+
+
+    @Test(expected = IllegalArgumentException)
+    void should_throw_an_exception_when_applicationName_is_empty() {
+        eventStore.save(validEnvelopeBut(applicationName: ''))
     }
 
 

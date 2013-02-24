@@ -50,7 +50,7 @@ WHERE application_name = ? AND
     void createTable() {
         jdbcTemplate.execute("""\
 CREATE TABLE ${TABLE_NAME} (
-    application_name     VARCHAR(255),
+    application_name     VARCHAR(255) NOT NULL,
     bounded_context_name VARCHAR(255),
     aggregate_name       VARCHAR(255),
     aggregate_id         UUID,
@@ -80,6 +80,8 @@ CREATE TABLE ${TABLE_NAME} (
 
     @Override
     void save(EventEnvelope eventEnvelope) {
+        assertEnvelopeHasProperty(eventEnvelope, 'applicationName')
+
         jdbcTemplate.update(INSERT_EVENT,
             eventEnvelope.applicationName,
             eventEnvelope.boundedContextName,
@@ -90,6 +92,15 @@ CREATE TABLE ${TABLE_NAME} (
             eventEnvelope.serializedEvent,
             eventEnvelope.timestamp
         )
+    }
+
+    private assertEnvelopeHasProperty(bean, String propertyName) {
+        if (bean[propertyName] == null) {
+            throw new IllegalArgumentException("The envelope's $propertyName must not be null")
+        }
+        if(bean[propertyName].empty) {
+            throw new IllegalArgumentException("The envelope's $propertyName must not be empty")
+        }
     }
 
     @Override
