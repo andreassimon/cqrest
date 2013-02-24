@@ -5,7 +5,7 @@ apply plugin: 'maven'
 group   = 'oneos.cqrs'
 version = '1.0.0-SNAPSHOT'
 
-defaultTasks 'clean', 'install'
+defaultTasks 'clean', 'test'
 
 install {
     repositories.mavenInstaller {
