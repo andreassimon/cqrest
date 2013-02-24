@@ -30,8 +30,15 @@ CREATE TABLE ${TABLE_NAME} (
 );\
 """)
 
-        ['application_name', 'bounded_context_name', 'aggregate_name', 'aggregate_id', 'event_name', 'timestamp'].each { columnName ->
-            jdbcTemplate.execute("CREATE INDEX idx_events_${columnName} ON events (${columnName});")
+        ['application_name',
+         'bounded_context_name',
+         'aggregate_name',
+         'aggregate_id',
+         'sequence_number',
+         'event_name',
+         'timestamp'
+        ].each { columnName ->
+            jdbcTemplate.execute("CREATE INDEX idx_${TABLE_NAME}_${columnName} ON ${TABLE_NAME} (${columnName});")
         }
     }
 
