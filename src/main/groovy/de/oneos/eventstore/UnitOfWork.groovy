@@ -6,7 +6,18 @@ import de.oneos.eventsourcing.*
 class UnitOfWork {
 
     List<EventEnvelope> publishedEventEnvelopes = []
-    int nextSequenceNumber = 0
+
+    Map<String, Map<String, Map<String, Map<UUID, Integer>>>> nextSequenceNumbers =
+        emptyMapWithDefault(
+            emptyMapWithDefault(
+                emptyMapWithDefault(
+                    SequenceNumberGenerator.newInstance)))()
+
+    static Closure<Map> emptyMapWithDefault(Closure defaultFactory) {
+        return {
+            MapWithDefault.newInstance([:], defaultFactory)
+        }
+    }
 
     void publishEvent(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Event event) {
         publishedEventEnvelopes << new EventEnvelope(
@@ -15,9 +26,12 @@ class UnitOfWork {
             aggregateName,
             aggregateId,
             event,
-            nextSequenceNumber
+            nextSequenceNumber(applicationName, boundedContextName, aggregateName, aggregateId)
         )
-        nextSequenceNumber++
+    }
+
+    protected int nextSequenceNumber(applicationName, boundedContextName, aggregateName, aggregateId) {
+        nextSequenceNumbers[applicationName][boundedContextName][aggregateName][aggregateId]
     }
 
     def eachEventEnvelope(Closure callback) {

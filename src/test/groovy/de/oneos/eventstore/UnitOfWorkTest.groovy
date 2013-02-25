@@ -13,7 +13,9 @@ class UnitOfWorkTest {
     static final String APPLICATION_NAME = 'APPLICATION_NAME'
     static final String BOUNDED_CONTEXT_NAME = 'BOUNDED_CONTEXT_NAME'
     static final String AGGREGATE_NAME = 'AGGREGATE_NAME'
-    static final UUID   AGGREGATE_ID = randomUUID()
+
+    static UUID AGGREGATE_ID = randomUUID()
+    static UUID ANOTHER_AGGREGATE_ID = randomUUID()
 
     UnitOfWork unitOfWork
     TestableClosure callback
@@ -21,6 +23,9 @@ class UnitOfWorkTest {
     @Before
     void setUp() {
         callback = new TestableClosure(this)
+        while(ANOTHER_AGGREGATE_ID == AGGREGATE_ID) {
+            ANOTHER_AGGREGATE_ID == randomUUID()
+        }
     }
 
 
@@ -53,6 +58,23 @@ class UnitOfWorkTest {
 
         assertThat 'callback', callback, wasCalledOnceWith() { envelope -> 0 == envelope.sequenceNumber }
         assertThat 'callback', callback, wasCalledOnceWith() { envelope -> 1 == envelope.sequenceNumber }
+    }
+
+    @Test
+    void should_increment_the_sequenceNumber_depending_on_the_aggregate() {
+        unitOfWork = new UnitOfWork()
+
+        publishEvent(unitOfWork, AGGREGATE_ID)
+        publishEvent(unitOfWork, ANOTHER_AGGREGATE_ID)
+
+        unitOfWork.eachEventEnvelope(callback)
+
+        assertThat 'callback', callback, wasCalledOnceWith() { envelope -> AGGREGATE_ID == envelope.aggregateId && 0 == envelope.sequenceNumber }
+        assertThat 'callback', callback, wasCalledOnceWith() { envelope -> ANOTHER_AGGREGATE_ID == envelope.aggregateId && 0 == envelope.sequenceNumber }
+    }
+
+    protected publishEvent(UnitOfWork unitOfWork, UUID aggregateId) {
+        unitOfWork.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, aggregateId, new Business_event_happened())
     }
 
     // TODO iterate over all published events

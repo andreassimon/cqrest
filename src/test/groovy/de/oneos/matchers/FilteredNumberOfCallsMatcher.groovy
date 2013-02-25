@@ -37,10 +37,10 @@ class FilteredNumberOfCallsMatcher extends TypeSafeMatcher<TestableClosure> {
     }
 
     protected explain(int numberOfCalls) {
-        if(numberOfCalls == 0) return 'was never called with criteria'
-        if(numberOfCalls == 1) return 'was called once with criteria'
-        if(numberOfCalls == 2) return 'was called twice with criteria'
-        return "was called $numberOfCalls times with criteria"
+        if(numberOfCalls == 0) return 'was *never* called with criteria'
+        if(numberOfCalls == 1) return 'was called *once* with criteria'
+        if(numberOfCalls == 2) return 'was called *twice* with criteria'
+        return "was called *$numberOfCalls times* with criteria"
     }
 
 }
