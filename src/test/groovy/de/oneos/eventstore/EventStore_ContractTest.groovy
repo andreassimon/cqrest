@@ -148,6 +148,20 @@ abstract class EventStore_ContractTest {
         eventStore.save(validEnvelopeBut(timestamp: null))
     }
 
+    @Test(expected = EventCollisionOccurred)
+    void should_throw_an_exception_when_there_is_an_aggregate_event_stream_collision() {
+        Map SAME_EVENT_COORDINATES = [
+            applicationName: APPLICATION_NAME,
+            boundedContextName: BOUNDED_CONTEXT_NAME,
+            aggregateName: AGGREGATE_NAME,
+            aggregateId: AGGREGATE_ID,
+            sequenceNumber: 0
+        ]
+
+        eventStore.save(validEnvelopeBut(SAME_EVENT_COORDINATES))
+        eventStore.save(validEnvelopeBut(SAME_EVENT_COORDINATES))
+    }
+
     static class Business_event_happened extends Event {
         @Override
         def applyTo(aggregate) { aggregate }

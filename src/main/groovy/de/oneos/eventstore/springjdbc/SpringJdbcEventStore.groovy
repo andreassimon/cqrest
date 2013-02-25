@@ -6,6 +6,7 @@ import groovy.json.*
 import de.oneos.eventsourcing.*
 import de.oneos.eventstore.*
 
+import org.springframework.dao.*
 import org.springframework.jdbc.core.*
 
 
@@ -57,7 +58,14 @@ CREATE TABLE ${TABLE_NAME} (
     sequence_number      INTEGER      NOT NULL,
     event_name           VARCHAR(255) NOT NULL,
     attributes           TEXT         NOT NULL,
-    timestamp            TIMESTAMP    NOT NULL
+    timestamp            TIMESTAMP    NOT NULL,
+    CONSTRAINT unambiguous_event_sequence UNIQUE (
+        application_name,
+        bounded_context_name,
+        aggregate_name,
+        aggregate_id,
+        sequence_number
+    )
 );\
 """)
 
@@ -88,16 +96,20 @@ CREATE TABLE ${TABLE_NAME} (
         Assert.envelopePropertyIsNotEmpty(eventEnvelope, 'eventName')
         Assert.envelopePropertyIsNotNull(eventEnvelope, 'timestamp')
 
-        jdbcTemplate.update(INSERT_EVENT,
-            eventEnvelope.applicationName,
-            eventEnvelope.boundedContextName,
-            eventEnvelope.aggregateName,
-            eventEnvelope.aggregateId,
-            eventEnvelope.sequenceNumber,
-            eventEnvelope.eventName,
-            eventEnvelope.serializedEvent,
-            eventEnvelope.timestamp
-        )
+        try {
+            jdbcTemplate.update(INSERT_EVENT,
+                eventEnvelope.applicationName,
+                eventEnvelope.boundedContextName,
+                eventEnvelope.aggregateName,
+                eventEnvelope.aggregateId,
+                eventEnvelope.sequenceNumber,
+                eventEnvelope.eventName,
+                eventEnvelope.serializedEvent,
+                eventEnvelope.timestamp
+            )
+        } catch (DuplicateKeyException e) {
+            throw new EventCollisionOccurred(eventEnvelope, e)
+        }
     }
 
     @Override
