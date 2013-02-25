@@ -4,7 +4,6 @@ class EventEnvelope<AggregateType> {
 
     static final String TIMESTAMP_FORMAT = 'yyyy-MM-dd HH:mm:ss.SSS'
     final Date timestamp
-    final Class<AggregateType> aggregateClass
     final String applicationName
     final String boundedContextName
     final String aggregateName

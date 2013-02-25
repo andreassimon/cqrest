@@ -15,6 +15,16 @@ abstract class EventStore_ContractTest {
     static final String AGGREGATE_NAME = 'AGGREGATE_NAME'
     static final UUID   AGGREGATE_ID = randomUUID()
 
+    static final Map<String, Object> VALID_EVENT_ENVELOPE_PROPERTIES = [
+            applicationName: APPLICATION_NAME,
+            boundedContextName: BOUNDED_CONTEXT_NAME,
+            aggregateName: AGGREGATE_NAME,
+            aggregateId: AGGREGATE_ID,
+            event: new Business_event_happened(),
+            sequenceNumber: 0,
+            timestamp: new Date()
+    ]
+
     abstract EventStore getEventStore()
 
     EventEnvelope eventEnvelope
@@ -65,13 +75,19 @@ abstract class EventStore_ContractTest {
         eventStore.save(validEnvelopeBut(applicationName: null))
     }
 
-    EventEnvelope validEnvelopeBut(Map overridden) {
+    EventEnvelope validEnvelopeBut(Map overriddenProperties) {
+        eventEnvelopeWithProperties(VALID_EVENT_ENVELOPE_PROPERTIES + overriddenProperties)
+    }
+
+    EventEnvelope eventEnvelopeWithProperties(Map<String, Object> properties) {
         new EventEnvelope(
-            overridden.applicationName,
-            BOUNDED_CONTEXT_NAME,
-            AGGREGATE_NAME,
-            AGGREGATE_ID,
-            new Business_event_happened()
+            properties.applicationName,
+            properties.boundedContextName,
+            properties.aggregateName,
+            properties.aggregateId,
+            properties.event,
+            properties.sequenceNumber,
+            properties.timestamp
         )
     }
 
@@ -81,6 +97,56 @@ abstract class EventStore_ContractTest {
         eventStore.save(validEnvelopeBut(applicationName: ''))
     }
 
+    @Test(expected = IllegalArgumentException)
+    void should_throw_an_exception_when_boundedContextName_is_null() {
+        eventStore.save(validEnvelopeBut(boundedContextName: null))
+    }
+
+    @Test(expected = IllegalArgumentException)
+    void should_throw_an_exception_when_boundedContextName_is_empty() {
+        eventStore.save(validEnvelopeBut(boundedContextName: ''))
+    }
+
+    @Test(expected = IllegalArgumentException)
+    void should_throw_an_exception_when_aggregateName_is_null() {
+        eventStore.save(validEnvelopeBut(aggregateName: null))
+    }
+
+    @Test(expected = IllegalArgumentException)
+    void should_throw_an_exception_when_aggregateName_is_empty() {
+        eventStore.save(validEnvelopeBut(aggregateName: ''))
+    }
+
+    @Test(expected = IllegalArgumentException)
+    void should_throw_an_exception_when_aggregateId_is_null() {
+        eventStore.save(validEnvelopeBut(aggregateId: null))
+    }
+
+    @Test(expected = GroovyRuntimeException)
+    void should_throw_an_exception_when_sequenceNumber_is_null() {
+        eventStore.save(validEnvelopeBut(sequenceNumber: null))
+    }
+
+    @Test(expected = IllegalArgumentException)
+    void should_throw_an_exception_when_eventName_is_null() {
+        eventStore.save(validEnvelopeBut(event: new Business_event_happened() {
+            @Override
+            String getName() { null }
+        }))
+    }
+
+    @Test(expected = IllegalArgumentException)
+    void should_throw_an_exception_when_eventName_is_empty() {
+        eventStore.save(validEnvelopeBut(event: new Business_event_happened() {
+            @Override
+            String getName() { '' }
+        }))
+    }
+
+    @Test(expected = IllegalArgumentException)
+    void should_throw_an_exception_when_timestamp_is_null() {
+        eventStore.save(validEnvelopeBut(timestamp: null))
+    }
 
     static class Business_event_happened extends Event {
         @Override

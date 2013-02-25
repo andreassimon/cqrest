@@ -51,13 +51,13 @@ WHERE application_name = ? AND
         jdbcTemplate.execute("""\
 CREATE TABLE ${TABLE_NAME} (
     application_name     VARCHAR(255) NOT NULL,
-    bounded_context_name VARCHAR(255),
-    aggregate_name       VARCHAR(255),
-    aggregate_id         UUID,
-    sequence_number      INTEGER,
-    event_name           VARCHAR(255),
-    attributes           TEXT,
-    timestamp            TIMESTAMP
+    bounded_context_name VARCHAR(255) NOT NULL,
+    aggregate_name       VARCHAR(255) NOT NULL,
+    aggregate_id         UUID         NOT NULL,
+    sequence_number      INTEGER      NOT NULL,
+    event_name           VARCHAR(255) NOT NULL,
+    attributes           TEXT         NOT NULL,
+    timestamp            TIMESTAMP    NOT NULL
 );\
 """)
 
@@ -80,7 +80,13 @@ CREATE TABLE ${TABLE_NAME} (
 
     @Override
     void save(EventEnvelope eventEnvelope) {
-        assertEnvelopeHasProperty(eventEnvelope, 'applicationName')
+        Assert.envelopePropertyIsNotEmpty(eventEnvelope, 'applicationName')
+        Assert.envelopePropertyIsNotEmpty(eventEnvelope, 'boundedContextName')
+        Assert.envelopePropertyIsNotEmpty(eventEnvelope, 'aggregateName')
+        Assert.envelopePropertyIsNotNull(eventEnvelope, 'aggregateId')
+        Assert.envelopePropertyIsNotNull(eventEnvelope, 'sequenceNumber')
+        Assert.envelopePropertyIsNotEmpty(eventEnvelope, 'eventName')
+        Assert.envelopePropertyIsNotNull(eventEnvelope, 'timestamp')
 
         jdbcTemplate.update(INSERT_EVENT,
             eventEnvelope.applicationName,
@@ -92,15 +98,6 @@ CREATE TABLE ${TABLE_NAME} (
             eventEnvelope.serializedEvent,
             eventEnvelope.timestamp
         )
-    }
-
-    private assertEnvelopeHasProperty(bean, String propertyName) {
-        if (bean[propertyName] == null) {
-            throw new IllegalArgumentException("The envelope's $propertyName must not be null")
-        }
-        if(bean[propertyName].empty) {
-            throw new IllegalArgumentException("The envelope's $propertyName must not be empty")
-        }
     }
 
     @Override
