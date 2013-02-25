@@ -22,9 +22,15 @@ class UnitOfWorkTest {
 
         unitOfWork.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
 
-        unitOfWork.eachEventEnvelope callback
+        unitOfWork.eachEventEnvelope(callback)
 
-        assertThat 'callback', callback, wasCalledOnce()
+        assertThat 'callback', callback, wasCalledOnceWith() { EventEnvelope envelope ->
+            envelope.applicationName == APPLICATION_NAME &&
+            envelope.boundedContextName == BOUNDED_CONTEXT_NAME &&
+            envelope.aggregateName == AGGREGATE_NAME &&
+            envelope.aggregateId == AGGREGATE_ID &&
+            envelope.event == new Business_event_happened()
+        }
     }
 
     // TODO increment sequenceNumber for new events

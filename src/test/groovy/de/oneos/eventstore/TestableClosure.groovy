@@ -10,6 +10,16 @@ class TestableClosure<V> extends Closure<V> {
 
     int getNumberOfCalls() { callParameters.size() }
 
+    int getNumberOfFilteredCalls(Closure<Boolean> callFilter) {
+        callParameters.findAll({ Object... args ->
+            try {
+                callFilter(*args)
+            } catch (MissingMethodException e) {
+                return false
+            }
+        }).size()
+    }
+
     public Object doCall(Object... args) {
         return call(args);
     }
