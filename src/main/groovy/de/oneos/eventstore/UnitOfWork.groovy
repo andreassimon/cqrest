@@ -1,5 +1,7 @@
 package de.oneos.eventstore
 
+import static java.lang.Math.*
+
 import de.oneos.eventsourcing.*
 
 
@@ -30,10 +32,24 @@ class UnitOfWork {
     }
 
     def get(Class aggregateClass, String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Closure eventFactory) {
-        def aggregate = eventStore.buildAggregate(aggregateClass, applicationName, boundedContextName, aggregateName, aggregateId, eventFactory)
+        def aggregate = newAggregateInstance(aggregateClass, applicationName, boundedContextName, aggregateName, aggregateId)
+
+        List<EventEnvelope> eventEnvelopes = eventStore.loadEventEnvelopes(applicationName, boundedContextName, aggregateName, aggregateId, eventFactory)
+
+        nextSequenceNumbers[applicationName][boundedContextName][aggregateName][aggregateId] =
+            eventEnvelopes.inject(0) { int maximumSequenceNumber, envelope -> max(maximumSequenceNumber, envelope.sequenceNumber) } + 1
+//        TODO
+//        eventEnvelopes.each { envelope ->
+//            envelope.applyEventTo(aggregate)
+//        }
+        return aggregate
+    }
+
+    protected newAggregateInstance(Class aggregateClass, String applicationName, String boundedContextName, String aggregateName, UUID aggregateId) {
+        def aggregate = aggregateClass.newInstance()
         aggregate.metaClass = expando(aggregateClass, applicationName, boundedContextName, aggregateName, this)
         aggregate.aggregateId = aggregateId
-        return aggregate
+        aggregate
     }
 
     protected expando(Class aggregateClass, String applicationName, String boundedContextName, String aggregateName, UnitOfWork unitOfWork) {

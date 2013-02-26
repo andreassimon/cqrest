@@ -112,14 +112,9 @@ CREATE TABLE ${TABLE_NAME} (
         }
     }
 
-    // TODO IMPLEMENT
+    // TODO Change method to return EventEnvelopes instead of Events
     @Override
-    def buildAggregate(Class aggregateClass, String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Closure eventFactory) {
-        throw new RuntimeException("NOT IMPLEMENTED")
-    }
-
-    @Override
-    List loadEvents(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Closure<Object> eventFactory) {
+    List<EventEnvelope> loadEventEnvelopes(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Closure<Event> eventFactory) {
         final records = jdbcTemplate.queryForList(FIND_AGGREGATE_EVENTS,
             applicationName,
             boundedContextName,

@@ -33,7 +33,6 @@ class UnitOfWorkTest {
         }
 
         eventStore = mock(EventStore)
-        when(eventStore.buildAggregate(any(Class), any(String), any(String), any(String), any(UUID), any(Closure))).then(answer { new Aggregate() })
     }
 
 
@@ -91,7 +90,7 @@ class UnitOfWorkTest {
 
         unitOfWork.get(Aggregate, APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, eventFactory)
 
-        verify(eventStore).buildAggregate(Aggregate, APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, eventFactory)
+        verify(eventStore).loadEventEnvelopes(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, eventFactory)
     }
 
     @Test
@@ -116,7 +115,25 @@ class UnitOfWorkTest {
         unitOfWork.get(Aggregate, APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, aggregateId, eventFactory)
     }
 
-    // TODO update sequenceNumber for loaded aggregates
+    @Test
+    void should_update_the_next_sequenceNumber_for_loaded_aggregates() {
+        int nextSequenceNumber = 0
+        unitOfWork = new UnitOfWork(eventStore)
+        when(eventStore.loadEventEnvelopes(eq(APPLICATION_NAME), eq(BOUNDED_CONTEXT_NAME), eq(AGGREGATE_NAME), eq(AGGREGATE_ID), any(Closure))).then(answer {[
+            newEventEnvelope(sequenceNumber: nextSequenceNumber++),
+            newEventEnvelope(sequenceNumber: nextSequenceNumber++),
+            newEventEnvelope(sequenceNumber: nextSequenceNumber++)
+        ]})
+
+        loadAggregate(unitOfWork, AGGREGATE_ID).publishEvent(new Business_event_happened())
+
+        unitOfWork.eachEventEnvelope(callback)
+        assertThat 'callback', callback, wasCalledOnceWith(sequenceNumber: nextSequenceNumber);
+    }
+
+    static newEventEnvelope(Map<String, Integer> attributes) {
+        new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened(), attributes['sequenceNumber'])
+    }
 
 
     static class Aggregate {
