@@ -112,6 +112,12 @@ CREATE TABLE ${TABLE_NAME} (
         }
     }
 
+    // TODO IMPLEMENT
+    @Override
+    def buildAggregate(Class aggregateClass, String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Closure eventFactory) {
+        throw new RuntimeException("NOT IMPLEMENTED")
+    }
+
     @Override
     List loadEvents(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Closure<Object> eventFactory) {
         final records = jdbcTemplate.queryForList(FIND_AGGREGATE_EVENTS,

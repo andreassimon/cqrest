@@ -4,6 +4,7 @@ import static java.util.UUID.randomUUID
 
 import org.junit.*
 import static org.junit.Assert.*
+import static org.mockito.Mockito.*
 import static de.oneos.Matchers.*
 
 import de.oneos.eventsourcing.*
@@ -18,14 +19,19 @@ class UnitOfWorkTest {
     static UUID ANOTHER_AGGREGATE_ID = randomUUID()
 
     UnitOfWork unitOfWork
-    TestableClosure callback
+    TestableClosure callback, eventFactory
+    EventStore eventStore
 
     @Before
     void setUp() {
         callback = new TestableClosure(this)
+        eventFactory = new TestableClosure(this)
+
         while(ANOTHER_AGGREGATE_ID == AGGREGATE_ID) {
             ANOTHER_AGGREGATE_ID == randomUUID()
         }
+
+        eventStore = mock(EventStore)
     }
 
 
@@ -77,10 +83,21 @@ class UnitOfWorkTest {
         unitOfWork.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, aggregateId, new Business_event_happened())
     }
 
-    // TODO iterate over all published events
-    // TODO load aggregates?
+    @Test
+    void should_build_aggregates_from_events() {
+        unitOfWork = new UnitOfWork(eventStore)
+
+        unitOfWork.get(Aggregate, APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, eventFactory)
+
+        verify(eventStore).buildAggregate(Aggregate, APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, eventFactory)
+    }
+
     // TODO expand aggregate classes with publishEvent(), applicationName, boundedContextName, aggregateName
 
+
+    static class Aggregate {
+
+    }
 
     static class Business_event_happened extends Event {
         @Override

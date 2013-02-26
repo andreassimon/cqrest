@@ -12,4 +12,6 @@ interface EventStore {
 
     List loadEvents(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Closure<Object> eventFactory)
 
+    def buildAggregate(Class aggregateClass, String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Closure eventFactory)
+
 }
