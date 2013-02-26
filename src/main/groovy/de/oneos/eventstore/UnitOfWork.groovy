@@ -37,7 +37,7 @@ class UnitOfWork {
         List<EventEnvelope> eventEnvelopes = loadEventEnvelopes(aggregateClass, aggregateId, eventFactory)
 
         updateSequenceNumbers(aggregateClass, aggregateId, eventEnvelopes)
-//        TODO
+//        TODO Apply the loaded events to the aggregate
 //        eventEnvelopes.each { envelope ->
 //            envelope.applyEventTo(aggregate)
 //        }

@@ -116,18 +116,17 @@ class UnitOfWorkTest {
 
     @Test
     void should_update_the_next_sequenceNumber_for_loaded_aggregates() {
-        int nextSequenceNumber = 0
+        int lastSequenceNumber = 2
         unitOfWork = new UnitOfWork(eventStore)
-        when(eventStore.loadEventEnvelopes(eq(APPLICATION_NAME), eq(BOUNDED_CONTEXT_NAME), eq(AGGREGATE_NAME), eq(AGGREGATE_ID), any(Closure))).then(answer {[
-            newEventEnvelope(sequenceNumber: nextSequenceNumber++),
-            newEventEnvelope(sequenceNumber: nextSequenceNumber++),
-            newEventEnvelope(sequenceNumber: nextSequenceNumber++)
-        ]})
+        when(eventStore.loadEventEnvelopes(eq(APPLICATION_NAME), eq(BOUNDED_CONTEXT_NAME), eq(AGGREGATE_NAME), eq(AGGREGATE_ID), any(Closure))).then(answer {
+            (0..lastSequenceNumber).collect { newEventEnvelope(sequenceNumber: it) }
+        })
+        loadAggregate(unitOfWork, AGGREGATE_ID)
 
-        loadAggregate(unitOfWork, AGGREGATE_ID).publishEvent(new Business_event_happened())
+        publishEvent(unitOfWork, AGGREGATE_ID)
 
         unitOfWork.eachEventEnvelope(callback)
-        assertThat 'callback', callback, wasCalledOnceWith(sequenceNumber: nextSequenceNumber);
+        assertThat 'callback', callback, wasCalledOnceWith(sequenceNumber: lastSequenceNumber + 1);
     }
 
     static newEventEnvelope(Map<String, Integer> attributes) {
