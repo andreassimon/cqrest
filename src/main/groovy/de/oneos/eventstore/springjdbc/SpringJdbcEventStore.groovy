@@ -88,13 +88,13 @@ CREATE TABLE ${TABLE_NAME} (
 
     @Override
     void save(EventEnvelope eventEnvelope) {
-        Assert.envelopePropertyIsNotEmpty(eventEnvelope, 'applicationName')
-        Assert.envelopePropertyIsNotEmpty(eventEnvelope, 'boundedContextName')
-        Assert.envelopePropertyIsNotEmpty(eventEnvelope, 'aggregateName')
-        Assert.envelopePropertyIsNotNull(eventEnvelope, 'aggregateId')
-        Assert.envelopePropertyIsNotNull(eventEnvelope, 'sequenceNumber')
-        Assert.envelopePropertyIsNotEmpty(eventEnvelope, 'eventName')
-        Assert.envelopePropertyIsNotNull(eventEnvelope, 'timestamp')
+        AssertEventEnvelope.notEmpty(eventEnvelope, 'applicationName')
+        AssertEventEnvelope.notEmpty(eventEnvelope, 'boundedContextName')
+        AssertEventEnvelope.notEmpty(eventEnvelope, 'aggregateName')
+        AssertEventEnvelope.notNull(eventEnvelope, 'aggregateId')
+        AssertEventEnvelope.notNull(eventEnvelope, 'sequenceNumber')
+        AssertEventEnvelope.notEmpty(eventEnvelope, 'eventName')
+        AssertEventEnvelope.notNull(eventEnvelope, 'timestamp')
 
         try {
             jdbcTemplate.update(INSERT_EVENT,

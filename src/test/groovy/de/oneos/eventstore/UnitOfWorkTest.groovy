@@ -51,7 +51,7 @@ class UnitOfWorkTest {
         unitOfWork = new UnitOfWork()
 
         2.times {
-            unitOfWork.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
+            publishEvent(unitOfWork, AGGREGATE_ID)
         }
 
         unitOfWork.eachEventEnvelope(callback)
@@ -79,6 +79,7 @@ class UnitOfWorkTest {
 
     // TODO iterate over all published events
     // TODO load aggregates?
+    // TODO expand aggregate classes with publishEvent(), applicationName, boundedContextName, aggregateName
 
 
     static class Business_event_happened extends Event {
