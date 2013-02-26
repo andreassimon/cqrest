@@ -111,7 +111,7 @@ class UnitOfWorkTest {
     }
 
     protected loadAggregate(UnitOfWork unitOfWork, UUID aggregateId) {
-        unitOfWork.get(Aggregate, APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, aggregateId, eventFactory)
+        unitOfWork.get(Aggregate, aggregateId, eventFactory)
     }
 
     @Test

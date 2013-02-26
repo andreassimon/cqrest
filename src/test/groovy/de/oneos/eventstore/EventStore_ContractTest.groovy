@@ -49,7 +49,7 @@ abstract class EventStore_ContractTest {
         def eventClassPackageName = eventEnvelope.event.class.package.name
 
         eventStore.save(eventEnvelope)
-        List history = eventStore.loadEvents(
+        List history = eventStore.loadEventEnvelopes(
                 eventEnvelope.applicationName,
                 eventEnvelope.boundedContextName,
                 eventEnvelope.aggregateName,
@@ -59,7 +59,7 @@ abstract class EventStore_ContractTest {
         }
 
         assertThat history, equalTo([
-            eventEnvelope.event
+            eventEnvelope
         ])
     }
 

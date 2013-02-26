@@ -112,7 +112,6 @@ CREATE TABLE ${TABLE_NAME} (
         }
     }
 
-    // TODO Change method to return EventEnvelopes instead of Events
     @Override
     List<EventEnvelope> loadEventEnvelopes(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Closure<Event> eventFactory) {
         final records = jdbcTemplate.queryForList(FIND_AGGREGATE_EVENTS,
@@ -123,9 +122,17 @@ CREATE TABLE ${TABLE_NAME} (
         )
 
         records.collect { record ->
-            eventFactory(
-                record['event_name'],
-                json.parseText(record['attributes'])
+            new EventEnvelope(
+                record['application_name'],
+                record['bounded_context_name'],
+                record['aggregate_name'],
+                record['aggregate_id'],
+                eventFactory(
+                    record['event_name'],
+                    json.parseText(record['attributes'])
+                ),
+                record['sequence_number'],
+                record['timestamp']
             )
         }
     }

@@ -10,6 +10,6 @@ interface EventStore {
     // TODO replace method with transactional commit(UnitOfWork)
     void save(EventEnvelope eventEnvelope) throws IllegalArgumentException, EventCollisionOccurred
 
-    List loadEventEnvelopes(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Closure<Object> eventFactory)
+    List<EventEnvelope> loadEventEnvelopes(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Closure<Event> eventFactory)
 
 }
