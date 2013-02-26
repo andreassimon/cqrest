@@ -5,7 +5,7 @@ import static java.lang.Math.*
 import de.oneos.eventsourcing.*
 
 
-class UnitOfWork {
+class UnitOfWork implements EventAggregator {
 
     protected EventStore eventStore
     protected List<EventEnvelope> publishedEventEnvelopes = []
@@ -109,6 +109,7 @@ class UnitOfWork {
         expandoAggregateClass
     }
 
+    @Override
     void publishEvent(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Event event) {
         publishedEventEnvelopes << new EventEnvelope(
             applicationName,

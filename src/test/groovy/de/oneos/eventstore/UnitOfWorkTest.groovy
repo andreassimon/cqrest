@@ -92,6 +92,8 @@ class UnitOfWorkTest {
         verify(eventStore).loadEventEnvelopes(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, eventFactory)
     }
 
+    // TODO Replace with collaboration test with AggregateFactory
+    @Ignore
     @Test
     void should_add_dynamic_method_publishEvent_to_loaded_aggregates() {
         unitOfWork = new UnitOfWork(eventStore)
