@@ -12,12 +12,12 @@ class Matchers {
         return new ClosureWasCalledOnceMatcher()
     }
 
-    static Matcher<TestableClosure> wasCalledOnceWith(Map<String, Object> propertyConstraints) {
-        return new ConstrainedNumberOfCallsMatcher(propertyConstraints, 1)
+    static Matcher<TestableClosure> wasCalledOnceWith(Class argumentClass = Object, Map<String, Object> propertyConstraints) {
+        return new ConstrainedNumberOfCallsMatcher(argumentClass, propertyConstraints, 1)
     }
 
-    static Matcher<TestableClosure> wasCalledTwiceWith(Map<String, Object> propertyConstraints) {
-        return new ConstrainedNumberOfCallsMatcher(propertyConstraints, 2)
+    static Matcher<TestableClosure> wasCalledTwiceWith(Class argumentClass = Object, Map<String, Object> propertyConstraints) {
+        return new ConstrainedNumberOfCallsMatcher(argumentClass, propertyConstraints, 2)
     }
 
     static Matcher<TestableClosure> wasCalledOnceWith(Closure<Boolean> filter) {

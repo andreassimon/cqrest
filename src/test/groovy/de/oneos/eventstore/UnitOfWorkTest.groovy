@@ -43,14 +43,13 @@ class UnitOfWorkTest {
         unitOfWork.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
 
         unitOfWork.eachEventEnvelope(callback)
-
-        assertThat 'callback', callback, wasCalledOnceWith() { EventEnvelope envelope ->
-            envelope.applicationName == APPLICATION_NAME &&
-            envelope.boundedContextName == BOUNDED_CONTEXT_NAME &&
-            envelope.aggregateName == AGGREGATE_NAME &&
-            envelope.aggregateId == AGGREGATE_ID &&
-            envelope.event == new Business_event_happened()
-        }
+        assertThat 'callback', callback, wasCalledOnceWith(EventEnvelope, [
+            applicationName: APPLICATION_NAME,
+            boundedContextName: BOUNDED_CONTEXT_NAME,
+            aggregateName: AGGREGATE_NAME,
+            aggregateId: AGGREGATE_ID,
+            event: new Business_event_happened()
+        ])
     }
 
     @Test
@@ -63,8 +62,8 @@ class UnitOfWorkTest {
 
         unitOfWork.eachEventEnvelope(callback)
 
-        assertThat 'callback', callback, wasCalledOnceWith() { envelope -> 0 == envelope.sequenceNumber }
-        assertThat 'callback', callback, wasCalledOnceWith() { envelope -> 1 == envelope.sequenceNumber }
+        assertThat 'callback', callback, wasCalledOnceWith(EventEnvelope, [sequenceNumber: 0])
+        assertThat 'callback', callback, wasCalledOnceWith(EventEnvelope, [sequenceNumber: 1])
     }
 
     @Test
@@ -76,8 +75,8 @@ class UnitOfWorkTest {
 
         unitOfWork.eachEventEnvelope(callback)
 
-        assertThat 'callback', callback, wasCalledOnceWith() { envelope -> AGGREGATE_ID == envelope.aggregateId && 0 == envelope.sequenceNumber }
-        assertThat 'callback', callback, wasCalledOnceWith() { envelope -> ANOTHER_AGGREGATE_ID == envelope.aggregateId && 0 == envelope.sequenceNumber }
+        assertThat 'callback', callback, wasCalledOnceWith(EventEnvelope, [aggregateId: AGGREGATE_ID, sequenceNumber: 0])
+        assertThat 'callback', callback, wasCalledOnceWith(EventEnvelope, [aggregateId: ANOTHER_AGGREGATE_ID, sequenceNumber: 0])
     }
 
     protected publishEvent(UnitOfWork unitOfWork, UUID aggregateId) {
@@ -88,7 +87,7 @@ class UnitOfWorkTest {
     void should_build_aggregates_from_events() {
         unitOfWork = new UnitOfWork(eventStore)
 
-        unitOfWork.get(Aggregate, APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, eventFactory)
+        unitOfWork.get(Aggregate, AGGREGATE_ID, eventFactory)
 
         verify(eventStore).loadEventEnvelopes(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, eventFactory)
     }
@@ -101,14 +100,14 @@ class UnitOfWorkTest {
         loadAggregate(unitOfWork, ANOTHER_AGGREGATE_ID).publishEvent(new Business_event_happened())
         unitOfWork.eachEventEnvelope(callback)
 
-        assertThat 'callback', callback, wasCalledOnceWith(aggregateId: AGGREGATE_ID);
-        assertThat 'callback', callback, wasCalledOnceWith(aggregateId: ANOTHER_AGGREGATE_ID);
-        assertThat 'callback', callback, wasCalledTwiceWith(
+        assertThat 'callback', callback, wasCalledOnceWith(EventEnvelope, [aggregateId: AGGREGATE_ID]);
+        assertThat 'callback', callback, wasCalledOnceWith(EventEnvelope, [aggregateId: ANOTHER_AGGREGATE_ID]);
+        assertThat 'callback', callback, wasCalledTwiceWith(EventEnvelope, [
             applicationName: APPLICATION_NAME,
             boundedContextName: BOUNDED_CONTEXT_NAME,
             aggregateName: AGGREGATE_NAME,
             event: new Business_event_happened()
-        )
+        ])
     }
 
     protected loadAggregate(UnitOfWork unitOfWork, UUID aggregateId) {
@@ -137,7 +136,9 @@ class UnitOfWorkTest {
 
 
     static class Aggregate {
-
+        static applicationName = APPLICATION_NAME
+        static boundedContextName = BOUNDED_CONTEXT_NAME
+        static aggregateName = AGGREGATE_NAME
     }
 
     static class Business_event_happened extends Event {

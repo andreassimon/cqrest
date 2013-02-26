@@ -31,13 +31,12 @@ class UnitOfWork {
         }
     }
 
-    def get(Class aggregateClass, String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Closure eventFactory) {
-        def aggregate = newAggregateInstance(aggregateClass, applicationName, boundedContextName, aggregateName, aggregateId)
+    def get(Class aggregateClass, UUID aggregateId, Closure eventFactory) {
+        def aggregate = newAggregateInstance(aggregateClass, aggregateId)
 
-        List<EventEnvelope> eventEnvelopes = eventStore.loadEventEnvelopes(applicationName, boundedContextName, aggregateName, aggregateId, eventFactory)
+        List<EventEnvelope> eventEnvelopes = loadEventEnvelopes(aggregateClass, aggregateId, eventFactory)
 
-        nextSequenceNumbers[applicationName][boundedContextName][aggregateName][aggregateId] =
-            eventEnvelopes.inject(0) { int maximumSequenceNumber, envelope -> max(maximumSequenceNumber, envelope.sequenceNumber) } + 1
+        updateSequenceNumbers(aggregateClass, aggregateId, eventEnvelopes)
 //        TODO
 //        eventEnvelopes.each { envelope ->
 //            envelope.applyEventTo(aggregate)
@@ -45,21 +44,43 @@ class UnitOfWork {
         return aggregate
     }
 
-    protected newAggregateInstance(Class aggregateClass, String applicationName, String boundedContextName, String aggregateName, UUID aggregateId) {
+    protected updateSequenceNumbers(Class aggregateClass, UUID aggregateId, List<EventEnvelope> eventEnvelopes) {
+        nextSequenceNumbers(aggregateClass)[aggregateId] = maximumSequenceNumber(eventEnvelopes) + 1
+    }
+
+    protected maximumSequenceNumber(List<EventEnvelope> eventEnvelopes) {
+        eventEnvelopes.inject(0) { int maximumSequenceNumber, envelope -> max(maximumSequenceNumber, envelope.sequenceNumber) }
+    }
+
+    protected nextSequenceNumbers(Class aggregateClass) {
+        nextSequenceNumbers[aggregateClass.applicationName][aggregateClass.boundedContextName][aggregateClass.aggregateName]
+    }
+
+    protected loadEventEnvelopes(Class aggregateClass, UUID aggregateId, Closure eventFactory) {
+        eventStore.loadEventEnvelopes(
+            aggregateClass.applicationName,
+            aggregateClass.boundedContextName,
+            aggregateClass.aggregateName,
+            aggregateId,
+            eventFactory
+        )
+    }
+
+    protected newAggregateInstance(Class aggregateClass, UUID aggregateId) {
         def aggregate = aggregateClass.newInstance()
-        aggregate.metaClass = expando(aggregateClass, applicationName, boundedContextName, aggregateName, this)
+        aggregate.metaClass = expando(aggregateClass, this)
         aggregate.aggregateId = aggregateId
         aggregate
     }
 
-    protected expando(Class aggregateClass, String applicationName, String boundedContextName, String aggregateName, UnitOfWork unitOfWork) {
+    protected expando(Class aggregateClass, UnitOfWork unitOfWork) {
         if (!expandoAggregateClasses.containsKey(aggregateClass)) {
-            expandoAggregateClasses[aggregateClass] = buildExpandoAggregateClass(aggregateClass, applicationName, boundedContextName, aggregateName, unitOfWork)
+            expandoAggregateClasses[aggregateClass] = buildExpandoAggregateClass(aggregateClass, unitOfWork)
         }
         expandoAggregateClasses[aggregateClass]
     }
 
-    protected buildExpandoAggregateClass(Class aggregateClass, String applicationName, String boundedContextName, String aggregateName, UnitOfWork unitOfWork) {
+    protected buildExpandoAggregateClass(Class aggregateClass, UnitOfWork unitOfWork) {
         defineExpandoMetaClass(aggregateClass) {
             setAggregateId = { thisAggregateId ->
                 aggregateIds[System.identityHashCode(delegate)] = thisAggregateId
@@ -70,7 +91,14 @@ class UnitOfWork {
             }
 
             publishEvent = { event ->
-                unitOfWork.publishEvent(applicationName, boundedContextName, aggregateName, delegate.aggregateId, event)
+                unitOfWork.publishEvent(
+                    aggregateClass.applicationName,
+                    aggregateClass.boundedContextName,
+                    aggregateClass.aggregateName,
+                    delegate.aggregateId,
+                    event
+                )
+                // TODO Immediately apply the event to the aggregate
             }
         }
     }
