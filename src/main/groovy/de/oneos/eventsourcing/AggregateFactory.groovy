@@ -7,9 +7,8 @@ import static java.lang.System.identityHashCode
 class AggregateFactory {
     Map<Integer, EventAggregator> eventAggregators = Collections.synchronizedMap([:])
     Map<Integer, UUID> aggregateIds = Collections.synchronizedMap([:])
-//    Map<Class, ExpandoMetaClass> expandoAggregateClasses = Collections.synchronizedMap([:])
 
-    public <A> A newInstance(Class<A> rawAggregateClass, UUID aggregateId) {
+    public <A> A newInstance(Map aggregateProperties, Class<A> rawAggregateClass) {
         def instance = rawAggregateClass.newInstance()
         instance.metaClass = defineExpandoMetaClass(rawAggregateClass) {
             setAggregateId = { thisAggregateId ->
@@ -31,30 +30,11 @@ class AggregateFactory {
 //                TODO Immediately apply the event to the aggregate
             }
         }
-        instance.aggregateId = aggregateId
+        aggregateProperties.each { name, value ->
+            instance[name] = value
+        }
         return instance
     }
-
-//    protected expando(Class aggregateClass, UnitOfWork unitOfWork) {
-//        if (!expandoAggregateClasses.containsKey(aggregateClass)) {
-//            expandoAggregateClasses[aggregateClass] = buildExpandoAggregateClass(aggregateClass, unitOfWork)
-//        }
-//        expandoAggregateClasses[aggregateClass]
-//    }
-//
-//    protected buildExpandoAggregateClass(Class aggregateClass, UnitOfWork unitOfWork) {
-//        defineExpandoMetaClass(aggregateClass) {
-//            publishEvent = { event ->
-//                unitOfWork.publishEvent(
-//                    aggregateClass.applicationName,
-//                    aggregateClass.boundedContextName,
-//                    aggregateClass.aggregateName,
-//                    delegate.aggregateId,
-//                    event
-//                )
-//            }
-//        }
-//    }
 
     static defineExpandoMetaClass(Class theClass, Closure definition) {
         ExpandoMetaClass expandoAggregateClass = new ExpandoMetaClass(theClass)
