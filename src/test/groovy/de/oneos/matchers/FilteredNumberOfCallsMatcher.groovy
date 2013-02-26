@@ -34,6 +34,12 @@ class FilteredNumberOfCallsMatcher extends TypeSafeMatcher<TestableClosure> {
     @Override
     protected void describeMismatchSafely(TestableClosure closure, Description mismatchDescription) {
         mismatchDescription.appendText(explain(actualNumberOfCalls(closure)))
+        mismatchDescription.appendText('\nWas instead called with:\n')
+        closure.getCallParameters().each { call ->
+            mismatchDescription.appendText('  ')
+            mismatchDescription.appendValue(call)
+            mismatchDescription.appendText('\n')
+        }
     }
 
     protected explain(int numberOfCalls) {
