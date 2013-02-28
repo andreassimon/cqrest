@@ -11,8 +11,8 @@ import de.oneos.eventstore.EventAggregator
 import org.junit.Before
 
 
-class AggregateFactoryTest {
-    AggregateFactory aggregateFactory
+class MixinAggregateFactoryTest {
+    MixinAggregateFactory aggregateFactory
     UUID AGGREGATE_ID = randomUUID()
     UUID ANOTHER_AGGREGATE_ID = randomUUID()
 
@@ -22,7 +22,7 @@ class AggregateFactoryTest {
 
     @Before
     void setUp() {
-        aggregateFactory = new AggregateFactory()
+        aggregateFactory = new MixinAggregateFactory()
 
         while(AGGREGATE_ID == ANOTHER_AGGREGATE_ID) {
             ANOTHER_AGGREGATE_ID = randomUUID()

@@ -5,6 +5,7 @@ import static java.util.UUID.randomUUID
 import org.junit.*
 import static org.junit.Assert.*
 import static org.mockito.Mockito.*
+import static org.hamcrest.Matchers.*
 import static de.oneos.Matchers.*
 import static de.oneos.Stubbing.*
 
@@ -18,10 +19,16 @@ class UnitOfWorkTest {
 
     static UUID AGGREGATE_ID = randomUUID()
     static UUID ANOTHER_AGGREGATE_ID = randomUUID()
+    static final Aggregate DUMMY_AGGREGATE = new Aggregate() {
+        String toString() { 'DUMMY AGGREGATE' }
+
+        boolean equals(Object that) { this.toString() == that.toString() }
+    }
 
     UnitOfWork unitOfWork
     TestableClosure callback, eventFactory
     EventStore eventStore
+    AggregateFactory aggregateFactory
 
     @Before
     void setUp() {
@@ -33,6 +40,7 @@ class UnitOfWorkTest {
         }
 
         eventStore = mock(EventStore)
+        aggregateFactory = mock(AggregateFactory)
     }
 
 
@@ -92,29 +100,17 @@ class UnitOfWorkTest {
         verify(eventStore).loadEventEnvelopes(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, eventFactory)
     }
 
-    // TODO Replace with collaboration test with AggregateFactory
-    @Ignore
     @Test
-    void should_add_dynamic_method_publishEvent_to_loaded_aggregates() {
+    void should_create_aggregate_instances_with_AggregateFactory() {
         unitOfWork = new UnitOfWork(eventStore)
+        unitOfWork.aggregateFactory = aggregateFactory
+        when(aggregateFactory.newInstance(any(Map), eq(Aggregate))).thenReturn DUMMY_AGGREGATE
 
-        loadAggregate(unitOfWork, AGGREGATE_ID).publishEvent(new Business_event_happened())
-        loadAggregate(unitOfWork, ANOTHER_AGGREGATE_ID).publishEvent(new Business_event_happened())
-        unitOfWork.eachEventEnvelope(callback)
+        def actualAggregate = unitOfWork.get(Aggregate, AGGREGATE_ID, eventFactory)
 
-        assertThat 'callback', callback, wasCalledOnceWith(EventEnvelope, [aggregateId: AGGREGATE_ID]);
-        assertThat 'callback', callback, wasCalledOnceWith(EventEnvelope, [aggregateId: ANOTHER_AGGREGATE_ID]);
-        assertThat 'callback', callback, wasCalledTwiceWith(EventEnvelope, [
-            applicationName: APPLICATION_NAME,
-            boundedContextName: BOUNDED_CONTEXT_NAME,
-            aggregateName: AGGREGATE_NAME,
-            event: new Business_event_happened()
-        ])
+        assertThat actualAggregate, equalTo(DUMMY_AGGREGATE)
     }
 
-    protected loadAggregate(UnitOfWork unitOfWork, UUID aggregateId) {
-        unitOfWork.get(Aggregate, aggregateId, eventFactory)
-    }
 
     @Test
     void should_update_the_next_sequenceNumber_for_loaded_aggregates() {
@@ -123,7 +119,7 @@ class UnitOfWorkTest {
         when(eventStore.loadEventEnvelopes(eq(APPLICATION_NAME), eq(BOUNDED_CONTEXT_NAME), eq(AGGREGATE_NAME), eq(AGGREGATE_ID), any(Closure))).then(answer {
             (0..lastSequenceNumber).collect { newEventEnvelope(sequenceNumber: it) }
         })
-        loadAggregate(unitOfWork, AGGREGATE_ID)
+        unitOfWork.get(Aggregate, AGGREGATE_ID, eventFactory)
 
         publishEvent(unitOfWork, AGGREGATE_ID)
 

@@ -8,10 +8,8 @@ import de.oneos.eventsourcing.*
 class UnitOfWork implements EventAggregator {
 
     protected EventStore eventStore
+    protected AggregateFactory aggregateFactory
     protected List<EventEnvelope> publishedEventEnvelopes = []
-
-    Map<Integer, UUID> aggregateIds = Collections.synchronizedMap([:])
-    Map<Class, ExpandoMetaClass> expandoAggregateClasses = Collections.synchronizedMap([:])
 
     Map<String, Map<String, Map<String, Map<UUID, Integer>>>> nextSequenceNumbers =
         emptyMapWithDefault(
@@ -22,6 +20,7 @@ class UnitOfWork implements EventAggregator {
 
     UnitOfWork(EventStore eventStore) {
         this.eventStore = eventStore
+        this.aggregateFactory = new MixinAggregateFactory()
     }
 
 
@@ -44,6 +43,10 @@ class UnitOfWork implements EventAggregator {
         return aggregate
     }
 
+    protected newAggregateInstance(Class aggregateClass, UUID aggregateId) {
+        aggregateFactory.newInstance(aggregateClass, aggregateId: aggregateId, eventAggregator: this)
+    }
+
     protected updateSequenceNumbers(Class aggregateClass, UUID aggregateId, List<EventEnvelope> eventEnvelopes) {
         nextSequenceNumbers(aggregateClass)[aggregateId] = maximumSequenceNumber(eventEnvelopes) + 1
     }
@@ -64,49 +67,6 @@ class UnitOfWork implements EventAggregator {
             aggregateId,
             eventFactory
         )
-    }
-
-    protected newAggregateInstance(Class aggregateClass, UUID aggregateId) {
-        def aggregate = aggregateClass.newInstance()
-        aggregate.metaClass = expando(aggregateClass, this)
-        aggregate.aggregateId = aggregateId
-        aggregate
-    }
-
-    protected expando(Class aggregateClass, UnitOfWork unitOfWork) {
-        if (!expandoAggregateClasses.containsKey(aggregateClass)) {
-            expandoAggregateClasses[aggregateClass] = buildExpandoAggregateClass(aggregateClass, unitOfWork)
-        }
-        expandoAggregateClasses[aggregateClass]
-    }
-
-    protected buildExpandoAggregateClass(Class aggregateClass, UnitOfWork unitOfWork) {
-        defineExpandoMetaClass(aggregateClass) {
-            setAggregateId = { thisAggregateId ->
-                aggregateIds[System.identityHashCode(delegate)] = thisAggregateId
-            }
-
-            getAggregateId = {->
-                aggregateIds[System.identityHashCode(delegate)]
-            }
-
-            publishEvent = { event ->
-                unitOfWork.publishEvent(
-                    aggregateClass.applicationName,
-                    aggregateClass.boundedContextName,
-                    aggregateClass.aggregateName,
-                    delegate.aggregateId,
-                    event
-                )
-                // TODO Immediately apply the event to the aggregate
-            }
-        }
-    }
-
-    static defineExpandoMetaClass(Class theClass, Closure definition) {
-        ExpandoMetaClass expandoAggregateClass = new ExpandoMetaClass(theClass)
-        expandoAggregateClass.define(definition).initialize()
-        expandoAggregateClass
     }
 
     @Override
