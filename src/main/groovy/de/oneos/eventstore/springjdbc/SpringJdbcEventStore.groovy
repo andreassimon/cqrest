@@ -87,7 +87,11 @@ CREATE TABLE ${TABLE_NAME} (
     }
 
     @Override
-    void save(EventEnvelope eventEnvelope) {
+    void commit(UnitOfWork unitOfWork) throws IllegalArgumentException, EventCollisionOccurred {
+        unitOfWork.eachEventEnvelope saveEventEnvelope
+    }
+
+    protected Closure<Void> saveEventEnvelope = { EventEnvelope eventEnvelope ->
         AssertEventEnvelope.notEmpty(eventEnvelope, 'applicationName')
         AssertEventEnvelope.notEmpty(eventEnvelope, 'boundedContextName')
         AssertEventEnvelope.notEmpty(eventEnvelope, 'aggregateName')

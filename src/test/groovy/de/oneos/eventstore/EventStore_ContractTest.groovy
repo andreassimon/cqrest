@@ -15,29 +15,18 @@ abstract class EventStore_ContractTest {
     static final String AGGREGATE_NAME = 'AGGREGATE_NAME'
     static final UUID   AGGREGATE_ID = randomUUID()
 
-    static final Map<String, Object> VALID_EVENT_ENVELOPE_PROPERTIES = [
-            applicationName: APPLICATION_NAME,
-            boundedContextName: BOUNDED_CONTEXT_NAME,
-            aggregateName: AGGREGATE_NAME,
-            aggregateId: AGGREGATE_ID,
-            event: new Business_event_happened(),
-            sequenceNumber: 0,
-            timestamp: new Date()
-    ]
-
     abstract EventStore getEventStore()
 
-    EventEnvelope eventEnvelope
+    Closure<Object> eventFactory
 
     void setUp() {
-        eventEnvelope = new EventEnvelope(
-            APPLICATION_NAME,
-            BOUNDED_CONTEXT_NAME,
-            AGGREGATE_NAME,
-            AGGREGATE_ID,
-            new Business_event_happened()
-        )
+        eventFactory = { classLoader, packageName, eventName, eventAttributes ->
+            def simpleEventClassName = eventName.replaceAll(' ', '_')
+            def fullEventClassName = [packageName, simpleEventClassName].join('.')
+            classLoader.loadClass(fullEventClassName).newInstance(eventAttributes)
+        }.curry(Business_event_happened.classLoader, Business_event_happened.package.name)
     }
+
 
     @Test
     void should_provide_UnitOfWork_instances() {
@@ -46,125 +35,87 @@ abstract class EventStore_ContractTest {
 
     @Test
     void should_persist_an_EventEnvelope() {
-        def eventClassPackageName = eventEnvelope.event.class.package.name
+        eventStore.commit(unitOfWork(eventStream))
 
-        eventStore.save(eventEnvelope)
-        List history = eventStore.loadEventEnvelopes(
-                eventEnvelope.applicationName,
-                eventEnvelope.boundedContextName,
-                eventEnvelope.aggregateName,
-                eventEnvelope.aggregateId
-        ) { eventName, eventAttributes ->
-            loadEventClass(eventClassPackageName, eventName).newInstance(eventAttributes)
+        assertThat history(eventStore), equalTo(eventStream)
+    }
+
+    protected unitOfWork(Map eventCoordinates = [:], List<Event> events) {
+        def unitOfWork = eventStore.createUnitOfWork()
+        events.each { event ->
+            unitOfWork.publishEvent(
+                eventCoordinates.containsKey('applicationName') ? eventCoordinates['applicationName'] : APPLICATION_NAME,
+                eventCoordinates.containsKey('boundedContextName') ? eventCoordinates['boundedContextName'] : BOUNDED_CONTEXT_NAME,
+                eventCoordinates.containsKey('aggregateName') ? eventCoordinates['aggregateName'] : AGGREGATE_NAME,
+                eventCoordinates.containsKey('aggregateId') ? eventCoordinates['aggregateId'] : AGGREGATE_ID,
+                event
+            )
         }
-
-        assertThat history, equalTo([
-            eventEnvelope
-        ])
+        unitOfWork
     }
 
-    Class loadEventClass(eventClassPackageName, eventName) {
-        def simpleEventClassName = eventName.replaceAll(' ', '_')
-        def fullEventClassName = [eventClassPackageName, simpleEventClassName].join('.')
-        this.class.classLoader.loadClass(fullEventClassName)
+    protected getEventStream() {
+        [new Business_event_happened()]
     }
 
-
-    @Test(expected = IllegalArgumentException)
-    void should_throw_an_exception_when_applicationName_is_null() {
-        eventStore.save(validEnvelopeBut(applicationName: null))
-    }
-
-    EventEnvelope validEnvelopeBut(Map overriddenProperties) {
-        eventEnvelopeWithProperties(VALID_EVENT_ENVELOPE_PROPERTIES + overriddenProperties)
-    }
-
-    EventEnvelope eventEnvelopeWithProperties(Map<String, Object> properties) {
-        new EventEnvelope(
-            properties.applicationName,
-            properties.boundedContextName,
-            properties.aggregateName,
-            properties.aggregateId,
-            properties.event,
-            properties.sequenceNumber,
-            properties.timestamp
-        )
+    protected history(EventStore eventStore) {
+        eventStore.loadEventEnvelopes(
+            APPLICATION_NAME,
+            BOUNDED_CONTEXT_NAME,
+            AGGREGATE_NAME,
+            AGGREGATE_ID,
+            eventFactory
+        ).collect { it.event }
     }
 
 
     @Test(expected = IllegalArgumentException)
     void should_throw_an_exception_when_applicationName_is_empty() {
-        eventStore.save(validEnvelopeBut(applicationName: ''))
-    }
-
-    @Test(expected = IllegalArgumentException)
-    void should_throw_an_exception_when_boundedContextName_is_null() {
-        eventStore.save(validEnvelopeBut(boundedContextName: null))
+        eventStore.commit(unitOfWork(eventStream, applicationName: ''))
     }
 
     @Test(expected = IllegalArgumentException)
     void should_throw_an_exception_when_boundedContextName_is_empty() {
-        eventStore.save(validEnvelopeBut(boundedContextName: ''))
-    }
-
-    @Test(expected = IllegalArgumentException)
-    void should_throw_an_exception_when_aggregateName_is_null() {
-        eventStore.save(validEnvelopeBut(aggregateName: null))
+        eventStore.commit(unitOfWork(eventStream, boundedContextName: ''))
     }
 
     @Test(expected = IllegalArgumentException)
     void should_throw_an_exception_when_aggregateName_is_empty() {
-        eventStore.save(validEnvelopeBut(aggregateName: ''))
+        eventStore.commit(unitOfWork(eventStream, aggregateName: ''))
     }
 
     @Test(expected = IllegalArgumentException)
     void should_throw_an_exception_when_aggregateId_is_null() {
-        eventStore.save(validEnvelopeBut(aggregateId: null))
-    }
-
-    @Test(expected = GroovyRuntimeException)
-    void should_throw_an_exception_when_sequenceNumber_is_null() {
-        eventStore.save(validEnvelopeBut(sequenceNumber: null))
-    }
-
-    @Test(expected = IllegalArgumentException)
-    void should_throw_an_exception_when_eventName_is_null() {
-        eventStore.save(validEnvelopeBut(event: new Business_event_happened() {
-            @Override
-            String getName() { null }
-        }))
+        eventStore.commit(unitOfWork(eventStream, aggregateId: null))
     }
 
     @Test(expected = IllegalArgumentException)
     void should_throw_an_exception_when_eventName_is_empty() {
-        eventStore.save(validEnvelopeBut(event: new Business_event_happened() {
+        eventStore.commit(unitOfWork([new Business_event_happened() {
             @Override
             String getName() { '' }
-        }))
-    }
-
-    @Test(expected = IllegalArgumentException)
-    void should_throw_an_exception_when_timestamp_is_null() {
-        eventStore.save(validEnvelopeBut(timestamp: null))
+        }]))
     }
 
     @Test(expected = EventCollisionOccurred)
     void should_throw_an_exception_when_there_is_an_aggregate_event_stream_collision() {
-        Map SAME_EVENT_COORDINATES = [
-            applicationName: APPLICATION_NAME,
-            boundedContextName: BOUNDED_CONTEXT_NAME,
-            aggregateName: AGGREGATE_NAME,
-            aggregateId: AGGREGATE_ID,
-            sequenceNumber: 0
-        ]
+        def unitOfWork_1 = eventStore.createUnitOfWork()
+        def unitOfWork_2 = eventStore.createUnitOfWork()
 
-        eventStore.save(validEnvelopeBut(SAME_EVENT_COORDINATES))
-        eventStore.save(validEnvelopeBut(SAME_EVENT_COORDINATES))
+        [unitOfWork_1, unitOfWork_2].each { unitOfWork ->
+            unitOfWork.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
+        }
+
+        [unitOfWork_1, unitOfWork_2].each { unitOfWork ->
+            eventStore.commit(unitOfWork)
+        }
     }
+
+    // TODO Check rollback / transactionality of commit()
 
     static class Business_event_happened extends Event {
         @Override
-        void applyTo(aggregate) { aggregate }
+        void applyTo(aggregate) { }
     }
 
 }
