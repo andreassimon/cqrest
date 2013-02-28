@@ -17,6 +17,8 @@ class UnitOfWorkTest {
     static final String BOUNDED_CONTEXT_NAME = 'BOUNDED_CONTEXT_NAME'
     static final String AGGREGATE_NAME = 'AGGREGATE_NAME'
 
+    static final int LAST_SEQUENCE_NUMBER = 2
+
     static UUID AGGREGATE_ID = randomUUID()
     static UUID ANOTHER_AGGREGATE_ID = randomUUID()
     static final Aggregate DUMMY_AGGREGATE = new Aggregate() {
@@ -32,6 +34,8 @@ class UnitOfWorkTest {
 
     @Before
     void setUp() {
+        unitOfWork = new UnitOfWork(eventStore)
+
         callback = new TestableClosure(this)
         eventFactory = new TestableClosure(this)
 
@@ -46,8 +50,6 @@ class UnitOfWorkTest {
 
     @Test
     void should_collect_published_events() {
-        unitOfWork = new UnitOfWork(eventStore)
-
         unitOfWork.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
 
         unitOfWork.eachEventEnvelope(callback)
@@ -62,8 +64,6 @@ class UnitOfWorkTest {
 
     @Test
     void should_increment_the_sequenceNumber_for_published_events_for_an_aggregate() {
-        unitOfWork = new UnitOfWork(eventStore)
-
         2.times {
             publishEvent(unitOfWork, AGGREGATE_ID)
         }
@@ -76,8 +76,6 @@ class UnitOfWorkTest {
 
     @Test
     void should_increment_the_sequenceNumber_depending_on_the_aggregate() {
-        unitOfWork = new UnitOfWork(eventStore)
-
         publishEvent(unitOfWork, AGGREGATE_ID)
         publishEvent(unitOfWork, ANOTHER_AGGREGATE_ID)
 
@@ -93,8 +91,6 @@ class UnitOfWorkTest {
 
     @Test
     void should_build_aggregates_from_events() {
-        unitOfWork = new UnitOfWork(eventStore)
-
         unitOfWork.get(Aggregate, AGGREGATE_ID, eventFactory)
 
         verify(eventStore).loadEventEnvelopes(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, eventFactory)
@@ -102,7 +98,6 @@ class UnitOfWorkTest {
 
     @Test
     void should_create_aggregate_instances_with_AggregateFactory() {
-        unitOfWork = new UnitOfWork(eventStore)
         unitOfWork.aggregateFactory = aggregateFactory
         when(aggregateFactory.newInstance(any(Map), eq(Aggregate))).thenReturn DUMMY_AGGREGATE
 
@@ -114,17 +109,15 @@ class UnitOfWorkTest {
 
     @Test
     void should_update_the_next_sequenceNumber_for_loaded_aggregates() {
-        int lastSequenceNumber = 2
-        unitOfWork = new UnitOfWork(eventStore)
         when(eventStore.loadEventEnvelopes(eq(APPLICATION_NAME), eq(BOUNDED_CONTEXT_NAME), eq(AGGREGATE_NAME), eq(AGGREGATE_ID), any(Closure))).then(answer {
-            (0..lastSequenceNumber).collect { newEventEnvelope(sequenceNumber: it) }
+            (0..LAST_SEQUENCE_NUMBER).collect { newEventEnvelope(sequenceNumber: it) }
         })
         unitOfWork.get(Aggregate, AGGREGATE_ID, eventFactory)
 
         publishEvent(unitOfWork, AGGREGATE_ID)
 
         unitOfWork.eachEventEnvelope(callback)
-        assertThat 'callback', callback, wasCalledOnceWith(sequenceNumber: lastSequenceNumber + 1);
+        assertThat 'callback', callback, wasCalledOnceWith(sequenceNumber: LAST_SEQUENCE_NUMBER + 1);
     }
 
     static newEventEnvelope(Map<String, Integer> attributes) {
