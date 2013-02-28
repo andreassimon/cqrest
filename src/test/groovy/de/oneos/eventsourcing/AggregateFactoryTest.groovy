@@ -16,6 +16,7 @@ class AggregateFactoryTest {
     UUID AGGREGATE_ID = randomUUID()
     UUID ANOTHER_AGGREGATE_ID = randomUUID()
 
+    List<Aggregate> aggregates
     EventAggregator eventAggregator
 
     @Before
@@ -40,34 +41,28 @@ class AggregateFactoryTest {
     @Test
     void emit__should_pass_the_event_to_EventAggregator() {
         aggregateFactory = new AggregateFactory()
-        Aggregate aggregate = aggregateFactory.newInstance(Aggregate,
-            aggregateId: AGGREGATE_ID,
-            eventAggregator: eventAggregator
-        )
-        Aggregate anotherAggregate = aggregateFactory.newInstance(Aggregate,
-            aggregateId: ANOTHER_AGGREGATE_ID,
-            eventAggregator: eventAggregator
-        )
-
-        2.times {
-            aggregate.emit__Business_event_happened()
-            anotherAggregate.emit__Business_event_happened()
+        aggregates = [AGGREGATE_ID, ANOTHER_AGGREGATE_ID].collect { aggregateId ->
+            aggregateFactory.newInstance(Aggregate,
+                aggregateId: aggregateId,
+                eventAggregator: eventAggregator
+            )
         }
 
-        verify(eventAggregator, times(2)).publishEvent(
-            Aggregate.applicationName,
-            Aggregate.boundedContextName,
-            Aggregate.aggregateName,
-            AGGREGATE_ID,
-            new Business_event_happened()
-        )
-        verify(eventAggregator, times(2)).publishEvent(
-            Aggregate.applicationName,
-            Aggregate.boundedContextName,
-            Aggregate.aggregateName,
-            ANOTHER_AGGREGATE_ID,
-            new Business_event_happened()
-        )
+        2.times {
+            aggregates.each {
+                it.emit__Business_event_happened()
+            }
+        }
+
+        [AGGREGATE_ID, ANOTHER_AGGREGATE_ID].each { aggregateId ->
+            verify(eventAggregator, times(2)).publishEvent(
+                Aggregate.applicationName,
+                Aggregate.boundedContextName,
+                Aggregate.aggregateName,
+                aggregateId,
+                new Business_event_happened()
+            )
+        }
     }
 
 

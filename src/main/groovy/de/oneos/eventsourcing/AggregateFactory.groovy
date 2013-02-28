@@ -27,7 +27,7 @@ class AggregateFactory {
                     aggregateIds[identityHashCode(delegate)],
                     event
                 )
-//                TODO Immediately apply the event to the aggregate
+                // TODO Immediately apply the event to the aggregate
             }
         }
         aggregateProperties.each { name, value ->
