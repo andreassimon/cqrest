@@ -8,6 +8,9 @@ import de.oneos.eventstore.*
 
 import org.springframework.dao.*
 import org.springframework.jdbc.core.*
+import org.springframework.jdbc.datasource.*
+
+import org.springframework.transaction.support.*
 
 
 class SpringJdbcEventStore implements EventStore {
@@ -38,9 +41,13 @@ WHERE application_name = ? AND
 
     JsonSlurper json = new JsonSlurper()
     JdbcOperations jdbcTemplate
+    TransactionTemplate transactionTemplate
 
     void setDataSource(DataSource dataSource) {
         jdbcTemplate = new JdbcTemplate(dataSource)
+        transactionTemplate =
+            new TransactionTemplate(
+                new DataSourceTransactionManager(dataSource))
     }
 
 
@@ -88,7 +95,13 @@ CREATE TABLE ${TABLE_NAME} (
 
     @Override
     void commit(UnitOfWork unitOfWork) throws IllegalArgumentException, EventCollisionOccurred {
-        unitOfWork.eachEventEnvelope saveEventEnvelope
+        doInTransaction { unitOfWork.eachEventEnvelope saveEventEnvelope }
+    }
+
+    protected doInTransaction(Closure<Void> callback) {
+        transactionTemplate.execute(
+            [doInTransaction: callback] as TransactionCallback
+        )
     }
 
     protected Closure<Void> saveEventEnvelope = { EventEnvelope eventEnvelope ->

@@ -13,13 +13,17 @@ abstract class EventStore_ContractTest {
     static final String APPLICATION_NAME = 'APPLICATION_NAME'
     static final String BOUNDED_CONTEXT_NAME = 'BOUNDED_CONTEXT_NAME'
     static final String AGGREGATE_NAME = 'AGGREGATE_NAME'
-    static final UUID   AGGREGATE_ID = randomUUID()
+    static UUID AGGREGATE_ID = randomUUID()
+    static UUID ANOTHER_AGGREGATE_ID = randomUUID()
 
     abstract EventStore getEventStore()
 
     Closure<Object> eventFactory
 
     void setUp() {
+        while(ANOTHER_AGGREGATE_ID == AGGREGATE_ID) {
+            ANOTHER_AGGREGATE_ID = randomUUID()
+        }
         eventFactory = { classLoader, packageName, eventName, eventAttributes ->
             def simpleEventClassName = eventName.replaceAll(' ', '_')
             def fullEventClassName = [packageName, simpleEventClassName].join('.')
@@ -58,12 +62,12 @@ abstract class EventStore_ContractTest {
         [new Business_event_happened()]
     }
 
-    protected history(EventStore eventStore) {
+    protected history(EventStore eventStore, aggregateId = AGGREGATE_ID) {
         eventStore.loadEventEnvelopes(
             APPLICATION_NAME,
             BOUNDED_CONTEXT_NAME,
             AGGREGATE_NAME,
-            AGGREGATE_ID,
+            aggregateId,
             eventFactory
         ).collect { it.event }
     }
@@ -111,7 +115,23 @@ abstract class EventStore_ContractTest {
         }
     }
 
-    // TODO Check rollback / transactionality of commit()
+    @Test
+    void should_not_persist_any_event_if_any_in_UnitOfWork_conflicts() {
+        def unitOfWork_1 = eventStore.createUnitOfWork()
+        def unitOfWork_2 = eventStore.createUnitOfWork()
+
+        unitOfWork_1.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
+
+        unitOfWork_2.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, ANOTHER_AGGREGATE_ID, new Business_event_happened())
+        unitOfWork_2.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
+
+        eventStore.commit(unitOfWork_1)
+        try {
+            eventStore.commit(unitOfWork_2)
+        } catch (EventCollisionOccurred) { }
+
+        assertThat history(eventStore, ANOTHER_AGGREGATE_ID), empty()
+    }
 
     static class Business_event_happened extends Event {
         @Override

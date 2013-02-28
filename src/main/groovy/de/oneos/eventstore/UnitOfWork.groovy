@@ -84,7 +84,7 @@ class UnitOfWork implements EventAggregator {
         nextSequenceNumbers[applicationName][boundedContextName][aggregateName][aggregateId]
     }
 
-    def eachEventEnvelope(Closure callback) {
+    void eachEventEnvelope(Closure callback) {
         publishedEventEnvelopes.each { callback(it) }
     }
 
