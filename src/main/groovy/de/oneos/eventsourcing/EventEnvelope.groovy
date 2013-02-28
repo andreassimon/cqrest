@@ -45,8 +45,7 @@ class EventEnvelope<AggregateType> {
                 this.aggregateName == that.aggregateName &&
                 this.aggregateId   == that.aggregateId &&
                 this.event         == that.event &&
-                this.sequenceNumber == that.sequenceNumber &&
-                this.timestamp     == that.timestamp
+                this.sequenceNumber == that.sequenceNumber
     }
 
     String toJSON() {
