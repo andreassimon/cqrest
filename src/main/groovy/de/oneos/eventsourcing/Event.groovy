@@ -1,7 +1,7 @@
 package de.oneos.eventsourcing
 
 abstract class Event<T> {
-    private static final List<String> UNSERIALIZED_PROPERTIES = ['applicationName', 'boundedContextName', 'aggregateClass', 'aggregateName', 'aggregateClassName', 'aggregateId', 'class', 'name']
+    protected static List<String> UNSERIALIZED_PROPERTIES = ['applicationName', 'boundedContextName', 'aggregateClass', 'aggregateName', 'aggregateClassName', 'aggregateId', 'class', 'name']
 
     abstract void applyTo(T t)
 

@@ -36,10 +36,9 @@ class UnitOfWork implements EventAggregator {
         List<EventEnvelope> eventEnvelopes = loadEventEnvelopes(aggregateClass, aggregateId, eventFactory)
 
         updateSequenceNumbers(aggregateClass, aggregateId, eventEnvelopes)
-//        TODO Apply the loaded events to the aggregate
-//        eventEnvelopes.each { envelope ->
-//            envelope.applyEventTo(aggregate)
-//        }
+        eventEnvelopes.each { envelope ->
+            envelope.applyEventTo(aggregate)
+        }
         return aggregate
     }
 

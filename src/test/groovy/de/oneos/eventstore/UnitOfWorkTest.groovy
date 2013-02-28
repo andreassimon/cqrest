@@ -18,7 +18,6 @@ class UnitOfWorkTest {
     static final String AGGREGATE_NAME = 'AGGREGATE_NAME'
 
     static final int LAST_SEQUENCE_NUMBER = 2
-
     static UUID AGGREGATE_ID = randomUUID()
     static UUID ANOTHER_AGGREGATE_ID = randomUUID()
     static final Aggregate DUMMY_AGGREGATE = new Aggregate() {
@@ -90,10 +89,29 @@ class UnitOfWorkTest {
     }
 
     @Test
-    void should_build_aggregates_from_events() {
-        unitOfWork.get(Aggregate, AGGREGATE_ID, eventFactory)
+    void should_apply_events_from_the_EventStore_to_loaded_aggregates() {
+        when(eventStore.loadEventEnvelopes(
+            Aggregate.applicationName,
+            Aggregate.boundedContextName,
+            Aggregate.aggregateName,
+            AGGREGATE_ID,
+            eventFactory)).
+        thenReturn listOfEvents(function: { Aggregate aggregate -> aggregate.numberOfAppliedEvents++ })
 
-        verify(eventStore).loadEventEnvelopes(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, eventFactory)
+        def loadedAggregate = unitOfWork.get(Aggregate, AGGREGATE_ID, eventFactory)
+
+        assertThat loadedAggregate.numberOfAppliedEvents, equalTo(listOfEvents().size())
+    }
+
+    static List<EventEnvelope> listOfEvents(eventProperties = [:]) {
+        (0..2).collect { sequenceNumber ->
+            new EventEnvelope<Aggregate>(APPLICATION_NAME,
+                BOUNDED_CONTEXT_NAME,
+                AGGREGATE_NAME,
+                AGGREGATE_ID,
+                new Business_event_happened(eventProperties),
+                sequenceNumber)
+        }
     }
 
     @Test
@@ -129,10 +147,17 @@ class UnitOfWorkTest {
         static applicationName = APPLICATION_NAME
         static boundedContextName = BOUNDED_CONTEXT_NAME
         static aggregateName = AGGREGATE_NAME
+
+        int numberOfAppliedEvents = 0
     }
 
-    static class Business_event_happened extends Event {
+    static class Business_event_happened extends Event<Aggregate> {
+        static { UNSERIALIZED_PROPERTIES << 'function' }
+        Closure<Void> function = {}
+
         @Override
-        void applyTo(aggregate) { aggregate }
+        void applyTo(Aggregate aggregate) {
+            function(aggregate)
+        }
     }
 }
