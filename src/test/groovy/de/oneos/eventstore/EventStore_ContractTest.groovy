@@ -133,6 +133,19 @@ abstract class EventStore_ContractTest {
         assertThat history(eventStore, ANOTHER_AGGREGATE_ID), empty()
     }
 
+    @Test
+    void should_execute_closure_in_unit_of_work() {
+        eventStore.inUnitOfWork {
+            publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
+            publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
+        }
+
+        assertThat history(eventStore, AGGREGATE_ID), equalTo([
+            new Business_event_happened(),
+            new Business_event_happened()
+        ])
+    }
+
     static class Business_event_happened extends Event {
         @Override
         void applyTo(aggregate) { }

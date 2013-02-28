@@ -11,4 +11,6 @@ interface EventStore {
 
     List<EventEnvelope> loadEventEnvelopes(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Closure<Event> eventFactory)
 
+    void inUnitOfWork(Closure closure)
+
 }

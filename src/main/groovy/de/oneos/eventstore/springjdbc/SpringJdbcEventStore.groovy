@@ -154,4 +154,12 @@ CREATE TABLE ${TABLE_NAME} (
         }
     }
 
+    @Override
+    void inUnitOfWork(Closure closure) {
+        UnitOfWork unitOfWork = createUnitOfWork()
+        closure.delegate = unitOfWork
+        closure()
+        commit(unitOfWork)
+    }
+
 }
