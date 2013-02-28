@@ -144,6 +144,6 @@ class UnitOfWorkTest {
 
     static class Business_event_happened extends Event {
         @Override
-        def applyTo(aggregate) { aggregate }
+        void applyTo(aggregate) { aggregate }
     }
 }

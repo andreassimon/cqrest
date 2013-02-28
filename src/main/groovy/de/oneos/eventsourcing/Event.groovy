@@ -3,7 +3,7 @@ package de.oneos.eventsourcing
 abstract class Event<T> {
     private static final List<String> UNSERIALIZED_PROPERTIES = ['applicationName', 'boundedContextName', 'aggregateClass', 'aggregateName', 'aggregateClassName', 'aggregateId', 'class', 'name']
 
-    abstract T applyTo(T t)
+    abstract void applyTo(T t)
 
     String getName() {
         this.class.name.split('\\.')[-1].replaceAll('_', ' ')

@@ -91,9 +91,9 @@ class AggregateFactoryTest {
         }
     }
 
-    static class Business_event_happened extends Event {
+    static class Business_event_happened extends Event<Aggregate> {
         @Override
-        def applyTo(aggregate) { aggregate.businessEventWasApplied = true }
+        void applyTo(Aggregate aggregate) { aggregate.businessEventWasApplied = true }
     }
 
 }

@@ -139,6 +139,6 @@ eventName == ${eventEnvelope.eventName}\
     static class BusinessEventHappened extends Event {
         String name = 'Business event happened'
 
-        Object applyTo(aggregate) { return null }
+        void applyTo(aggregate) { }
     }
 }
