@@ -34,8 +34,6 @@ class UnitOfWorkTest {
 
     @Before
     void setUp() {
-        unitOfWork = new UnitOfWork(eventStore)
-
         callback = new TestableClosure(this)
         eventFactory = new TestableClosure(this)
 
@@ -45,6 +43,8 @@ class UnitOfWorkTest {
 
         eventStore = mock(EventStore)
         aggregateFactory = mock(AggregateFactory)
+
+        unitOfWork = new UnitOfWork(eventStore)
     }
 
 
