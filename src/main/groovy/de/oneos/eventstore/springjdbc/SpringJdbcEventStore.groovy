@@ -1,5 +1,6 @@
 package de.oneos.eventstore.springjdbc
 
+import java.sql.*
 import javax.sql.*
 import groovy.json.*
 
@@ -131,27 +132,31 @@ CREATE TABLE ${TABLE_NAME} (
 
     @Override
     List<EventEnvelope> loadEventEnvelopes(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Closure<Event> eventFactory) {
-        final records = jdbcTemplate.queryForList(FIND_AGGREGATE_EVENTS,
+        jdbcTemplate.query(FIND_AGGREGATE_EVENTS,
+            eventEnvelopeMapper(eventFactory),
             applicationName,
             boundedContextName,
             aggregateName,
             aggregateId
         )
+    }
 
-        records.collect { record ->
+    protected eventEnvelopeMapper(Closure<Event> eventFactory) {
+        [mapRow: { ResultSet rs, int rowNum ->
             new EventEnvelope(
-                record['application_name'],
-                record['bounded_context_name'],
-                record['aggregate_name'],
-                record['aggregate_id'],
+                rs.getString('application_name'),
+                rs.getString('bounded_context_name'),
+                rs.getString('aggregate_name'),
+                rs.getObject('aggregate_id'),
                 eventFactory(
-                    record['event_name'],
-                    json.parseText(record['attributes'])
+                    rs.getString('event_name'),
+                    json.parseText(rs.getString('attributes'))
                 ),
-                record['sequence_number'],
-                record['timestamp']
+                rs.getInt('sequence_number'),
+                rs.getTimestamp('timestamp')
             )
         }
+        ] as RowMapper<EventEnvelope>
     }
 
     @Override
