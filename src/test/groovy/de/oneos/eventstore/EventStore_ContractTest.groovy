@@ -3,6 +3,7 @@ package de.oneos.eventstore
 import static java.util.UUID.randomUUID
 
 import org.junit.*
+import junit.framework.AssertionFailedError
 import static org.junit.Assert.*
 import static org.mockito.Mockito.*
 import static org.hamcrest.Matchers.*
@@ -196,7 +197,30 @@ abstract class EventStore_ContractTest {
         verify(flawlessEventPublisher).publish(expectedEventEnvelope)
     }
 
-    // TODO should_not_publish_any_event_when_transaction_failed()
+    @Test
+    void should_not_publish_any_event_when_transaction_failed() {
+        eventStore.publishers = [eventPublisher]
+        eventStore.inUnitOfWork publish(expectedEventEnvelope)
+
+        reset(eventPublisher)
+        expect(EventCollisionOccurred) {
+            eventStore.inUnitOfWork publish(expectedEventEnvelope)
+        }
+
+        verify(eventPublisher, never()).publish(expectedEventEnvelope)
+    }
+
+    void expect(Class<Throwable> exceptionClass, Closure<Void> block) {
+        try {
+            block.call()
+            throw new AssertionFailedError("Expected $exceptionClass, but none was thrown")
+        } catch (exception) {
+            if(exception.class != exceptionClass) {
+                throw exception
+            }
+        }
+    }
+
 
     static class Business_event_happened extends Event {
         @Override
