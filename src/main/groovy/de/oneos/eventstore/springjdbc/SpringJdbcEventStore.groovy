@@ -100,6 +100,14 @@ CREATE TABLE ${TABLE_NAME} (
     }
 
     @Override
+    void inUnitOfWork(Closure closure) {
+        UnitOfWork unitOfWork = createUnitOfWork()
+        closure.delegate = unitOfWork
+        closure()
+        commit(unitOfWork)
+    }
+
+    @Override
     UnitOfWork createUnitOfWork() {
         return new UnitOfWork()
     }
@@ -174,14 +182,6 @@ CREATE TABLE ${TABLE_NAME} (
             )
         }
         ] as RowMapper<EventEnvelope>
-    }
-
-    @Override
-    void inUnitOfWork(Closure closure) {
-        UnitOfWork unitOfWork = createUnitOfWork()
-        closure.delegate = unitOfWork
-        closure()
-        commit(unitOfWork)
     }
 
 }
