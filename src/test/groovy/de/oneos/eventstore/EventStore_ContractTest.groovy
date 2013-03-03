@@ -147,9 +147,9 @@ abstract class EventStore_ContractTest {
         unitOfWork_2.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
 
         eventStore.commit(unitOfWork_1)
-        try {
+        expect(EventCollisionOccurred) {
             eventStore.commit(unitOfWork_2)
-        } catch (EventCollisionOccurred) { }
+        }
 
         assertThat history(eventStore, ANOTHER_AGGREGATE_ID), empty()
     }
