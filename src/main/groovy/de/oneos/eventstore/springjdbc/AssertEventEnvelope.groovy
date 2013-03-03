@@ -1,6 +1,19 @@
 package de.oneos.eventstore.springjdbc
 
+import de.oneos.eventsourcing.*
+
+
 class AssertEventEnvelope {
+
+    protected static isValid(EventEnvelope eventEnvelope) {
+        AssertEventEnvelope.notEmpty(eventEnvelope, 'applicationName')
+        AssertEventEnvelope.notEmpty(eventEnvelope, 'boundedContextName')
+        AssertEventEnvelope.notEmpty(eventEnvelope, 'aggregateName')
+        AssertEventEnvelope.notNull(eventEnvelope, 'aggregateId')
+        AssertEventEnvelope.notNull(eventEnvelope, 'sequenceNumber')
+        AssertEventEnvelope.notEmpty(eventEnvelope, 'eventName')
+        AssertEventEnvelope.notNull(eventEnvelope, 'timestamp')
+    }
 
     static void notEmpty(envelope, String propertyName) {
         AssertEventEnvelope.notNull(envelope, propertyName)

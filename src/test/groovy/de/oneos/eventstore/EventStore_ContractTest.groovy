@@ -4,6 +4,7 @@ import static java.util.UUID.randomUUID
 
 import org.junit.*
 import static org.junit.Assert.*
+import static org.mockito.Mockito.*
 import static org.hamcrest.Matchers.*
 
 import de.oneos.eventsourcing.*
@@ -18,12 +19,31 @@ abstract class EventStore_ContractTest {
 
     abstract EventStore getEventStore()
 
+    EventPublisher eventPublisher, defectiveEventPublisher, flawlessEventPublisher
+    EventEnvelope expectedEventEnvelope = new EventEnvelope(
+        APPLICATION_NAME,
+        BOUNDED_CONTEXT_NAME,
+        AGGREGATE_NAME,
+        AGGREGATE_ID,
+        new Business_event_happened()
+    )
+
+
     Closure<Object> eventFactory
 
     void setUp() {
         while(ANOTHER_AGGREGATE_ID == AGGREGATE_ID) {
             ANOTHER_AGGREGATE_ID = randomUUID()
         }
+
+        eventPublisher = mock(EventPublisher)
+
+        defectiveEventPublisher = mock(EventPublisher, 'defectiveEventPublisher')
+        when(defectiveEventPublisher.publish(any(EventEnvelope))) \
+            .thenThrow(new RuntimeException('Thrown by EventPublisher'))
+
+        flawlessEventPublisher = mock(EventPublisher, 'flawlessEventPublisher')
+
         eventFactory = { classLoader, packageName, eventName, eventAttributes ->
             def simpleEventClassName = eventName.replaceAll(' ', '_')
             def fullEventClassName = [packageName, simpleEventClassName].join('.')
@@ -145,6 +165,38 @@ abstract class EventStore_ContractTest {
             new Business_event_happened()
         ])
     }
+
+    @Test
+    void should_publish_persisted_events_to_registered_EventPublishers() {
+        eventStore.publishers = [eventPublisher]
+
+        eventStore.inUnitOfWork publish(expectedEventEnvelope)
+
+        verify(eventPublisher).publish(expectedEventEnvelope)
+    }
+
+    protected publish(eventEnvelope) {
+        return {
+            publishEvent(
+                eventEnvelope.applicationName,
+                eventEnvelope.boundedContextName,
+                eventEnvelope.aggregateName,
+                eventEnvelope.aggregateId,
+                new Business_event_happened()
+            )
+        }
+    }
+
+    @Test
+    void should_ignore_any_exceptions_thrown_by_EventPublisher() {
+        eventStore.publishers = [defectiveEventPublisher, flawlessEventPublisher]
+
+        eventStore.inUnitOfWork publish(expectedEventEnvelope)
+
+        verify(flawlessEventPublisher).publish(expectedEventEnvelope)
+    }
+
+    // TODO should_not_publish_any_event_when_transaction_failed()
 
     static class Business_event_happened extends Event {
         @Override

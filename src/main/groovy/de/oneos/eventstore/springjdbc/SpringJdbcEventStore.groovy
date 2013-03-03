@@ -4,6 +4,8 @@ import java.sql.*
 import javax.sql.*
 import groovy.json.*
 
+import org.apache.commons.logging.*
+
 import de.oneos.eventsourcing.*
 import de.oneos.eventstore.*
 
@@ -15,6 +17,8 @@ import org.springframework.transaction.support.*
 
 
 class SpringJdbcEventStore implements EventStore {
+    static Log log = LogFactory.getLog(SpringJdbcEventStore)
+
 
     static String TABLE_NAME = 'events'
     static String INSERT_EVENT = """\
@@ -43,6 +47,7 @@ WHERE application_name = ? AND
     JsonSlurper json = new JsonSlurper()
     JdbcOperations jdbcTemplate
     TransactionTemplate transactionTemplate
+    protected List<EventPublisher> publishers = []
 
     void setDataSource(DataSource dataSource) {
         jdbcTemplate = new JdbcTemplate(dataSource)
@@ -90,13 +95,31 @@ CREATE TABLE ${TABLE_NAME} (
     }
 
     @Override
+    void setPublishers(List<EventPublisher> eventPublishers) {
+        this.publishers = eventPublishers
+    }
+
+    @Override
     UnitOfWork createUnitOfWork() {
         return new UnitOfWork()
     }
 
     @Override
     void commit(UnitOfWork unitOfWork) throws IllegalArgumentException, EventCollisionOccurred {
-        doInTransaction { unitOfWork.eachEventEnvelope saveEventEnvelope }
+        doInTransaction {
+            unitOfWork.eachEventEnvelope saveEventEnvelope
+        }
+        unitOfWork.eachEventEnvelope { publish(it) }
+    }
+
+    protected publish(envelope) {
+        publishers.each { publisher ->
+            try {
+                publisher.publish(envelope)
+            } catch (Throwable e) {
+                log.warn("Exception during publishing $envelope to $publisher", e)
+            }
+        }
     }
 
     protected doInTransaction(Closure<Void> callback) {
@@ -106,13 +129,7 @@ CREATE TABLE ${TABLE_NAME} (
     }
 
     protected Closure<Void> saveEventEnvelope = { EventEnvelope eventEnvelope ->
-        AssertEventEnvelope.notEmpty(eventEnvelope, 'applicationName')
-        AssertEventEnvelope.notEmpty(eventEnvelope, 'boundedContextName')
-        AssertEventEnvelope.notEmpty(eventEnvelope, 'aggregateName')
-        AssertEventEnvelope.notNull(eventEnvelope, 'aggregateId')
-        AssertEventEnvelope.notNull(eventEnvelope, 'sequenceNumber')
-        AssertEventEnvelope.notEmpty(eventEnvelope, 'eventName')
-        AssertEventEnvelope.notNull(eventEnvelope, 'timestamp')
+        AssertEventEnvelope.isValid(eventEnvelope)
 
         try {
             jdbcTemplate.update(INSERT_EVENT,
