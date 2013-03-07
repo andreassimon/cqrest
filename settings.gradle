@@ -1,1 +1,1 @@
-include 'core-api', 'core-contracts', 'core'
+include 'core-api', 'core-contracts', 'core', 'core-test'
