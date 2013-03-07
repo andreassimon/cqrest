@@ -1,4 +1,4 @@
-package de.oneos.eventstore.springjdbc
+package de.oneos.eventstore
 
 import static java.util.UUID.randomUUID
 

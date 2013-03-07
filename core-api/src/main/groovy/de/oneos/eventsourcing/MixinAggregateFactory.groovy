@@ -1,6 +1,5 @@
 package de.oneos.eventsourcing
 
-
 import static java.lang.System.identityHashCode
 
 
@@ -9,19 +8,12 @@ class MixinAggregateFactory implements AggregateFactory {
     Map<Integer, UUID> aggregateIds = Collections.synchronizedMap([:])
     Map<Integer, EventAggregator> eventAggregators = Collections.synchronizedMap([:])
 
-    public <A> A newInstance(Map aggregateProperties, Class<A> rawAggregateClass) {
+    public <A> A newInstance(Class<A> rawAggregateClass, UUID aggregateId, EventAggregator eventAggregator, List<Event> aggregateHistory) {
         def instance = rawAggregateClass.newInstance()
         instance.metaClass = defineExpandoMetaClass(rawAggregateClass) {
-            setAggregateId = { thisAggregateId ->
-                aggregateIds[identityHashCode(delegate)] = thisAggregateId
-            }
-
-            setEventAggregator = { thisEventAggregator ->
-                eventAggregators[identityHashCode(delegate)] = thisEventAggregator
-            }
-
             emit = { Event event ->
                 eventAggregators[identityHashCode(delegate)].publishEvent(
+                    // TODO Validate that rawAggregateClass has these coordinates -> fail early
                     rawAggregateClass.applicationName,
                     rawAggregateClass.boundedContextName,
                     rawAggregateClass.aggregateName,
@@ -31,8 +23,10 @@ class MixinAggregateFactory implements AggregateFactory {
                 event.applyTo(delegate)
             }
         }
-        aggregateProperties.each { name, value ->
-            instance[name] = value
+        aggregateIds[identityHashCode(instance)] = aggregateId
+        eventAggregators[identityHashCode(instance)] = eventAggregator
+        aggregateHistory.each { event ->
+            event.applyTo(instance)
         }
         return instance
     }

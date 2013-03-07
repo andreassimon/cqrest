@@ -31,19 +31,16 @@ class UnitOfWork implements EventAggregator {
     }
 
     def get(Class aggregateClass, UUID aggregateId, Closure eventFactory) {
-        def aggregate = newAggregateInstance(aggregateClass, aggregateId)
-
         List<EventEnvelope> eventEnvelopes = loadEventEnvelopes(aggregateClass, aggregateId, eventFactory)
 
+        def aggregate = newAggregateInstance(aggregateClass, aggregateId, eventEnvelopes)
         updateSequenceNumbers(aggregateClass, aggregateId, eventEnvelopes)
-        eventEnvelopes.each { envelope ->
-            envelope.applyEventTo(aggregate)
-        }
+
         return aggregate
     }
 
-    protected newAggregateInstance(Class aggregateClass, UUID aggregateId) {
-        aggregateFactory.newInstance(aggregateClass, aggregateId: aggregateId, eventAggregator: this)
+    protected newAggregateInstance(Class aggregateClass, UUID aggregateId, List<EventEnvelope> eventEnvelopes) {
+        aggregateFactory.newInstance(aggregateClass, aggregateId, this, eventEnvelopes.collect { it.event })
     }
 
     protected updateSequenceNumbers(Class aggregateClass, UUID aggregateId, List<EventEnvelope> eventEnvelopes) {

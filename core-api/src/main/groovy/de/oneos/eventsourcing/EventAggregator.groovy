@@ -1,7 +1,5 @@
 package de.oneos.eventsourcing
 
-import de.oneos.eventsourcing.*
-
 
 public interface EventAggregator {
 

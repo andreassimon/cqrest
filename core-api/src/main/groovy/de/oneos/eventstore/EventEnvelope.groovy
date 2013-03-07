@@ -1,6 +1,7 @@
-package de.oneos.eventsourcing
+package de.oneos.eventstore
 
 import groovy.json.JsonBuilder
+import de.oneos.eventsourcing.Event
 
 
 class EventEnvelope<AggregateType> {

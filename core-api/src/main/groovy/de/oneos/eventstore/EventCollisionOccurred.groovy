@@ -1,6 +1,5 @@
 package de.oneos.eventstore
 
-import de.oneos.eventsourcing.EventEnvelope
 
 class EventCollisionOccurred extends RuntimeException {
 

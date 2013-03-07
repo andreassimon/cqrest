@@ -88,21 +88,6 @@ class UnitOfWorkTest {
         unitOfWork.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, aggregateId, new Business_event_happened())
     }
 
-    @Test
-    void should_apply_events_from_the_EventStore_to_loaded_aggregates() {
-        when(eventStore.loadEventEnvelopes(
-            Aggregate.applicationName,
-            Aggregate.boundedContextName,
-            Aggregate.aggregateName,
-            AGGREGATE_ID,
-            eventFactory)).
-        thenReturn listOfEvents(function: { Aggregate aggregate -> aggregate.numberOfAppliedEvents++ })
-
-        def loadedAggregate = unitOfWork.get(Aggregate, AGGREGATE_ID, eventFactory)
-
-        assertThat loadedAggregate.numberOfAppliedEvents, equalTo(listOfEvents().size())
-    }
-
     static List<EventEnvelope> listOfEvents(eventProperties = [:]) {
         (0..2).collect { sequenceNumber ->
             new EventEnvelope<Aggregate>(APPLICATION_NAME,
@@ -116,8 +101,17 @@ class UnitOfWorkTest {
 
     @Test
     void should_create_aggregate_instances_with_AggregateFactory() {
+        // TODO Das Test-Setup ist zu kompliziert; das stinkt nach schlechtem Design
+        when(eventStore.loadEventEnvelopes(eq(APPLICATION_NAME), eq(BOUNDED_CONTEXT_NAME), eq(AGGREGATE_NAME), eq(AGGREGATE_ID), any(Closure))).then(answer {
+            [new EventEnvelope(
+                Aggregate.applicationName,
+                Aggregate.boundedContextName,
+                Aggregate.aggregateName,
+                AGGREGATE_ID,
+                new Business_event_happened())]
+        })
         unitOfWork.aggregateFactory = aggregateFactory
-        when(aggregateFactory.newInstance(any(Map), eq(Aggregate))).thenReturn DUMMY_AGGREGATE
+        when(aggregateFactory.newInstance(Aggregate, AGGREGATE_ID, unitOfWork, [new Business_event_happened()])).thenReturn DUMMY_AGGREGATE
 
         def actualAggregate = unitOfWork.get(Aggregate, AGGREGATE_ID, eventFactory)
 

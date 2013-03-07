@@ -32,8 +32,26 @@ class MixinAggregateFactoryTest {
 
 
     @Test
+    void should_apply_events_from_the_EventStore_to_loaded_aggregates() {
+        aggregate = aggregateFactory.newInstance(
+            Aggregate,
+            AGGREGATE_ID,
+            eventAggregator,
+            listOfEvents(function: { Aggregate aggregate -> aggregate.numberOfAppliedEvents++ })
+        )
+
+        assertThat aggregate.numberOfAppliedEvents, equalTo(listOfEvents().size())
+    }
+
+    List<Event> listOfEvents(eventProperties = [:]) {
+        (0..2).collect {
+            new Business_event_happened(eventProperties)
+        }
+    }
+
+    @Test
     void should_dynamically_add_method__emit__to_created_instances() {
-        Aggregate aggregate = aggregateFactory.newInstance(Aggregate, aggregateId: AGGREGATE_ID)
+        aggregate = aggregateFactory.newInstance(Aggregate, AGGREGATE_ID, eventAggregator, [])
 
         assertThat aggregate.respondsTo('emit', Event), not(empty())
     }
@@ -42,8 +60,9 @@ class MixinAggregateFactoryTest {
     void emit__should_pass_the_event_to_EventAggregator() {
         aggregates = [AGGREGATE_ID, ANOTHER_AGGREGATE_ID].collect { aggregateId ->
             aggregateFactory.newInstance(Aggregate,
-                aggregateId: aggregateId,
-                eventAggregator: eventAggregator
+                aggregateId,
+                eventAggregator,
+                []
             )
         }
 
@@ -67,8 +86,9 @@ class MixinAggregateFactoryTest {
     @Test
     void emit__should_apply_the_event_to_the_emitting_aggregate_immediately() {
         aggregate = aggregateFactory.newInstance(Aggregate,
-            aggregateId: AGGREGATE_ID,
-            eventAggregator: eventAggregator
+            AGGREGATE_ID,
+            eventAggregator,
+            []
         )
 
         aggregate.emit__Business_event_happened()
@@ -84,6 +104,7 @@ class MixinAggregateFactoryTest {
         static aggregateName = 'AGGREGATE'
 
         boolean businessEventWasApplied = false
+        int numberOfAppliedEvents = 0
 
         void emit__Business_event_happened() {
             emit(new Business_event_happened())
@@ -91,8 +112,13 @@ class MixinAggregateFactoryTest {
     }
 
     static class Business_event_happened extends Event<Aggregate> {
+        static { UNSERIALIZED_PROPERTIES << 'function' }
+        Closure<Void> function = { it.businessEventWasApplied = true }
+
         @Override
-        void applyTo(Aggregate aggregate) { aggregate.businessEventWasApplied = true }
+        void applyTo(Aggregate aggregate) {
+            function(aggregate)
+        }
     }
 
 }
