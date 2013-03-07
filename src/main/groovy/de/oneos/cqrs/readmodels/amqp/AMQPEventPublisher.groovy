@@ -9,6 +9,7 @@ import org.apache.commons.logging.LogFactory
 
 import static de.oneos.cqrs.readmodels.amqp.AMQPConstants.*
 
+
 class AMQPEventPublisher implements EventPublisher {
     static Log log = LogFactory.getLog(AMQPEventPublisher)
 

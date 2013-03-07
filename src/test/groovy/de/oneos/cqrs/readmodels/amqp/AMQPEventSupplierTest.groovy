@@ -1,18 +1,9 @@
 package de.oneos.cqrs.readmodels.amqp
 
-import com.rabbitmq.client.AMQP
-import com.rabbitmq.client.Channel
-import com.rabbitmq.client.Connection
-import com.rabbitmq.client.ConnectionFactory
-import de.oneos.cqrs.readmodels.EventFilter
-import de.oneos.cqrs.readmodels.EventProcessor
-import de.oneos.cqrs.readmodels.EventSupplier
-import de.oneos.cqrs.readmodels.MapEventFilter
-import de.oneos.eventsourcing.Event
-import de.oneos.eventsourcing.EventEnvelope
-import de.oneos.eventsourcing.EventPublisher
-import org.junit.Before
-import org.junit.Test
+import com.rabbitmq.client.*
+import de.oneos.cqrs.readmodels.*
+import de.oneos.eventsourcing.*
+import org.junit.*
 
 import static org.hamcrest.Matchers.equalTo
 import static org.junit.Assert.assertThat

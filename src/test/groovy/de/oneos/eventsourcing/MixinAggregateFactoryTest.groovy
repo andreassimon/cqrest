@@ -7,7 +7,6 @@ import static org.junit.Assert.*
 import static org.hamcrest.Matchers.*
 import static org.mockito.Mockito.*
 
-import de.oneos.eventstore.EventAggregator
 import org.junit.Before
 
 
