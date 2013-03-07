@@ -1,0 +1,47 @@
+apply plugin: 'idea'
+apply plugin: 'groovy'
+apply plugin: 'maven'
+
+group   = 'de.oneos.cqrs'
+version = '0.0.1-SNAPSHOT'
+
+defaultTasks 'clean', 'install'
+
+install {
+    repositories.mavenInstaller {
+        pom.artifactId = 'core'
+    }
+}
+install.dependsOn test
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.groovy
+    classifier = 'sources'
+}
+
+artifacts {
+    archives sourceJar
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    groovy 'org.codehaus.groovy:groovy-all:2.0.+'
+
+    compile project(':core-api')
+    compile 'com.rabbitmq:amqp-client:3.0.+'
+    compile 'org.springframework:spring-jdbc:3.1.+'
+
+    testCompile project(':core-contracts')
+    testCompile 'com.h2database:h2:1.3.+'
+    testCompile 'junit:junit:4.11'
+    testCompile 'org.hamcrest:hamcrest-all:1.3'
+    testCompile 'org.mockito:mockito-all:1.9.5'
+}
+
+idea.module {
+    downloadJavadoc = true
+    downloadSources = true
+}
