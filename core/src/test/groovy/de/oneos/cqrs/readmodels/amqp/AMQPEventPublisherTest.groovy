@@ -1,17 +1,15 @@
 package de.oneos.cqrs.readmodels.amqp
 
-import de.oneos.eventsourcing.Event
-import de.oneos.eventsourcing.EventEnvelope
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
+import org.junit.*
+import static java.util.UUID.randomUUID
+import static org.junit.Assert.*
+import static org.hamcrest.CoreMatchers.equalTo
+
+import de.oneos.eventsourcing.*
+import de.oneos.eventstore.*
+
 import com.rabbitmq.client.*
 
-import static java.util.UUID.randomUUID
-import static org.hamcrest.CoreMatchers.equalTo
-import static org.junit.Assert.assertThat
-
-import de.oneos.eventsourcing.EventPublishingException
 
 class AMQPEventPublisherTest {
 
@@ -55,7 +53,10 @@ class AMQPEventPublisherTest {
     }
 
     private String receivedMessage() {
-        QueueingConsumer.Delivery delivery = consumer.nextDelivery();
+        QueueingConsumer.Delivery delivery = consumer.nextDelivery(10);
+        if(!delivery) {
+            fail('No message could be received')
+        }
         return new String(delivery.getBody());
     }
 

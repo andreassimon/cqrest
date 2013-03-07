@@ -1,6 +1,6 @@
 package de.oneos.cqrs.readmodels.amqp
 
-import de.oneos.eventsourcing.EventPublishingException
+import de.oneos.eventstore.EventPublishingException
 
 
 class IllegalAmqpEventCoordinate extends EventPublishingException {

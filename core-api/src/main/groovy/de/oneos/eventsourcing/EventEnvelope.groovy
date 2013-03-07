@@ -1,5 +1,8 @@
 package de.oneos.eventsourcing
 
+import groovy.json.JsonBuilder
+
+
 class EventEnvelope<AggregateType> {
 
     static final String TIMESTAMP_FORMAT = 'yyyy-MM-dd HH:mm:ss.SSS'
@@ -26,7 +29,7 @@ class EventEnvelope<AggregateType> {
     }
 
     String getSerializedEvent() {
-        return GenericEventSerializer.toJSON(event)
+        new JsonBuilder(event.attributes()).toString()
     }
 
     String getSerializedTimestamp() {
@@ -54,8 +57,8 @@ class EventEnvelope<AggregateType> {
 "boundedContextName":"$boundedContextName",\
 "aggregateName":"$aggregateName",\
 "aggregateId":"$aggregateId",\
-"eventName":"${event.name}",\
-"attributes":${GenericEventSerializer.toJSON(event)},\
+"eventName":"$event.name",\
+"attributes":$serializedEvent,\
 "timestamp":"$serializedTimestamp",\
 "":""\
 }"""

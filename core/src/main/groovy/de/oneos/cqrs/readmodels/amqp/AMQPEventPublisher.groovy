@@ -1,11 +1,9 @@
 package de.oneos.cqrs.readmodels.amqp
 
-import com.rabbitmq.client.Channel
-import com.rabbitmq.client.Connection
-import de.oneos.eventsourcing.EventEnvelope
-import de.oneos.eventsourcing.EventPublisher
-import org.apache.commons.logging.Log
-import org.apache.commons.logging.LogFactory
+import org.apache.commons.logging.*
+import com.rabbitmq.client.*
+import de.oneos.eventsourcing.*
+import de.oneos.eventstore.*
 
 import static de.oneos.cqrs.readmodels.amqp.AMQPConstants.*
 

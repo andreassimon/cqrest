@@ -5,8 +5,9 @@ import static java.lang.System.identityHashCode
 
 
 class MixinAggregateFactory implements AggregateFactory {
-    Map<Integer, EventAggregator> eventAggregators = Collections.synchronizedMap([:])
+
     Map<Integer, UUID> aggregateIds = Collections.synchronizedMap([:])
+    Map<Integer, EventAggregator> eventAggregators = Collections.synchronizedMap([:])
 
     public <A> A newInstance(Map aggregateProperties, Class<A> rawAggregateClass) {
         def instance = rawAggregateClass.newInstance()

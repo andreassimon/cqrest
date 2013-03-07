@@ -1,4 +1,4 @@
-package de.oneos.eventsourcing
+package de.oneos.eventstore
 
 
 class EventPublishingException extends RuntimeException {

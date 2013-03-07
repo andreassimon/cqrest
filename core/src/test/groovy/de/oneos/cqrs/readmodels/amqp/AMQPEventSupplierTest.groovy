@@ -1,14 +1,17 @@
 package de.oneos.cqrs.readmodels.amqp
 
-import com.rabbitmq.client.*
-import de.oneos.cqrs.readmodels.*
-import de.oneos.eventsourcing.*
 import org.junit.*
-
 import static org.hamcrest.Matchers.equalTo
 import static org.junit.Assert.assertThat
 import static org.mockito.Matchers.anyObject
 import static org.mockito.Mockito.*
+
+import com.rabbitmq.client.*
+
+import de.oneos.eventstore.*
+import de.oneos.cqrs.readmodels.*
+import de.oneos.eventsourcing.*
+
 
 class AMQPEventSupplierTest {
 
