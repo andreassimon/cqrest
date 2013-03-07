@@ -10,6 +10,9 @@ import static de.oneos.Matchers.*
 import static de.oneos.Stubbing.*
 
 import de.oneos.eventsourcing.*
+import de.oneos.eventstore.UnitOfWork
+import de.oneos.eventstore.EventStore
+import de.oneos.eventstore.TestableClosure
 
 
 class UnitOfWorkTest {
@@ -52,7 +55,7 @@ class UnitOfWorkTest {
         unitOfWork.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
 
         unitOfWork.eachEventEnvelope(callback)
-        assertThat 'callback', callback, wasCalledOnceWith(EventEnvelope, [
+        assertThat 'callback', callback, de.oneos.Matchers.wasCalledOnceWith(EventEnvelope, [
             applicationName: APPLICATION_NAME,
             boundedContextName: BOUNDED_CONTEXT_NAME,
             aggregateName: AGGREGATE_NAME,
@@ -69,8 +72,8 @@ class UnitOfWorkTest {
 
         unitOfWork.eachEventEnvelope(callback)
 
-        assertThat 'callback', callback, wasCalledOnceWith(EventEnvelope, [sequenceNumber: 0])
-        assertThat 'callback', callback, wasCalledOnceWith(EventEnvelope, [sequenceNumber: 1])
+        assertThat 'callback', callback, de.oneos.Matchers.wasCalledOnceWith(EventEnvelope, [sequenceNumber: 0])
+        assertThat 'callback', callback, de.oneos.Matchers.wasCalledOnceWith(EventEnvelope, [sequenceNumber: 1])
     }
 
     @Test
@@ -80,8 +83,8 @@ class UnitOfWorkTest {
 
         unitOfWork.eachEventEnvelope(callback)
 
-        assertThat 'callback', callback, wasCalledOnceWith(EventEnvelope, [aggregateId: AGGREGATE_ID, sequenceNumber: 0])
-        assertThat 'callback', callback, wasCalledOnceWith(EventEnvelope, [aggregateId: ANOTHER_AGGREGATE_ID, sequenceNumber: 0])
+        assertThat 'callback', callback, de.oneos.Matchers.wasCalledOnceWith(EventEnvelope, [aggregateId: AGGREGATE_ID, sequenceNumber: 0])
+        assertThat 'callback', callback, de.oneos.Matchers.wasCalledOnceWith(EventEnvelope, [aggregateId: ANOTHER_AGGREGATE_ID, sequenceNumber: 0])
     }
 
     protected publishEvent(UnitOfWork unitOfWork, UUID aggregateId) {
@@ -127,7 +130,7 @@ class UnitOfWorkTest {
 
     @Test
     void should_update_the_next_sequenceNumber_for_loaded_aggregates() {
-        when(eventStore.loadEventEnvelopes(eq(APPLICATION_NAME), eq(BOUNDED_CONTEXT_NAME), eq(AGGREGATE_NAME), eq(AGGREGATE_ID), any(Closure))).then(answer {
+        when(eventStore.loadEventEnvelopes(eq(APPLICATION_NAME), eq(BOUNDED_CONTEXT_NAME), eq(AGGREGATE_NAME), eq(AGGREGATE_ID), any(Closure))).then(de.oneos.Stubbing.answer {
             (0..LAST_SEQUENCE_NUMBER).collect { newEventEnvelope(sequenceNumber: it) }
         })
         unitOfWork.get(Aggregate, AGGREGATE_ID, eventFactory)
@@ -135,7 +138,7 @@ class UnitOfWorkTest {
         publishEvent(unitOfWork, AGGREGATE_ID)
 
         unitOfWork.eachEventEnvelope(callback)
-        assertThat 'callback', callback, wasCalledOnceWith(sequenceNumber: LAST_SEQUENCE_NUMBER + 1);
+        assertThat 'callback', callback, de.oneos.Matchers.wasCalledOnceWith(sequenceNumber: LAST_SEQUENCE_NUMBER + 1);
     }
 
     static newEventEnvelope(Map<String, Integer> attributes) {
