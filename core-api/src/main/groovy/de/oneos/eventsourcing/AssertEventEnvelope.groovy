@@ -1,7 +1,4 @@
-package de.oneos.eventstore.springjdbc
-
-import de.oneos.eventsourcing.*
-
+package de.oneos.eventsourcing
 
 class AssertEventEnvelope {
 

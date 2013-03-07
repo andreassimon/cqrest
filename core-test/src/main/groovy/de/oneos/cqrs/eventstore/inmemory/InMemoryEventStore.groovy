@@ -5,31 +5,54 @@ import de.oneos.eventsourcing.*
 
 
 class InMemoryEventStore implements EventStore {
-    def history = []
+    List<EventEnvelope> history = []
+    List<EventPublisher> eventPublishers
 
     @Override
     void setPublishers(List<EventPublisher> eventPublishers) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        this.eventPublishers = eventPublishers
     }
 
     @Override
     void inUnitOfWork(Closure closure) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        def unitOfWork = createUnitOfWork()
+        unitOfWork.with closure
+        commit(unitOfWork)
     }
 
     @Override
     UnitOfWork createUnitOfWork() {
-        return null  //To change body of implemented methods use File | Settings | File Templates.
+        new UnitOfWork(null)
     }
 
     @Override
     void commit(UnitOfWork unitOfWork) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        unitOfWork.eachEventEnvelope {
+            AssertEventEnvelope.isValid(it)
+            if(history.find { persistedEnvelope ->
+                persistedEnvelope.applicationName == it.applicationName
+            }) {
+                throw new EventCollisionOccurred(it)
+            }
+        }
+        unitOfWork.eachEventEnvelope {
+            history << it
+            eventPublishers.each { publisher ->
+                try {
+                    publisher.publish(it)
+                } catch (all) { }
+            }
+        }
     }
 
     @Override
     List<EventEnvelope> loadEventEnvelopes(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Closure<Event> eventFactory) {
-        return null  //To change body of implemented methods use File | Settings | File Templates.
+        return history.findAll {
+            applicationName == it.applicationName &&
+            boundedContextName == it.boundedContextName &&
+            aggregateName == it.aggregateName &&
+            aggregateId == it.aggregateId
+        }
     }
 }
 

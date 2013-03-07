@@ -137,6 +137,18 @@ abstract class EventStore_ContractTest {
     }
 
     @Test
+    void should_filter_matching_EventEnvelopes_from_history() {
+        def unitOfWork = eventStore.createUnitOfWork()
+        unitOfWork.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
+        unitOfWork.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, ANOTHER_AGGREGATE_ID, new Business_event_happened())
+        eventStore.commit(unitOfWork)
+
+        assertThat history(eventStore, AGGREGATE_ID), equalTo([
+            new Business_event_happened()
+        ])
+    }
+
+    @Test
     void should_not_persist_any_event_if_any_in_UnitOfWork_conflicts() {
         def unitOfWork_1 = eventStore.createUnitOfWork()
         def unitOfWork_2 = eventStore.createUnitOfWork()

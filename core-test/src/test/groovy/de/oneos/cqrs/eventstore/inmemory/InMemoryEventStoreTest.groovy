@@ -10,6 +10,8 @@ class InMemoryEventStoreTest extends EventStore_ContractTest {
 
     @Before
     public void setUp() {
+        super.setUp()
+
         eventStore = new InMemoryEventStore()
     }
 

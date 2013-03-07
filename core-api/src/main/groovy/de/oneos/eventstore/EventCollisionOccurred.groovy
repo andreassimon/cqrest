@@ -4,11 +4,19 @@ import de.oneos.eventsourcing.EventEnvelope
 
 class EventCollisionOccurred extends RuntimeException {
 
-    EventCollisionOccurred(EventEnvelope envelope, Throwable cause) {
+    EventCollisionOccurred(EventEnvelope conflictingEnvelope) {
+        super(message(conflictingEnvelope))
+    }
+
+    EventCollisionOccurred(EventEnvelope conflictingEnvelope, Throwable cause) {
         super(
-            "Event ['${envelope.applicationName}'.'${envelope.boundedContextName}'.'${envelope.aggregateName}'[${envelope.aggregateId}] #${envelope.sequenceNumber}] already exists",
+            message(conflictingEnvelope),
             cause
         )
+    }
+
+    protected static message(EventEnvelope envelope) {
+        "Event ['${envelope.applicationName}'.'${envelope.boundedContextName}'.'${envelope.aggregateName}'[${envelope.aggregateId}] #${envelope.sequenceNumber}] already exists"
     }
 
 }
