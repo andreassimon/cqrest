@@ -1,1 +1,8 @@
-include 'eventsourcing', 'eventstore-api', 'eventstore-api-contracts', 'core', 'core-test'
+include(
+    'eventsourcing',
+    'eventstore-api',
+    'eventstore-api-contracts',
+    'eventstore-springjdbc',
+    'core',
+    'core-test'
+)
