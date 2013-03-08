@@ -3,6 +3,6 @@ include(
     'eventstore-api',
     'eventstore-api-contracts',
     'eventstore-springjdbc',
-    'core',
+    'projections',
     'core-test'
 )
