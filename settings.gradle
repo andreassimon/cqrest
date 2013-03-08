@@ -1,1 +1,1 @@
-include 'eventsourcing', 'eventstore-api', 'core-contracts', 'core', 'core-test'
+include 'eventsourcing', 'eventstore-api', 'eventstore-api-contracts', 'core', 'core-test'

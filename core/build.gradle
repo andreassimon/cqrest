@@ -3,6 +3,6 @@ dependencies {
     compile 'com.rabbitmq:amqp-client:3.0.+'
     compile 'org.springframework:spring-jdbc:3.1.+'
 
-    testCompile project(':core-contracts')
+    testCompile project(':eventstore-api-contracts')
     testCompile 'com.h2database:h2:1.3.+'
 }
