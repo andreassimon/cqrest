@@ -1,4 +1,4 @@
-package de.oneos.cqrs.eventstore.inmemory
+package de.oneos.eventstore.inmemory
 
 import de.oneos.eventstore.*
 import de.oneos.eventsourcing.*

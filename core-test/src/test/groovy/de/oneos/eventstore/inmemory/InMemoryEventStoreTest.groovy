@@ -1,7 +1,7 @@
-package de.oneos.cqrs.eventstore.inmemory
+package de.oneos.eventstore.inmemory
 
 import org.junit.*
-import de.oneos.eventstore.EventStore_ContractTest
+import de.oneos.eventstore.*
 
 
 class InMemoryEventStoreTest extends EventStore_ContractTest {

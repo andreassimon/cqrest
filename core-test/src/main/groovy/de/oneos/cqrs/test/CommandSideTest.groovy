@@ -2,7 +2,7 @@ package de.oneos.cqrs.test
 
 import org.junit.*
 
-import de.oneos.cqrs.eventstore.inmemory.*
+import de.oneos.eventstore.inmemory.*
 
 
 abstract class CommandSideTest {
