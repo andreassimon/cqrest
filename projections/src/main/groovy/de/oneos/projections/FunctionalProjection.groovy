@@ -1,6 +1,7 @@
-package de.oneos.readmodels
+package de.oneos.projections
 
 import de.oneos.eventselection.*
+import de.oneos.readmodels.*
 
 
 class FunctionalProjection implements Projection {

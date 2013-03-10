@@ -1,4 +1,4 @@
-package de.oneos.readmodels;
+package de.oneos.projections;
 
 import org.junit.Test
 import static org.mockito.Mockito.*

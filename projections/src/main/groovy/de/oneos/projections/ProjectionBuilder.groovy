@@ -1,4 +1,4 @@
-package de.oneos.readmodels
+package de.oneos.projections
 
 import de.oneos.eventselection.*
 

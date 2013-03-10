@@ -1,9 +1,10 @@
-package de.oneos.readmodels
+package de.oneos.projections
 
 import org.junit.*
 import static org.mockito.Mockito.*
 
 import de.oneos.eventselection.*
+import de.oneos.readmodels.*
 
 
 class ProjectingEventProcessorTest {
@@ -74,7 +75,7 @@ class ProjectingEventProcessorTest {
 
         projectingEventProcessor.process(anEvent)
 
-        verify(projection).applyTo(any(Readmodels), eq(anEvent))
+        verify(projection).applyTo(org.mockito.Matchers.any(Readmodels), eq(anEvent))
     }
 
     @Test
@@ -84,6 +85,6 @@ class ProjectingEventProcessorTest {
 
         projectingEventProcessor.process(anEvent)
 
-        verify(projection, never()).applyTo(any(Readmodels), eq(anEvent))
+        verify(projection, never()).applyTo(org.mockito.Matchers.any(Readmodels), eq(anEvent))
     }
 }

@@ -1,10 +1,11 @@
-package de.oneos.readmodels
+package de.oneos.projections
 
-import org.junit.Test
+import org.junit.*
 import static org.junit.Assert.*
 import static org.hamcrest.Matchers.*
 
 import de.oneos.eventselection.*
+
 
 class ProjectionBuilderTest {
 

@@ -1,0 +1,5 @@
+dependencies {
+    compile project(':eventselection-api')
+    compile project(':readmodels-api')
+    compile 'commons-logging:commons-logging:1.1.+'
+}
