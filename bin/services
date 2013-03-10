@@ -1,0 +1,27 @@
+#!/bin/bash
+
+usage() {
+  yellow='\e[31;1m'
+  reset='\033[0m'
+
+  echo -e "${yellow}Usage: bin/services [start|stop]${reset}"
+  exit 1
+}
+
+if [ $# -ne 1 ]; then
+  usage
+fi
+
+case $1 in
+  start)
+    echo "Starting services"
+    sudo service rabbitmq-server start
+    ;;
+  stop)
+    echo "Stopping services"
+    sudo service rabbitmq-server stop
+    ;;
+  *)
+    usage
+    ;;
+esac
