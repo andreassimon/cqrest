@@ -1,4 +1,4 @@
-package de.oneos.cqrs.test
+package de.oneos.test
 
 import org.junit.*
 
@@ -38,7 +38,7 @@ abstract class CommandSideTest {
     }
 
     def collectEventsFrom(Closure closure) {
-        def eventCollector = new EventCollector()
+//        def eventCollector = new EventCollector()
         eventCollector.with closure
         eventCollector.toList()
     }
