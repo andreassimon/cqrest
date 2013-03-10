@@ -2,6 +2,7 @@ include(
     'eventsourcing',
     'eventstore-api',
     'eventstore-api-contracts',
+    'eventstore-inmemory',
     'eventstore-springjdbc',
     'eventselection-api',
     'eventselection-amqp',

@@ -1,6 +1,4 @@
 dependencies {
-    compile project(':eventstore-api')
+    compile project(':eventstore-inmemory')
     compile 'junit:junit:4.11'
-
-    testCompile project(':eventstore-api-contracts')
 }

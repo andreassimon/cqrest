@@ -1,0 +1,5 @@
+dependencies {
+    compile project(':eventstore-api')
+
+    testCompile project(':eventstore-api-contracts')
+}
