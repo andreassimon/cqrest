@@ -6,6 +6,7 @@ include(
     'eventselection-api',
     'eventselection-amqp',
     'projections',
+    'readmodels-api',
     'readmodels',
     'core-test'
 )

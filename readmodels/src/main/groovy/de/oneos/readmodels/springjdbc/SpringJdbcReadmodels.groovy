@@ -1,13 +1,11 @@
 package de.oneos.readmodels.springjdbc
 
-import de.oneos.readmodels.Selection
-import org.apache.commons.logging.Log
-import org.apache.commons.logging.LogFactory
-import org.springframework.jdbc.core.JdbcOperations
-import org.springframework.jdbc.core.JdbcTemplate
+import javax.sql.*
+import org.apache.commons.logging.*
+import org.springframework.jdbc.core.*
 
-import javax.sql.DataSource
-import de.oneos.readmodels.Readmodels
+import de.oneos.readmodels.*
+
 
 class SpringJdbcReadmodels implements Readmodels {
     static Log log = LogFactory.getLog(SpringJdbcReadmodels)

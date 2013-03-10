@@ -1,4 +1,5 @@
 dependencies {
     compile project(':eventselection-api')
+    compile project(':readmodels-api')
     compile 'org.springframework:spring-jdbc:3.1.+'
 }

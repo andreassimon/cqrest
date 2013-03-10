@@ -1,6 +1,7 @@
 package de.oneos.readmodels.springjdbc
 
-import de.oneos.readmodels.Selection
+import de.oneos.readmodels.*
+
 
 protected class SpringJdbcSelection implements Selection {
     SpringJdbcReadmodels springJdbcModels
