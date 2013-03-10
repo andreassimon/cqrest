@@ -7,6 +7,6 @@ include(
     'eventselection-amqp',
     'projections',
     'readmodels-api',
-    'readmodels',
+    'readmodels-springjdbc',
     'core-test'
 )
