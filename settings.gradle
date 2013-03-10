@@ -3,6 +3,9 @@ include(
     'eventstore-api',
     'eventstore-api-contracts',
     'eventstore-springjdbc',
+    'eventselection-api',
+    'eventselection-amqp',
     'projections',
+    'readmodels',
     'core-test'
 )

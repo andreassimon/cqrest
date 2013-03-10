@@ -1,5 +1,0 @@
-dependencies {
-    compile project(':eventstore-api')
-    compile 'com.rabbitmq:amqp-client:3.0.+'
-    compile 'org.springframework:spring-jdbc:3.1.+'
-}
