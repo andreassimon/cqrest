@@ -31,6 +31,70 @@ class MixinAggregateFactoryTest {
     }
 
 
+    @Test(expected = IllegalArgumentException)
+    void should_throw_IllegalArgumentException_when_the_rawAggregateClass_does_not_have_attribute_applicationName() {
+        aggregate = aggregateFactory.newInstance(
+            RawAggregateClass_without_applicationName,
+            AGGREGATE_ID,
+            eventAggregator,
+            listOfEvents()
+        )
+    }
+
+    static class RawAggregateClass_without_applicationName {
+        // static final applicationName = 'APPLICATION'
+        static final boundedContextName = 'BOUNDED CONTEXT'
+        static final aggregateName = 'AGGREGATE'
+    }
+
+    @Test(expected = IllegalArgumentException)
+    void should_throw_IllegalArgumentException_when_the_rawAggregateClass_does_not_have_attribute_boundedContextName() {
+        aggregateFactory.newInstance(
+            RawAggregateClass_without_boundedContextName,
+            AGGREGATE_ID,
+            eventAggregator,
+            listOfEvents()
+        )
+    }
+
+    static class RawAggregateClass_without_boundedContextName {
+        static final applicationName = 'APPLICATION'
+        // static final boundedContextName = 'BOUNDED CONTEXT'
+        static final aggregateName = 'AGGREGATE'
+    }
+
+    @Test(expected = IllegalArgumentException)
+    void should_throw_IllegalArgumentException_when_the_rawAggregateClass_does_not_have_attribute_aggregateName() {
+        aggregateFactory.newInstance(
+            RawAggregateClass_without_aggregateName,
+            AGGREGATE_ID,
+            eventAggregator,
+            listOfEvents()
+        )
+    }
+
+    static class RawAggregateClass_without_aggregateName {
+        static final applicationName = 'APPLICATION'
+        static final boundedContextName = 'BOUNDED CONTEXT'
+        // static final aggregateName = 'AGGREGATE'
+    }
+
+    @Test(expected = EventNotApplicable)
+    void should_throw_EventNotApplicable_when_stored_events_can_not_be_applied_to_the_aggregate_class() {
+        aggregateFactory.newInstance(
+            IncompatibleAggregateClass,
+            AGGREGATE_ID,
+            eventAggregator,
+            listOfEvents()
+        )
+    }
+
+    static class IncompatibleAggregateClass {
+        static final applicationName = 'APPLICATION'
+        static final boundedContextName = 'BOUNDED CONTEXT'
+        static final aggregateName = 'AGGREGATE'
+    }
+
     @Test
     void should_apply_events_from_the_EventStore_to_loaded_aggregates() {
         aggregate = aggregateFactory.newInstance(
