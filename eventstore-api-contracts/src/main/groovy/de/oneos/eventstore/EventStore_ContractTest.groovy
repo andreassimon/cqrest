@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.*
 import de.oneos.eventsourcing.*
 
 
+// TODO Must persist correlationId and user(name) attributes
 abstract class EventStore_ContractTest {
     static final String APPLICATION_NAME = 'APPLICATION_NAME'
     static final String BOUNDED_CONTEXT_NAME = 'BOUNDED_CONTEXT_NAME'
