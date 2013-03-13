@@ -1,11 +1,10 @@
 package de.oneos.eventselection.amqp
 
-import org.apache.commons.logging.*
 import com.rabbitmq.client.*
 import de.oneos.eventstore.*
+import org.apache.commons.logging.*
 
 import static de.oneos.eventselection.amqp.AMQPConstants.*
-
 
 class AMQPEventPublisher implements EventPublisher {
     static Log log = LogFactory.getLog(AMQPEventPublisher)

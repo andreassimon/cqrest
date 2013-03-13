@@ -1,15 +1,13 @@
 package de.oneos.eventselection.amqp
 
-import org.junit.*
-import static java.util.UUID.randomUUID
-import static org.junit.Assert.*
-import static org.hamcrest.CoreMatchers.equalTo
-
+import com.rabbitmq.client.*
 import de.oneos.eventsourcing.*
 import de.oneos.eventstore.*
+import org.junit.*
 
-import com.rabbitmq.client.*
-
+import static java.util.UUID.*
+import static org.hamcrest.CoreMatchers.*
+import static org.junit.Assert.*
 
 class AMQPEventPublisherTest {
 

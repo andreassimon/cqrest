@@ -1,12 +1,11 @@
 package de.oneos.eventselection.amqp
 
-import groovy.json.JsonSlurper
-import org.apache.commons.logging.*
 import com.rabbitmq.client.*
-
 import de.oneos.eventselection.*
-import static de.oneos.eventselection.amqp.AMQPConstants.*
+import groovy.json.*
+import org.apache.commons.logging.*
 
+import static de.oneos.eventselection.amqp.AMQPConstants.*
 
 class AMQPEventSupplier extends DefaultConsumer implements Consumer, EventSupplier {
     static Log log = LogFactory.getLog(AMQPEventSupplier)

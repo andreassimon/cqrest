@@ -1,6 +1,6 @@
 package de.oneos.eventselection.amqp
 
-import com.rabbitmq.client.AMQP
+import com.rabbitmq.client.*
 
 class AMQPConstants {
     static final AMQP.BasicProperties NO_PROPERTIES = null
