@@ -25,7 +25,11 @@ class AMQPEventPublisherTest {
     void setUp() throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
         factory.virtualHost = 'one-os-test'
-        connection = factory.newConnection();
+        try {
+            connection = factory.newConnection();
+        } catch (ConnectException) {
+            fail('Couldn\'t connect to AMQP. Try running `bin/services start`.')
+        }
 
         eventPublisher = new AMQPEventPublisher(connection)
 
@@ -62,8 +66,8 @@ class AMQPEventPublisherTest {
 
     @After
     void tearDown() throws Exception {
-        consumerChannel.close()
-        connection.close()
+        if (consumerChannel) { consumerChannel.close() }
+        if (connection) { connection.close() }
     }
 
 

@@ -2,7 +2,7 @@ package de.oneos.eventselection.amqp
 
 import org.junit.*
 import static org.hamcrest.Matchers.equalTo
-import static org.junit.Assert.assertThat
+import static org.junit.Assert.*
 import static org.mockito.Matchers.anyObject
 import static org.mockito.Mockito.*
 
@@ -47,7 +47,11 @@ class AMQPEventSupplierTest {
 
         def connectionFactory = new ConnectionFactory()
         connectionFactory.clientProperties = AMQPConstants.DEFAULT_AMQP_CLIENT_PROPERTIES
-        connection = connectionFactory.newConnection()
+        try {
+            connection = connectionFactory.newConnection()
+        } catch (ConnectException) {
+            fail('Couldn\'t connect to AMQP. Try running `bin/services start`.')
+        }
 
         amqpEventPublisher = new AMQPEventPublisher(connection)
     }
