@@ -50,12 +50,13 @@ class EventEnvelope<AggregateType> {
 
     @Override
     boolean equals(that) {
+        this.class == that.class &&
         this.applicationName == that.applicationName &&
-                this.boundedContextName == that.boundedContextName &&
-                this.aggregateName == that.aggregateName &&
-                this.aggregateId   == that.aggregateId &&
-                this.event         == that.event &&
-                this.sequenceNumber == that.sequenceNumber
+        this.boundedContextName == that.boundedContextName &&
+        this.aggregateName == that.aggregateName &&
+        this.aggregateId   == that.aggregateId &&
+        this.event         == that.event &&
+        this.sequenceNumber == that.sequenceNumber
     }
 
     String toJSON() {
