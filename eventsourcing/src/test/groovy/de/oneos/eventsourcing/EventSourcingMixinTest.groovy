@@ -15,12 +15,12 @@ class EventSourcingMixinTest {
 
     @Test
     void instance_method__emit__should_collect_emitted_events() {
-        def aggregate = new Order(generatedOrderId)
+        def order = Order.create(generatedOrderId)
 
-        aggregate.addArticles([article1, article2])
+        order.addArticles([article1, article2])
 
-        assertThat aggregate.newEvents, equalTo([
-            new Order_was_created(generatedOrderId),
+        assertThat order.newEvents, equalTo([
+            new Order_was_created(),
             new Order_line_was_added(article1),
             new Order_line_was_added(article2)
         ])
@@ -35,6 +35,16 @@ class EventSourcingMixinTest {
         assertThat order.orderLines, equalTo([article1, article2])
     }
 
+    @Test
+    void instance_method__flushEvents__should_clear_the_event_list() {
+        def order = new Order(randomUUID())
+        order.addArticles([article1, article2])
+
+        order.flushEvents()
+
+        assertThat order.newEvents, empty()
+    }
+
 
 
     static class Order {
@@ -44,14 +54,20 @@ class EventSourcingMixinTest {
         static boundedContextName = 'BOUNDED CONTEXT'
         static aggregateName = 'AGGREGATE'
 
-        UUID id
-
+        final UUID id
         def orderLines = []
 
-        Order(UUID id) {
-            emit(
-                new Order_was_created(id)
+        static Order create(UUID id) {
+            assert id != null
+            Order newOrder = new Order(id)
+            newOrder.emit(
+                new Order_was_created()
             )
+            return newOrder
+        }
+
+        Order(UUID id) {
+            this.id = id
         }
 
         void addArticles(List<UUID> articles) {
@@ -62,14 +78,8 @@ class EventSourcingMixinTest {
     }
 
     static class Order_was_created extends Event<Order> {
-        UUID aggregateId
-
-        Order_was_created(UUID aggregateId) {
-            this.aggregateId = aggregateId
-        }
-
-        void applyTo(Order aggregate) {
-            aggregate.id = aggregateId
+        void applyTo(Order order) {
+            order
         }
     }
 
