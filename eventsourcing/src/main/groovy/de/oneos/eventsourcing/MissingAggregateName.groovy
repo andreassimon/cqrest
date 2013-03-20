@@ -2,6 +2,6 @@ package de.oneos.eventsourcing
 
 class MissingAggregateName extends IllegalArgumentException {
     MissingAggregateName(Class aggregateClass) {
-        super("$aggregateClass must have static attribute 'boundedContextName'")
+        super("$aggregateClass must have static attribute 'aggregateName'")
     }
 }

@@ -50,8 +50,6 @@ class EventSourcingMixinTest {
     static class Order {
         static { Order.mixin(EventSourcing) }
 
-        static applicationName = 'APPLICATION'
-        static boundedContextName = 'BOUNDED CONTEXT'
         static aggregateName = 'AGGREGATE'
 
         final UUID id

@@ -25,37 +25,6 @@ class DefaultAggregateFactoryTest {
         }
     }
 
-
-    @Test(expected = IllegalArgumentException)
-    void should_throw_IllegalArgumentException_when_the_rawAggregateClass_does_not_have_attribute_applicationName() {
-        aggregate = aggregateFactory.newInstance(
-            RawAggregateClass_without_applicationName,
-            AGGREGATE_ID,
-            aggregateHistory
-        )
-    }
-
-    static class RawAggregateClass_without_applicationName {
-        // static final applicationName = 'APPLICATION'
-        static final boundedContextName = 'BOUNDED CONTEXT'
-        static final aggregateName = 'AGGREGATE'
-    }
-
-    @Test(expected = IllegalArgumentException)
-    void should_throw_IllegalArgumentException_when_the_rawAggregateClass_does_not_have_attribute_boundedContextName() {
-        aggregateFactory.newInstance(
-            RawAggregateClass_without_boundedContextName,
-            AGGREGATE_ID,
-            aggregateHistory
-        )
-    }
-
-    static class RawAggregateClass_without_boundedContextName {
-        static final applicationName = 'APPLICATION'
-        // static final boundedContextName = 'BOUNDED CONTEXT'
-        static final aggregateName = 'AGGREGATE'
-    }
-
     @Test(expected = IllegalArgumentException)
     void should_throw_IllegalArgumentException_when_the_rawAggregateClass_does_not_have_attribute_aggregateName() {
         aggregateFactory.newInstance(
@@ -66,8 +35,6 @@ class DefaultAggregateFactoryTest {
     }
 
     static class RawAggregateClass_without_aggregateName {
-        static final applicationName = 'APPLICATION'
-        static final boundedContextName = 'BOUNDED CONTEXT'
         // static final aggregateName = 'AGGREGATE'
     }
 
@@ -81,9 +48,7 @@ class DefaultAggregateFactoryTest {
     }
 
     static class IncompatibleAggregateClass {
-        static final applicationName = 'APPLICATION'
-        static final boundedContextName = 'BOUNDED CONTEXT'
-        static final aggregateName = 'AGGREGATE'
+        static final aggregateName = 'Incompatible aggregate'
 
         final UUID id
 
@@ -112,8 +77,6 @@ class DefaultAggregateFactoryTest {
 
 
     static class Aggregate {
-        static applicationName = 'APPLICATION'
-        static boundedContextName = 'BOUNDED CONTEXT'
         static aggregateName = 'AGGREGATE'
 
         final UUID id

@@ -5,8 +5,6 @@ package de.oneos.eventsourcing
 class DefaultAggregateFactory implements AggregateFactory {
 
     public <A> A newInstance(Class<A> aggregateClass, UUID aggregateId, List<Event> aggregateHistory) {
-        assertApplicationNameIsDefined(aggregateClass)
-        assertBoundedContextNameIsDefined(aggregateClass)
         assertAggregateNameIsDefined(aggregateClass)
 
         def instance = aggregateClass.newInstance(aggregateId)
@@ -26,18 +24,6 @@ class DefaultAggregateFactory implements AggregateFactory {
     protected static assertAggregateNameIsDefined(Class rawAggregateClass) {
         if (!hasMethod(rawAggregateClass, 'getAggregateName')) {
             throw new MissingAggregateName(rawAggregateClass)
-        }
-    }
-
-    protected static assertBoundedContextNameIsDefined(Class rawAggregateClass) {
-        if (!hasMethod(rawAggregateClass, 'getBoundedContextName')) {
-            throw new MissingBoundedContextName(rawAggregateClass)
-        }
-    }
-
-    protected static assertApplicationNameIsDefined(Class rawAggregateClass) {
-        if (!hasMethod(rawAggregateClass, 'getApplicationName')) {
-            throw new MissingApplicationName(rawAggregateClass)
         }
     }
 
