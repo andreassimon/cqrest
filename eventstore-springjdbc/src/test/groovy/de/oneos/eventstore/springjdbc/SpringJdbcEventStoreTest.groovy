@@ -11,6 +11,7 @@ import javax.sql.*
 import org.springframework.jdbc.core.*
 
 import de.oneos.eventstore.*
+import static de.oneos.eventstore.springjdbc.SpringJdbcEventStore.*
 
 
 class SpringJdbcEventStoreTest extends EventStore_ContractTest {
@@ -36,9 +37,16 @@ class SpringJdbcEventStoreTest extends EventStore_ContractTest {
         // call this a 'sentinel' connection.
         sentinelConnection = dataSource.getConnection()
 
-        eventStore = new SpringJdbcEventStore(dataSource: dataSource, application: APPLICATION_NAME, boundedContext: BOUNDED_CONTEXT_NAME)
+        eventStore = new SpringJdbcEventStore(
+            dataSource: dataSource,
+            application: APPLICATION_NAME,
+            boundedContext: BOUNDED_CONTEXT_NAME,
+            eventFactory: prototypeBasedEventClassLoader(EventStore_ContractTest.Business_event_happened)
+        )
+
         eventStore.createTable()
     }
+
 
     @After
     public void tearDown() {

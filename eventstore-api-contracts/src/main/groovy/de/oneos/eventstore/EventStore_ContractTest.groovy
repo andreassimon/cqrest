@@ -45,13 +45,6 @@ abstract class EventStore_ContractTest {
             when(defectiveEventPublisher).publish(any(EventEnvelope))
 
         flawlessEventPublisher = mock(EventPublisher, 'flawlessEventPublisher')
-
-        // TODO Try to get rid of it
-        eventFactory = { classLoader, packageName, eventName, eventAttributes ->
-            def simpleEventClassName = eventName.replaceAll(' ', '_')
-            def fullEventClassName = [packageName, simpleEventClassName].join('.')
-            classLoader.loadClass(fullEventClassName).newInstance(eventAttributes)
-        }.curry(Business_event_happened.classLoader, Business_event_happened.package.name)
     }
 
 
@@ -81,11 +74,8 @@ abstract class EventStore_ContractTest {
 
     protected history(EventStore eventStore, aggregateId = AGGREGATE_ID) {
         eventStore.loadEventEnvelopes(
-            APPLICATION_NAME,
-            BOUNDED_CONTEXT_NAME,
             AGGREGATE_NAME,
-            aggregateId,
-            eventFactory
+            aggregateId
         ).collect { it.event }
     }
 

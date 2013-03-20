@@ -118,7 +118,7 @@ class UnitOfWorkTest {
     @Test
     void should_create_aggregate_instances_with_AggregateFactory() {
         // TODO Das Test-Setup ist zu kompliziert; das stinkt nach schlechtem Design
-        when(eventStore.loadEventEnvelopes(eq(APPLICATION_NAME), eq(BOUNDED_CONTEXT_NAME), eq(AGGREGATE_NAME), eq(AGGREGATE_ID), any(Closure))).then(answer {
+        when(eventStore.loadEventEnvelopes(eq(AGGREGATE_NAME), eq(AGGREGATE_ID))).then(answer {
             [new EventEnvelope(
                 APPLICATION_NAME,
                 BOUNDED_CONTEXT_NAME,
@@ -129,7 +129,7 @@ class UnitOfWorkTest {
         unitOfWork.aggregateFactory = aggregateFactory
         when(aggregateFactory.newInstance(Aggregate, AGGREGATE_ID, [new Business_event_happened()])).thenReturn DUMMY_AGGREGATE
 
-        def actualAggregate = unitOfWork.get(Aggregate, AGGREGATE_ID, eventFactory)
+        def actualAggregate = unitOfWork.get(Aggregate, AGGREGATE_ID)
 
         assertThat actualAggregate, equalTo(DUMMY_AGGREGATE)
     }
@@ -139,10 +139,10 @@ class UnitOfWorkTest {
 
     @Test
     void should_update_the_next_sequenceNumber_for_loaded_aggregates() {
-        when(eventStore.loadEventEnvelopes(eq(APPLICATION_NAME), eq(BOUNDED_CONTEXT_NAME), eq(AGGREGATE_NAME), eq(AGGREGATE_ID), any(Closure))).then(answer {
+        when(eventStore.loadEventEnvelopes(eq(AGGREGATE_NAME), eq(AGGREGATE_ID))).then(answer {
             (0..LAST_SEQUENCE_NUMBER).collect { newEventEnvelope(sequenceNumber: it) }
         })
-        Aggregate aggregate = unitOfWork.get(Aggregate, AGGREGATE_ID, eventFactory)
+        Aggregate aggregate = unitOfWork.get(Aggregate, AGGREGATE_ID)
 
         aggregate.emit(new Business_event_happened())
 

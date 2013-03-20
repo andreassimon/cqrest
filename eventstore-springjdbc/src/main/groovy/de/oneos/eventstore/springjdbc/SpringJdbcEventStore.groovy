@@ -44,6 +44,36 @@ WHERE application_name = ? AND
 """.toString()
 
 
+    static Closure<Event> prototypeBasedEventClassLoader(Class examplaryEventClass) {
+        ClassLoader eventClassLoader = examplaryEventClass.classLoader
+        String eventPackageName = examplaryEventClass.package.name
+        return { eventName, eventAttributes ->
+            def simpleEventClassName = eventName.replaceAll(' ', '_')
+            def fullEventClassName = [eventPackageName, simpleEventClassName].join('.')
+            (Event) eventClassLoader.loadClass(fullEventClassName).newInstance(eventAttributes)
+        }
+    }
+
+    Closure<Event> eventFactory
+
+    protected eventEnvelopeMapper = [
+        mapRow: { ResultSet rs, int rowNum ->
+            new EventEnvelope(
+                rs.getString('application_name'),
+                rs.getString('bounded_context_name'),
+                rs.getString('aggregate_name'),
+                (UUID)rs.getObject('aggregate_id'),
+                this.eventFactory(
+                    rs.getString('event_name'),
+                    json.parseText(rs.getString('attributes'))
+                ),
+                rs.getInt('sequence_number'),
+                rs.getTimestamp('timestamp')
+            )
+        }
+    ] as RowMapper<EventEnvelope>
+
+
     JsonSlurper json = new JsonSlurper()
 
     String application
@@ -153,39 +183,21 @@ CREATE TABLE ${TABLE_NAME} (
                 eventEnvelope.eventName,
                 eventEnvelope.serializedEvent,
                 eventEnvelope.timestamp
-            )
+            ); return
         } catch (DuplicateKeyException e) {
             throw new EventCollisionOccurred(eventEnvelope, e)
         }
     }
 
     @Override
-    List<EventEnvelope> loadEventEnvelopes(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Closure<Event> eventFactory) {
+    List<EventEnvelope> loadEventEnvelopes(String aggregateName, UUID aggregateId) {
         jdbcTemplate.query(FIND_AGGREGATE_EVENTS,
-            eventEnvelopeMapper(eventFactory),
-            applicationName,
-            boundedContextName,
+            eventEnvelopeMapper,
+            application,
+            boundedContext,
             aggregateName,
             aggregateId
         )
-    }
-
-    protected eventEnvelopeMapper(Closure<Event> eventFactory) {
-        [mapRow: { ResultSet rs, int rowNum ->
-            new EventEnvelope(
-                rs.getString('application_name'),
-                rs.getString('bounded_context_name'),
-                rs.getString('aggregate_name'),
-                rs.getObject('aggregate_id'),
-                eventFactory(
-                    rs.getString('event_name'),
-                    json.parseText(rs.getString('attributes'))
-                ),
-                rs.getInt('sequence_number'),
-                rs.getTimestamp('timestamp')
-            )
-        }
-        ] as RowMapper<EventEnvelope>
     }
 
 }

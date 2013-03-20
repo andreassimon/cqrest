@@ -1,7 +1,6 @@
 package de.oneos.eventstore.inmemory
 
 import de.oneos.eventstore.*
-import de.oneos.eventsourcing.*
 
 
 class InMemoryEventStore implements EventStore {
@@ -60,10 +59,10 @@ class InMemoryEventStore implements EventStore {
     }
 
     @Override
-    List<EventEnvelope> loadEventEnvelopes(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Closure<Event> eventFactory) {
+    List<EventEnvelope> loadEventEnvelopes(String aggregateName, UUID aggregateId) {
         return history.findAll {
-            applicationName == it.applicationName &&
-            boundedContextName == it.boundedContextName &&
+            application == it.applicationName &&
+            boundedContext == it.boundedContextName &&
             aggregateName == it.aggregateName &&
             aggregateId == it.aggregateId
         }
