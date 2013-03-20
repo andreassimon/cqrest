@@ -119,53 +119,6 @@ class MixinAggregateFactoryTest {
         }
     }
 
-    @Test
-    void should_dynamically_add_method__emit__to_created_instances() {
-        aggregate = aggregateFactory.newInstance(Aggregate, AGGREGATE_ID, eventAggregator, [])
-
-        assertThat aggregate.respondsTo('emit', Event), not(empty())
-    }
-
-    @Test
-    void emit__should_pass_the_event_to_EventAggregator() {
-        aggregates = [AGGREGATE_ID, ANOTHER_AGGREGATE_ID].collect { aggregateId ->
-            aggregateFactory.newInstance(Aggregate,
-                aggregateId,
-                eventAggregator,
-                []
-            )
-        }
-
-        2.times {
-            aggregates.each {
-                it.emit__Business_event_happened()
-            }
-        }
-
-        [AGGREGATE_ID, ANOTHER_AGGREGATE_ID].each { aggregateId ->
-            verify(eventAggregator, times(2)).publishEvent(
-                Aggregate.applicationName,
-                Aggregate.boundedContextName,
-                Aggregate.aggregateName,
-                aggregateId,
-                new Business_event_happened()
-            )
-        }
-    }
-
-    @Test
-    void emit__should_apply_the_event_to_the_emitting_aggregate_immediately() {
-        aggregate = aggregateFactory.newInstance(Aggregate,
-            AGGREGATE_ID,
-            eventAggregator,
-            []
-        )
-
-        aggregate.emit__Business_event_happened()
-
-        assertThat aggregate.businessEventWasApplied, equalTo(true)
-    }
-
 
 
     static class Aggregate {

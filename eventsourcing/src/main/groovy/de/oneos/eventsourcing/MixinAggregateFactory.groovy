@@ -8,25 +8,12 @@ class MixinAggregateFactory implements AggregateFactory {
     Map<Integer, UUID> aggregateIds = Collections.synchronizedMap([:])
     Map<Integer, EventAggregator> eventAggregators = Collections.synchronizedMap([:])
 
-    public <A> A newInstance(Class<A> rawAggregateClass, UUID aggregateId, EventAggregator eventAggregator, List<Event> aggregateHistory) {
-        assertApplicationNameIsDefined(rawAggregateClass)
-        assertBoundedContextNameIsDefined(rawAggregateClass)
-        assertAggregateNameIsDefined(rawAggregateClass)
+    public <A> A newInstance(Class<A> aggregateClass, UUID aggregateId, EventAggregator eventAggregator, List<Event> aggregateHistory) {
+        assertApplicationNameIsDefined(aggregateClass)
+        assertBoundedContextNameIsDefined(aggregateClass)
+        assertAggregateNameIsDefined(aggregateClass)
 
-        def instance = rawAggregateClass.newInstance(aggregateId)
-        instance.metaClass = defineExpandoMetaClass(rawAggregateClass) {
-            emit = { Event event ->
-                eventAggregators[identityHashCode(delegate)].publishEvent(
-                    rawAggregateClass.applicationName,
-                    rawAggregateClass.boundedContextName,
-                    rawAggregateClass.aggregateName,
-                    delegate.id,
-                    event
-                )
-                event.applyTo(delegate)
-            }
-        }
-        eventAggregators[identityHashCode(instance)] = eventAggregator
+        def instance = aggregateClass.newInstance(aggregateId)
         aggregateHistory.each { event ->
             assertIsApplicableTo(event, instance)
             event.applyTo(instance)
@@ -69,12 +56,6 @@ class MixinAggregateFactory implements AggregateFactory {
             it.parameterTypes.length == 1 &&
             it.parameterTypes[0].theClass.isAssignableFrom(instance.class)
         }
-    }
-
-    static defineExpandoMetaClass(Class theClass, Closure definition) {
-        ExpandoMetaClass expandoAggregateClass = new ExpandoMetaClass(theClass)
-        expandoAggregateClass.define(definition).initialize()
-        expandoAggregateClass
     }
 
 }
