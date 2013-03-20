@@ -72,6 +72,7 @@ class UnitOfWork {
 
     void eachEventEnvelope(Closure callback) {
         attachedAggregates.collect { aggregate ->
+            if(aggregate.newEvents.empty) { return [] }
             (0..(aggregate.newEvents.size()-1)).collect { int i ->
                 new EventEnvelope(
                     applicationName,

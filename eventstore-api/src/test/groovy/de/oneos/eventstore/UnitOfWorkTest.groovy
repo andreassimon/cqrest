@@ -64,6 +64,16 @@ class UnitOfWorkTest {
     }
 
     @Test
+    void should_pass_over_aggregates_without_new_events() {
+        Aggregate aggregate = new Aggregate(AGGREGATE_ID)
+
+        unitOfWork.attach(aggregate)
+
+        unitOfWork.eachEventEnvelope(callback)
+        assertThat 'callback', callback, wasNeverCalled()
+    }
+
+    @Test
     void should_increment_the_sequenceNumber_for_published_events_for_an_aggregate() {
         Aggregate aggregate = new Aggregate(AGGREGATE_ID)
         2.times {
@@ -103,17 +113,6 @@ class UnitOfWorkTest {
         assertThat aggregate.newEvents, empty()
     }
 
-
-    protected static List<EventEnvelope> listOfEvents(eventProperties = [:]) {
-        (0..2).collect { sequenceNumber ->
-            new EventEnvelope<Aggregate>(APPLICATION_NAME,
-                BOUNDED_CONTEXT_NAME,
-                AGGREGATE_NAME,
-                AGGREGATE_ID,
-                new Business_event_happened(eventProperties),
-                sequenceNumber)
-        }
-    }
 
     @Test
     void should_create_aggregate_instances_with_AggregateFactory() {

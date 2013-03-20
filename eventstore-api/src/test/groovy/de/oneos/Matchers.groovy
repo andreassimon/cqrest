@@ -8,6 +8,10 @@ import de.oneos.matchers.*
 
 class Matchers {
 
+    static Matcher<TestableClosure> wasNeverCalled() {
+        return new ClosureWasNeverCalledMatcher()
+    }
+
     static Matcher<TestableClosure> wasCalledOnce() {
         return new ClosureWasCalledOnceMatcher()
     }
