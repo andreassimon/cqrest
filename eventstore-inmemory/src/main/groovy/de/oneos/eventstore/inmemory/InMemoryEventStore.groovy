@@ -6,7 +6,17 @@ import de.oneos.eventsourcing.*
 
 class InMemoryEventStore implements EventStore {
     List<EventEnvelope> history = []
-    List<EventPublisher> eventPublishers
+    Collection<EventPublisher> eventPublishers = []
+    String application
+    String boundedContext
+
+    InMemoryEventStore(String application, String boundedContext) {
+        assert application != null
+        assert boundedContext != null
+
+        this.application = application
+        this.boundedContext = boundedContext
+    }
 
     @Override
     void setPublishers(List<EventPublisher> eventPublishers) {
@@ -14,14 +24,14 @@ class InMemoryEventStore implements EventStore {
     }
 
     @Override
-    void inBoundedContext(String application, String boundedContext, Closure closure) {
-        def unitOfWork = createUnitOfWork(application, boundedContext)
+    void inUnitOfWork(Closure closure) {
+        def unitOfWork = createUnitOfWork()
         unitOfWork.with closure
         commit(unitOfWork)
     }
 
     @Override
-    UnitOfWork createUnitOfWork(String application, String boundedContext) {
+    UnitOfWork createUnitOfWork() {
         new UnitOfWork(this, application, boundedContext)
     }
 

@@ -57,7 +57,7 @@ abstract class EventStore_ContractTest {
 
     @Test
     void should_provide_UnitOfWork_instances() {
-        assertThat eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME), notNullValue()
+        assertThat eventStore.createUnitOfWork(), notNullValue()
     }
 
     @Test
@@ -68,7 +68,7 @@ abstract class EventStore_ContractTest {
     }
 
     protected unitOfWork(Map eventCoordinates = [:], List<Event> events) {
-        def unitOfWork = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME)
+        def unitOfWork = eventStore.createUnitOfWork()
         Aggregate aggregate = new Aggregate(AGGREGATE_ID)
         unitOfWork.attach(aggregate)
         events.each { aggregate.emit(it) }
@@ -100,8 +100,8 @@ abstract class EventStore_ContractTest {
 
     @Test(expected = EventCollisionOccurred)
     void should_throw_an_exception_when_there_is_an_aggregate_event_stream_collision() {
-        def unitOfWork_1 = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME)
-        def unitOfWork_2 = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME)
+        def unitOfWork_1 = eventStore.createUnitOfWork()
+        def unitOfWork_2 = eventStore.createUnitOfWork()
 
         [unitOfWork_1, unitOfWork_2].each { unitOfWork ->
             Aggregate aggregate = new Aggregate(AGGREGATE_ID)
@@ -116,7 +116,7 @@ abstract class EventStore_ContractTest {
 
     @Test
     void should_filter_matching_EventEnvelopes_from_history() {
-        def unitOfWork = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME)
+        def unitOfWork = eventStore.createUnitOfWork()
         unitOfWork.attach(
             new Aggregate(AGGREGATE_ID).emit(new Business_event_happened())
         )
@@ -133,8 +133,8 @@ abstract class EventStore_ContractTest {
 
     @Test
     void should_not_persist_any_event_if_any_in_UnitOfWork_conflicts() {
-        def unitOfWork_1 = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME)
-        def unitOfWork_2 = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME)
+        def unitOfWork_1 = eventStore.createUnitOfWork()
+        def unitOfWork_2 = eventStore.createUnitOfWork()
 
         unitOfWork_1.with {
             attach(new Aggregate(AGGREGATE_ID).emit(new Business_event_happened()))
@@ -155,7 +155,7 @@ abstract class EventStore_ContractTest {
 
     @Test
     void should_execute_closure_in_unit_of_work() {
-        eventStore.inBoundedContext(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, {
+        eventStore.inUnitOfWork({
             Aggregate aggregate = new Aggregate(AGGREGATE_ID)
             aggregate.emit(new Business_event_happened())
             aggregate.emit(new Business_event_happened())
@@ -172,7 +172,7 @@ abstract class EventStore_ContractTest {
     void should_publish_persisted_events_to_registered_EventPublishers() {
         eventStore.publishers = [eventPublisher]
 
-        eventStore.inBoundedContext APPLICATION_NAME, BOUNDED_CONTEXT_NAME, publish(expectedEventEnvelope)
+        eventStore.inUnitOfWork publish(expectedEventEnvelope)
 
         verify(eventPublisher).publish(expectedEventEnvelope)
     }
@@ -190,7 +190,7 @@ abstract class EventStore_ContractTest {
     void should_ignore_any_exceptions_thrown_by_EventPublisher() {
         eventStore.publishers = [defectiveEventPublisher, flawlessEventPublisher]
 
-        eventStore.inBoundedContext APPLICATION_NAME, BOUNDED_CONTEXT_NAME, publish(expectedEventEnvelope)
+        eventStore.inUnitOfWork publish(expectedEventEnvelope)
 
         verify(flawlessEventPublisher).publish(expectedEventEnvelope)
     }
@@ -198,11 +198,11 @@ abstract class EventStore_ContractTest {
     @Test
     void should_not_publish_any_event_when_transaction_failed() {
         eventStore.publishers = [eventPublisher]
-        eventStore.inBoundedContext APPLICATION_NAME, BOUNDED_CONTEXT_NAME, publish(expectedEventEnvelope)
+        eventStore.inUnitOfWork publish(expectedEventEnvelope)
 
         reset(eventPublisher)
         expect(EventCollisionOccurred) {
-            eventStore.inBoundedContext APPLICATION_NAME, BOUNDED_CONTEXT_NAME, publish(expectedEventEnvelope)
+            eventStore.inUnitOfWork publish(expectedEventEnvelope)
         }
 
         verify(eventPublisher, never()).publish(expectedEventEnvelope)

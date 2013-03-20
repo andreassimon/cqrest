@@ -7,9 +7,9 @@ interface EventStore {
 
     void setPublishers(List<EventPublisher> eventPublishers)
 
-    void inBoundedContext(String application, String boundedContext, Closure closure)
+    void inUnitOfWork(Closure closure)
 
-    UnitOfWork createUnitOfWork(String application, String boundedContext)
+    UnitOfWork createUnitOfWork()
 
     void commit(UnitOfWork unitOfWork) throws IllegalArgumentException, EventCollisionOccurred
 

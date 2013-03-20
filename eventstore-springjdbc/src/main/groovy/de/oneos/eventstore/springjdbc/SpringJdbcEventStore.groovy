@@ -45,6 +45,10 @@ WHERE application_name = ? AND
 
 
     JsonSlurper json = new JsonSlurper()
+
+    String application
+    String boundedContext
+
     JdbcOperations jdbcTemplate
     TransactionTemplate transactionTemplate
     protected List<EventPublisher> publishers = []
@@ -100,15 +104,15 @@ CREATE TABLE ${TABLE_NAME} (
     }
 
     @Override
-    void inBoundedContext(String application, String boundedContext, Closure closure) {
-        UnitOfWork unitOfWork = createUnitOfWork(application, boundedContext)
+    void inUnitOfWork(Closure closure) {
+        UnitOfWork unitOfWork = createUnitOfWork()
         closure.delegate = unitOfWork
         closure()
         commit(unitOfWork)
     }
 
     @Override
-    UnitOfWork createUnitOfWork(String application, String boundedContext) {
+    UnitOfWork createUnitOfWork() {
         return new UnitOfWork(this, application, boundedContext)
     }
 

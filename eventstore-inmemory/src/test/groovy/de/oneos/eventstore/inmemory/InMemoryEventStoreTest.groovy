@@ -12,7 +12,7 @@ class InMemoryEventStoreTest extends EventStore_ContractTest {
     public void setUp() {
         super.setUp()
 
-        eventStore = new InMemoryEventStore()
+        eventStore = new InMemoryEventStore(APPLICATION_NAME, BOUNDED_CONTEXT_NAME)
     }
 
 }

@@ -36,7 +36,7 @@ class SpringJdbcEventStoreTest extends EventStore_ContractTest {
         // call this a 'sentinel' connection.
         sentinelConnection = dataSource.getConnection()
 
-        eventStore = new SpringJdbcEventStore(dataSource: dataSource)
+        eventStore = new SpringJdbcEventStore(dataSource: dataSource, application: APPLICATION_NAME, boundedContext: BOUNDED_CONTEXT_NAME)
         eventStore.createTable()
     }
 
