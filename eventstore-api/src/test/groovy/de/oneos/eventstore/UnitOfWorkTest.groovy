@@ -92,6 +92,18 @@ class UnitOfWorkTest {
         assertThat 'callback', callback, wasCalledOnceWith(EventEnvelope, [aggregateId: ANOTHER_AGGREGATE_ID, sequenceNumber: 0])
     }
 
+    @Test
+    void should_flush_attached_aggregates() {
+        Aggregate aggregate = new Aggregate(AGGREGATE_ID)
+        unitOfWork.attach(aggregate)
+        2.times { aggregate.emit(new Business_event_happened()) }
+        assertThat aggregate.newEvents.size(), equalTo(2)
+
+        unitOfWork.flush()
+
+        assertThat aggregate.newEvents, empty()
+    }
+
 
     protected static List<EventEnvelope> listOfEvents(eventProperties = [:]) {
         (0..2).collect { sequenceNumber ->

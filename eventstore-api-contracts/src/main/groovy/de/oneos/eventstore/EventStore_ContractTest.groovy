@@ -25,7 +25,7 @@ abstract class EventStore_ContractTest {
     EventEnvelope expectedEventEnvelope = new EventEnvelope(
         APPLICATION_NAME,
         BOUNDED_CONTEXT_NAME,
-        AGGREGATE_NAME,
+        Aggregate.aggregateName,
         AGGREGATE_ID,
         new Business_event_happened()
     )
@@ -41,11 +41,12 @@ abstract class EventStore_ContractTest {
         eventPublisher = mock(EventPublisher)
 
         defectiveEventPublisher = mock(EventPublisher, 'defectiveEventPublisher')
-        when(defectiveEventPublisher.publish(any(EventEnvelope))) \
-            .thenThrow(new RuntimeException('Thrown by EventPublisher'))
+        doThrow(new RuntimeException('Thrown by EventPublisher')).
+            when(defectiveEventPublisher).publish(any(EventEnvelope))
 
         flawlessEventPublisher = mock(EventPublisher, 'flawlessEventPublisher')
 
+        // TODO Try to get rid of it
         eventFactory = { classLoader, packageName, eventName, eventAttributes ->
             def simpleEventClassName = eventName.replaceAll(' ', '_')
             def fullEventClassName = [packageName, simpleEventClassName].join('.')
@@ -68,13 +69,9 @@ abstract class EventStore_ContractTest {
 
     protected unitOfWork(Map eventCoordinates = [:], List<Event> events) {
         def unitOfWork = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME)
-        events.each { event ->
-            unitOfWork.publishEvent(
-                eventCoordinates.containsKey('aggregateName') ? eventCoordinates['aggregateName'] : AGGREGATE_NAME,
-                eventCoordinates.containsKey('aggregateId') ? eventCoordinates['aggregateId'] : AGGREGATE_ID,
-                event
-            )
-        }
+        Aggregate aggregate = new Aggregate(AGGREGATE_ID)
+        unitOfWork.attach(aggregate)
+        events.each { aggregate.emit(it) }
         unitOfWork
     }
 
@@ -94,16 +91,6 @@ abstract class EventStore_ContractTest {
 
 
     @Test(expected = IllegalArgumentException)
-    void should_throw_an_exception_when_aggregateName_is_empty() {
-        eventStore.commit(unitOfWork(eventStream, aggregateName: ''))
-    }
-
-    @Test(expected = IllegalArgumentException)
-    void should_throw_an_exception_when_aggregateId_is_null() {
-        eventStore.commit(unitOfWork(eventStream, aggregateId: null))
-    }
-
-    @Test(expected = IllegalArgumentException)
     void should_throw_an_exception_when_eventName_is_empty() {
         eventStore.commit(unitOfWork([new Business_event_happened() {
             @Override
@@ -117,7 +104,9 @@ abstract class EventStore_ContractTest {
         def unitOfWork_2 = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME)
 
         [unitOfWork_1, unitOfWork_2].each { unitOfWork ->
-            unitOfWork.publishEvent(AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
+            Aggregate aggregate = new Aggregate(AGGREGATE_ID)
+            unitOfWork.attach(aggregate)
+            aggregate.emit(new Business_event_happened())
         }
 
         [unitOfWork_1, unitOfWork_2].each { unitOfWork ->
@@ -128,8 +117,13 @@ abstract class EventStore_ContractTest {
     @Test
     void should_filter_matching_EventEnvelopes_from_history() {
         def unitOfWork = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME)
-        unitOfWork.publishEvent(AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
-        unitOfWork.publishEvent(AGGREGATE_NAME, ANOTHER_AGGREGATE_ID, new Business_event_happened())
+        unitOfWork.attach(
+            new Aggregate(AGGREGATE_ID).emit(new Business_event_happened())
+        )
+        unitOfWork.attach(
+            new Aggregate(ANOTHER_AGGREGATE_ID).emit(new Business_event_happened())
+        )
+
         eventStore.commit(unitOfWork)
 
         assertThat history(eventStore, AGGREGATE_ID), equalTo([
@@ -142,10 +136,14 @@ abstract class EventStore_ContractTest {
         def unitOfWork_1 = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME)
         def unitOfWork_2 = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME)
 
-        unitOfWork_1.publishEvent(AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
+        unitOfWork_1.with {
+            attach(new Aggregate(AGGREGATE_ID).emit(new Business_event_happened()))
+        }
 
-        unitOfWork_2.publishEvent(AGGREGATE_NAME, ANOTHER_AGGREGATE_ID, new Business_event_happened())
-        unitOfWork_2.publishEvent(AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
+        unitOfWork_2.with {
+            attach(new Aggregate(ANOTHER_AGGREGATE_ID).emit(new Business_event_happened()))
+            attach(new Aggregate(AGGREGATE_ID).emit(new Business_event_happened()))
+        }
 
         eventStore.commit(unitOfWork_1)
         expect(EventCollisionOccurred) {
@@ -158,8 +156,10 @@ abstract class EventStore_ContractTest {
     @Test
     void should_execute_closure_in_unit_of_work() {
         eventStore.inBoundedContext(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, {
-            publishEvent(AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
-            publishEvent(AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
+            Aggregate aggregate = new Aggregate(AGGREGATE_ID)
+            aggregate.emit(new Business_event_happened())
+            aggregate.emit(new Business_event_happened())
+            attach(aggregate)
         })
 
         assertThat history(eventStore, AGGREGATE_ID), equalTo([
@@ -177,13 +177,12 @@ abstract class EventStore_ContractTest {
         verify(eventPublisher).publish(expectedEventEnvelope)
     }
 
-    protected publish(eventEnvelope) {
+    protected publish(EventEnvelope eventEnvelope) {
+        assert Aggregate.aggregateName == eventEnvelope.aggregateName
+        Aggregate aggregate = new Aggregate(eventEnvelope.aggregateId)
+        aggregate.emit(new Business_event_happened())
         return {
-            publishEvent(
-                eventEnvelope.aggregateName,
-                eventEnvelope.aggregateId,
-                new Business_event_happened()
-            )
+            attach(aggregate)
         }
     }
 
@@ -220,6 +219,15 @@ abstract class EventStore_ContractTest {
         }
     }
 
+
+    static class Aggregate {
+        static { Aggregate.mixin(EventSourcing) }
+        static aggregateName = AGGREGATE_NAME
+
+        final UUID id
+
+        Aggregate(UUID id) { this.id = id }
+    }
 
     static class Business_event_happened extends Event {
         @Override

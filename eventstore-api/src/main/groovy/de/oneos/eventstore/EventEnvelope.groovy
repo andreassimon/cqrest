@@ -32,7 +32,7 @@ class EventEnvelope<AggregateType> {
     }
 
     String getEventName() {
-        return event.name
+        return event?.name
     }
 
     String getSerializedEvent() {

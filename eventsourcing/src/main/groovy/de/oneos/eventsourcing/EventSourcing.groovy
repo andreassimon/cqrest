@@ -16,6 +16,7 @@ class EventSourcing {
             newEvents[identityHashCode(aggregate)] << it
             it.applyTo(aggregate)
         }
+        return aggregate
     }
 
     static List<Event> getNewEvents(aggregate) {

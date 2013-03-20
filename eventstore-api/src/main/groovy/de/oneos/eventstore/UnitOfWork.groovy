@@ -1,6 +1,7 @@
 package de.oneos.eventstore
 
 import static java.lang.Math.*
+import static java.util.Collections.*
 
 import de.oneos.eventsourcing.*
 
@@ -13,10 +14,7 @@ class UnitOfWork {
 
     protected AggregateFactory aggregateFactory
     protected Collection attachedAggregates = new LinkedList()
-
-    Map<String, Map<String, Map<String, Map<UUID, Integer>>>> nextSequenceNumbers =
-        emptyMapWithDefault(
-            SequenceNumberGenerator.newInstance)()
+    protected Map<Integer, Integer> aggregateVersion = synchronizedMap([:])
 
 
     UnitOfWork(EventStore eventStore, String application, String boundedContext) {
@@ -31,18 +29,12 @@ class UnitOfWork {
     }
 
 
-    static Closure<Map> emptyMapWithDefault(Closure defaultFactory) {
-        return {
-            MapWithDefault.newInstance([:], defaultFactory)
-        }
-    }
-
     def get(Class aggregateClass, UUID aggregateId, Closure eventFactory) {
         List<EventEnvelope> eventEnvelopes = loadEventEnvelopes(aggregateClass, aggregateId, eventFactory)
 
         def aggregate = newAggregateInstance(aggregateClass, aggregateId, eventEnvelopes)
         attach(aggregate)
-        updateSequenceNumbers(aggregateClass, aggregateId, eventEnvelopes)
+        updateVersion(aggregate, eventEnvelopes)
 
         return aggregate
     }
@@ -51,16 +43,16 @@ class UnitOfWork {
         aggregateFactory.newInstance(aggregateClass, aggregateId, eventEnvelopes.collect { it.event })
     }
 
-    protected updateSequenceNumbers(Class aggregateClass, UUID aggregateId, List<EventEnvelope> eventEnvelopes) {
-        nextSequenceNumbers(aggregateClass)[aggregateId] = maximumSequenceNumber(eventEnvelopes) + 1
+    protected updateVersion(aggregate, Collection<EventEnvelope> eventEnvelopes) {
+        setVersion(aggregate, maximumSequenceNumber(eventEnvelopes))
     }
 
-    protected maximumSequenceNumber(List<EventEnvelope> eventEnvelopes) {
-        eventEnvelopes.inject(0) { int maximumSequenceNumber, envelope -> max(maximumSequenceNumber, envelope.sequenceNumber) }
+    protected setVersion(aggregate, calculatedVersion) {
+        aggregateVersion[System.identityHashCode(aggregate)] = calculatedVersion
     }
 
-    protected nextSequenceNumbers(Class aggregateClass) {
-        nextSequenceNumbers[aggregateClass.aggregateName]
+    protected static maximumSequenceNumber(Collection<EventEnvelope> eventEnvelopes) {
+        eventEnvelopes.inject(-1) { int maximumSequenceNumber, envelope -> max(maximumSequenceNumber, envelope.sequenceNumber) }
     }
 
     protected loadEventEnvelopes(Class aggregateClass, UUID aggregateId, Closure eventFactory) {
@@ -81,23 +73,27 @@ class UnitOfWork {
         attachedAggregates << aggregate
     }
 
-    protected int nextSequenceNumber(String aggregateName, UUID aggregateId) {
-        nextSequenceNumbers[aggregateName][aggregateId]
-    }
-
     void eachEventEnvelope(Closure callback) {
         attachedAggregates.collect { aggregate ->
-            aggregate.newEvents.collect { newEvent ->
+            (0..(aggregate.newEvents.size()-1)).collect { int i ->
                 new EventEnvelope(
                     applicationName,
                     boundedContextName,
                     aggregate.aggregateName,
                     aggregate.id,
-                    newEvent,
-                    nextSequenceNumber(aggregate.aggregateName, aggregate.id)
+                    aggregate.newEvents[i],
+                    version(aggregate) + 1 + i
                 )
             }
         }.flatten().each { callback(it) }
+    }
+
+    protected version(aggregate) {
+        aggregateVersion[System.identityHashCode(aggregate)] ?: -1
+    }
+
+    void flush() {
+        attachedAggregates.each { it.flushEvents() }
     }
 
 }

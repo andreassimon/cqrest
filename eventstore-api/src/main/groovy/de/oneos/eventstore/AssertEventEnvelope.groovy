@@ -2,7 +2,7 @@ package de.oneos.eventstore
 
 class AssertEventEnvelope {
 
-    protected static isValid(EventEnvelope eventEnvelope) {
+    static isValid(EventEnvelope eventEnvelope) {
         AssertEventEnvelope.notEmpty(eventEnvelope, 'applicationName')
         AssertEventEnvelope.notEmpty(eventEnvelope, 'boundedContextName')
         AssertEventEnvelope.notEmpty(eventEnvelope, 'aggregateName')
