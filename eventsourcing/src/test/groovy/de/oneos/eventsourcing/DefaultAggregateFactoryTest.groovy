@@ -5,7 +5,6 @@ import static java.util.UUID.randomUUID
 import org.junit.Test
 import static org.junit.Assert.*
 import static org.hamcrest.Matchers.*
-import static org.mockito.Mockito.*
 
 import org.junit.Before
 
@@ -32,7 +31,7 @@ class DefaultAggregateFactoryTest {
         aggregate = aggregateFactory.newInstance(
             RawAggregateClass_without_applicationName,
             AGGREGATE_ID,
-            listOfEvents()
+            aggregateHistory
         )
     }
 
@@ -47,7 +46,7 @@ class DefaultAggregateFactoryTest {
         aggregateFactory.newInstance(
             RawAggregateClass_without_boundedContextName,
             AGGREGATE_ID,
-            listOfEvents()
+            aggregateHistory
         )
     }
 
@@ -62,7 +61,7 @@ class DefaultAggregateFactoryTest {
         aggregateFactory.newInstance(
             RawAggregateClass_without_aggregateName,
             AGGREGATE_ID,
-            listOfEvents()
+            aggregateHistory
         )
     }
 
@@ -77,7 +76,7 @@ class DefaultAggregateFactoryTest {
         aggregateFactory.newInstance(
             IncompatibleAggregateClass,
             AGGREGATE_ID,
-            listOfEvents()
+            aggregateHistory
         )
     }
 
@@ -94,19 +93,19 @@ class DefaultAggregateFactoryTest {
     }
 
     @Test
-    void should_apply_events_from_the_EventStore_to_loaded_aggregates() {
+    void should_apply_events_from_history_to_loaded_aggregates() {
         aggregate = aggregateFactory.newInstance(
             Aggregate,
             AGGREGATE_ID,
-            listOfEvents(function: { Aggregate aggregate -> aggregate.numberOfAppliedEvents++ })
+            aggregateHistory
         )
 
-        assertThat aggregate.numberOfAppliedEvents, equalTo(listOfEvents().size())
+        assertThat aggregate.numberOfAppliedEvents, equalTo(aggregateHistory.size())
     }
 
-    List<Event> listOfEvents(eventProperties = [:]) {
+    List<Event> getAggregateHistory() {
         (0..2).collect {
-            new Business_event_happened(eventProperties)
+            new Business_event_happened()
         }
     }
 
@@ -118,7 +117,6 @@ class DefaultAggregateFactoryTest {
         static aggregateName = 'AGGREGATE'
 
         final UUID id
-        boolean businessEventWasApplied = false
         int numberOfAppliedEvents = 0
 
         Aggregate(UUID id) {
@@ -128,11 +126,10 @@ class DefaultAggregateFactoryTest {
 
     static class Business_event_happened extends Event<Aggregate> {
         static { UNSERIALIZED_PROPERTIES << 'function' }
-        Closure<Void> function = { it.businessEventWasApplied = true }
 
         @Override
         void applyTo(Aggregate aggregate) {
-            function(aggregate)
+            aggregate.numberOfAppliedEvents++
         }
     }
 
