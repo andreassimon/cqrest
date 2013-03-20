@@ -10,8 +10,8 @@ import static org.mockito.Mockito.*
 import org.junit.Before
 
 
-class MixinAggregateFactoryTest {
-    MixinAggregateFactory aggregateFactory
+class DefaultAggregateFactoryTest {
+    DefaultAggregateFactory aggregateFactory
     UUID AGGREGATE_ID = randomUUID()
     UUID ANOTHER_AGGREGATE_ID = randomUUID()
 
@@ -21,7 +21,7 @@ class MixinAggregateFactoryTest {
 
     @Before
     void setUp() {
-        aggregateFactory = new MixinAggregateFactory()
+        aggregateFactory = new DefaultAggregateFactory()
 
         while(AGGREGATE_ID == ANOTHER_AGGREGATE_ID) {
             ANOTHER_AGGREGATE_ID = randomUUID()

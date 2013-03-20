@@ -1,12 +1,8 @@
 package de.oneos.eventsourcing
 
-import static java.lang.System.identityHashCode
 
 
-class MixinAggregateFactory implements AggregateFactory {
-
-    Map<Integer, UUID> aggregateIds = Collections.synchronizedMap([:])
-    Map<Integer, EventAggregator> eventAggregators = Collections.synchronizedMap([:])
+class DefaultAggregateFactory implements AggregateFactory {
 
     public <A> A newInstance(Class<A> aggregateClass, UUID aggregateId, EventAggregator eventAggregator, List<Event> aggregateHistory) {
         assertApplicationNameIsDefined(aggregateClass)

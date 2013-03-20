@@ -20,7 +20,7 @@ class UnitOfWork implements EventAggregator {
 
     UnitOfWork(EventStore eventStore) {
         this.eventStore = eventStore
-        this.aggregateFactory = new MixinAggregateFactory()
+        this.aggregateFactory = new DefaultAggregateFactory()
     }
 
 
