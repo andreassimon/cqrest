@@ -5,7 +5,7 @@ import static java.lang.Math.*
 import de.oneos.eventsourcing.*
 
 
-class UnitOfWork implements EventAggregator {
+class UnitOfWork {
 
     protected EventStore eventStore
     protected AggregateFactory aggregateFactory
@@ -40,7 +40,7 @@ class UnitOfWork implements EventAggregator {
     }
 
     protected newAggregateInstance(Class aggregateClass, UUID aggregateId, List<EventEnvelope> eventEnvelopes) {
-        aggregateFactory.newInstance(aggregateClass, aggregateId, this, eventEnvelopes.collect { it.event })
+        aggregateFactory.newInstance(aggregateClass, aggregateId, eventEnvelopes.collect { it.event })
     }
 
     protected updateSequenceNumbers(Class aggregateClass, UUID aggregateId, List<EventEnvelope> eventEnvelopes) {

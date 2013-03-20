@@ -16,8 +16,6 @@ class DefaultAggregateFactoryTest {
     UUID ANOTHER_AGGREGATE_ID = randomUUID()
 
     Aggregate aggregate
-    List<Aggregate> aggregates
-    EventAggregator eventAggregator
 
     @Before
     void setUp() {
@@ -26,8 +24,6 @@ class DefaultAggregateFactoryTest {
         while(AGGREGATE_ID == ANOTHER_AGGREGATE_ID) {
             ANOTHER_AGGREGATE_ID = randomUUID()
         }
-
-        eventAggregator = mock(EventAggregator)
     }
 
 
@@ -36,7 +32,6 @@ class DefaultAggregateFactoryTest {
         aggregate = aggregateFactory.newInstance(
             RawAggregateClass_without_applicationName,
             AGGREGATE_ID,
-            eventAggregator,
             listOfEvents()
         )
     }
@@ -52,7 +47,6 @@ class DefaultAggregateFactoryTest {
         aggregateFactory.newInstance(
             RawAggregateClass_without_boundedContextName,
             AGGREGATE_ID,
-            eventAggregator,
             listOfEvents()
         )
     }
@@ -68,7 +62,6 @@ class DefaultAggregateFactoryTest {
         aggregateFactory.newInstance(
             RawAggregateClass_without_aggregateName,
             AGGREGATE_ID,
-            eventAggregator,
             listOfEvents()
         )
     }
@@ -84,7 +77,6 @@ class DefaultAggregateFactoryTest {
         aggregateFactory.newInstance(
             IncompatibleAggregateClass,
             AGGREGATE_ID,
-            eventAggregator,
             listOfEvents()
         )
     }
@@ -106,7 +98,6 @@ class DefaultAggregateFactoryTest {
         aggregate = aggregateFactory.newInstance(
             Aggregate,
             AGGREGATE_ID,
-            eventAggregator,
             listOfEvents(function: { Aggregate aggregate -> aggregate.numberOfAppliedEvents++ })
         )
 
@@ -132,10 +123,6 @@ class DefaultAggregateFactoryTest {
 
         Aggregate(UUID id) {
             this.id = id
-        }
-
-        void emit__Business_event_happened() {
-            emit(new Business_event_happened())
         }
     }
 

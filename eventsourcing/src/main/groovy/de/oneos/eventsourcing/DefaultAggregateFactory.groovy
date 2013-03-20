@@ -4,7 +4,7 @@ package de.oneos.eventsourcing
 
 class DefaultAggregateFactory implements AggregateFactory {
 
-    public <A> A newInstance(Class<A> aggregateClass, UUID aggregateId, EventAggregator eventAggregator, List<Event> aggregateHistory) {
+    public <A> A newInstance(Class<A> aggregateClass, UUID aggregateId, List<Event> aggregateHistory) {
         assertApplicationNameIsDefined(aggregateClass)
         assertBoundedContextNameIsDefined(aggregateClass)
         assertAggregateNameIsDefined(aggregateClass)

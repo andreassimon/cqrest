@@ -111,7 +111,7 @@ class UnitOfWorkTest {
                 new Business_event_happened())]
         })
         unitOfWork.aggregateFactory = aggregateFactory
-        when(aggregateFactory.newInstance(Aggregate, AGGREGATE_ID, unitOfWork, [new Business_event_happened()])).thenReturn DUMMY_AGGREGATE
+        when(aggregateFactory.newInstance(Aggregate, AGGREGATE_ID, [new Business_event_happened()])).thenReturn DUMMY_AGGREGATE
 
         def actualAggregate = unitOfWork.get(Aggregate, AGGREGATE_ID, eventFactory)
 
