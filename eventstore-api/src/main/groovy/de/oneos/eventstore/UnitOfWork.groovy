@@ -29,7 +29,7 @@ class UnitOfWork {
     }
 
 
-    def get(Class aggregateClass, UUID aggregateId, Closure eventFactory) {
+    public <A> A get(Class<A> aggregateClass, UUID aggregateId, Closure eventFactory) {
         List<EventEnvelope> eventEnvelopes = loadEventEnvelopes(aggregateClass, aggregateId, eventFactory)
 
         def aggregate = newAggregateInstance(aggregateClass, aggregateId, eventEnvelopes)
@@ -89,7 +89,11 @@ class UnitOfWork {
     }
 
     protected version(aggregate) {
-        aggregateVersion[System.identityHashCode(aggregate)] ?: -1
+        def aggregateHash = System.identityHashCode(aggregate)
+        if(aggregateVersion.containsKey(aggregateHash)) {
+            return aggregateVersion[aggregateHash]
+        }
+        return -1
     }
 
     void flush() {

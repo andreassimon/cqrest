@@ -17,7 +17,6 @@ class UnitOfWorkTest {
     static final String BOUNDED_CONTEXT_NAME = 'BOUNDED_CONTEXT_NAME'
     static final String AGGREGATE_NAME = 'AGGREGATE_NAME'
 
-    static final int LAST_SEQUENCE_NUMBER = 2
     static UUID AGGREGATE_ID = randomUUID()
     static UUID ANOTHER_AGGREGATE_ID = randomUUID()
     static final Aggregate DUMMY_AGGREGATE = new Aggregate(randomUUID()) {
@@ -136,6 +135,8 @@ class UnitOfWorkTest {
     }
 
 
+    static final int LAST_SEQUENCE_NUMBER = 0
+
     @Test
     void should_update_the_next_sequenceNumber_for_loaded_aggregates() {
         when(eventStore.loadEventEnvelopes(eq(APPLICATION_NAME), eq(BOUNDED_CONTEXT_NAME), eq(AGGREGATE_NAME), eq(AGGREGATE_ID), any(Closure))).then(answer {
@@ -146,7 +147,7 @@ class UnitOfWorkTest {
         aggregate.emit(new Business_event_happened())
 
         unitOfWork.eachEventEnvelope(callback)
-        assertThat 'callback', callback, wasCalledOnceWith(sequenceNumber: LAST_SEQUENCE_NUMBER + 1);
+        assertThat 'callback', callback, wasCalledOnceWith(EventEnvelope, [sequenceNumber: LAST_SEQUENCE_NUMBER + 1]);
     }
 
     protected static newEventEnvelope(Map<String, Integer> attributes) {
