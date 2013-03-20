@@ -48,24 +48,29 @@ class UnitOfWorkTest {
 
 
     @Test
-    void should_collect_published_events() {
-        unitOfWork.publishEvent(AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
+    void should_collect_new_events_from_attached_aggregates() {
+        Aggregate aggregate = new Aggregate(AGGREGATE_ID)
+        aggregate.emit(new Business_event_happened())
+
+        unitOfWork.attach(aggregate)
 
         unitOfWork.eachEventEnvelope(callback)
         assertThat 'callback', callback, wasCalledOnceWith(EventEnvelope, [
-            applicationName: APPLICATION_NAME,
-            boundedContextName: BOUNDED_CONTEXT_NAME,
-            aggregateName: AGGREGATE_NAME,
-            aggregateId: AGGREGATE_ID,
+            applicationName: unitOfWork.applicationName,
+            boundedContextName: unitOfWork.boundedContextName,
+            aggregateName: aggregate.aggregateName,
+            aggregateId: aggregate.id,
             event: new Business_event_happened()
         ])
     }
 
     @Test
     void should_increment_the_sequenceNumber_for_published_events_for_an_aggregate() {
+        Aggregate aggregate = new Aggregate(AGGREGATE_ID)
         2.times {
-            publishEvent(unitOfWork, AGGREGATE_ID)
+            aggregate.emit(new Business_event_happened())
         }
+        unitOfWork.attach(aggregate)
 
         unitOfWork.eachEventEnvelope(callback)
 
@@ -75,8 +80,11 @@ class UnitOfWorkTest {
 
     @Test
     void should_increment_the_sequenceNumber_depending_on_the_aggregate() {
-        publishEvent(unitOfWork, AGGREGATE_ID)
-        publishEvent(unitOfWork, ANOTHER_AGGREGATE_ID)
+        [AGGREGATE_ID, ANOTHER_AGGREGATE_ID].each { UUID id ->
+            Aggregate aggregate = new Aggregate(id)
+            aggregate.emit(new Business_event_happened())
+            unitOfWork.attach(aggregate)
+        }
 
         unitOfWork.eachEventEnvelope(callback)
 
@@ -84,9 +92,6 @@ class UnitOfWorkTest {
         assertThat 'callback', callback, wasCalledOnceWith(EventEnvelope, [aggregateId: ANOTHER_AGGREGATE_ID, sequenceNumber: 0])
     }
 
-    protected publishEvent(UnitOfWork unitOfWork, UUID aggregateId) {
-        unitOfWork.publishEvent(AGGREGATE_NAME, aggregateId, new Business_event_happened())
-    }
 
     protected static List<EventEnvelope> listOfEvents(eventProperties = [:]) {
         (0..2).collect { sequenceNumber ->
@@ -124,9 +129,9 @@ class UnitOfWorkTest {
         when(eventStore.loadEventEnvelopes(eq(APPLICATION_NAME), eq(BOUNDED_CONTEXT_NAME), eq(AGGREGATE_NAME), eq(AGGREGATE_ID), any(Closure))).then(answer {
             (0..LAST_SEQUENCE_NUMBER).collect { newEventEnvelope(sequenceNumber: it) }
         })
-        unitOfWork.get(Aggregate, AGGREGATE_ID, eventFactory)
+        Aggregate aggregate = unitOfWork.get(Aggregate, AGGREGATE_ID, eventFactory)
 
-        publishEvent(unitOfWork, AGGREGATE_ID)
+        aggregate.emit(new Business_event_happened())
 
         unitOfWork.eachEventEnvelope(callback)
         assertThat 'callback', callback, wasCalledOnceWith(sequenceNumber: LAST_SEQUENCE_NUMBER + 1);
@@ -138,6 +143,7 @@ class UnitOfWorkTest {
 
 
     static class Aggregate {
+        static { Aggregate.mixin(EventSourcing) }
         static aggregateName = AGGREGATE_NAME
 
         final UUID id

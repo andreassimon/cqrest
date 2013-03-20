@@ -12,7 +12,7 @@ class UnitOfWork {
     protected final String boundedContextName
 
     protected AggregateFactory aggregateFactory
-    protected List<EventEnvelope> publishedEventEnvelopes = []
+    protected Collection attachedAggregates = new LinkedList()
 
     Map<String, Map<String, Map<String, Map<UUID, Integer>>>> nextSequenceNumbers =
         emptyMapWithDefault(
@@ -41,6 +41,7 @@ class UnitOfWork {
         List<EventEnvelope> eventEnvelopes = loadEventEnvelopes(aggregateClass, aggregateId, eventFactory)
 
         def aggregate = newAggregateInstance(aggregateClass, aggregateId, eventEnvelopes)
+        attach(aggregate)
         updateSequenceNumbers(aggregateClass, aggregateId, eventEnvelopes)
 
         return aggregate
@@ -72,23 +73,31 @@ class UnitOfWork {
         )
     }
 
-    void publishEvent(String aggregateName, UUID aggregateId, Event event) {
-        publishedEventEnvelopes << new EventEnvelope(
-            applicationName,
-            boundedContextName,
-            aggregateName,
-            aggregateId,
-            event,
-            nextSequenceNumber(applicationName, boundedContextName, aggregateName, aggregateId)
-        )
+    void attach(Object[] aggregates) {
+        aggregates.each { attach(it) }
     }
 
-    protected int nextSequenceNumber(applicationName, boundedContextName, aggregateName, aggregateId) {
+    void attach(aggregate) {
+        attachedAggregates << aggregate
+    }
+
+    protected int nextSequenceNumber(String aggregateName, UUID aggregateId) {
         nextSequenceNumbers[aggregateName][aggregateId]
     }
 
     void eachEventEnvelope(Closure callback) {
-        publishedEventEnvelopes.each { callback(it) }
+        attachedAggregates.collect { aggregate ->
+            aggregate.newEvents.collect { newEvent ->
+                new EventEnvelope(
+                    applicationName,
+                    boundedContextName,
+                    aggregate.aggregateName,
+                    aggregate.id,
+                    newEvent,
+                    nextSequenceNumber(aggregate.aggregateName, aggregate.id)
+                )
+            }
+        }.flatten().each { callback(it) }
     }
 
 }
