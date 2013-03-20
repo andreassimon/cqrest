@@ -100,16 +100,16 @@ CREATE TABLE ${TABLE_NAME} (
     }
 
     @Override
-    void inUnitOfWork(Closure closure) {
-        UnitOfWork unitOfWork = createUnitOfWork()
+    void inBoundedContext(String application, String boundedContext, Closure closure) {
+        UnitOfWork unitOfWork = createUnitOfWork(application, boundedContext)
         closure.delegate = unitOfWork
         closure()
         commit(unitOfWork)
     }
 
     @Override
-    UnitOfWork createUnitOfWork() {
-        return new UnitOfWork()
+    UnitOfWork createUnitOfWork(String application, String boundedContext) {
+        return new UnitOfWork(this, application, boundedContext)
     }
 
     @Override

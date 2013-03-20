@@ -43,13 +43,13 @@ class UnitOfWorkTest {
         eventStore = mock(EventStore)
         aggregateFactory = mock(AggregateFactory)
 
-        unitOfWork = new UnitOfWork(eventStore)
+        unitOfWork = new UnitOfWork(eventStore, APPLICATION_NAME, BOUNDED_CONTEXT_NAME)
     }
 
 
     @Test
     void should_collect_published_events() {
-        unitOfWork.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
+        unitOfWork.publishEvent(AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
 
         unitOfWork.eachEventEnvelope(callback)
         assertThat 'callback', callback, wasCalledOnceWith(EventEnvelope, [
@@ -85,7 +85,7 @@ class UnitOfWorkTest {
     }
 
     protected publishEvent(UnitOfWork unitOfWork, UUID aggregateId) {
-        unitOfWork.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, aggregateId, new Business_event_happened())
+        unitOfWork.publishEvent(AGGREGATE_NAME, aggregateId, new Business_event_happened())
     }
 
     protected static List<EventEnvelope> listOfEvents(eventProperties = [:]) {
@@ -104,8 +104,8 @@ class UnitOfWorkTest {
         // TODO Das Test-Setup ist zu kompliziert; das stinkt nach schlechtem Design
         when(eventStore.loadEventEnvelopes(eq(APPLICATION_NAME), eq(BOUNDED_CONTEXT_NAME), eq(AGGREGATE_NAME), eq(AGGREGATE_ID), any(Closure))).then(answer {
             [new EventEnvelope(
-                Aggregate.applicationName,
-                Aggregate.boundedContextName,
+                APPLICATION_NAME,
+                BOUNDED_CONTEXT_NAME,
                 Aggregate.aggregateName,
                 AGGREGATE_ID,
                 new Business_event_happened())]
@@ -138,8 +138,6 @@ class UnitOfWorkTest {
 
 
     static class Aggregate {
-        static applicationName = APPLICATION_NAME
-        static boundedContextName = BOUNDED_CONTEXT_NAME
         static aggregateName = AGGREGATE_NAME
 
         final UUID id

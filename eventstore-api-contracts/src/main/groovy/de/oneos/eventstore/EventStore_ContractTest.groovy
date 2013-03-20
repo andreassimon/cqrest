@@ -56,7 +56,7 @@ abstract class EventStore_ContractTest {
 
     @Test
     void should_provide_UnitOfWork_instances() {
-        assertThat eventStore.createUnitOfWork(), notNullValue()
+        assertThat eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME), notNullValue()
     }
 
     @Test
@@ -67,11 +67,9 @@ abstract class EventStore_ContractTest {
     }
 
     protected unitOfWork(Map eventCoordinates = [:], List<Event> events) {
-        def unitOfWork = eventStore.createUnitOfWork()
+        def unitOfWork = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME)
         events.each { event ->
             unitOfWork.publishEvent(
-                eventCoordinates.containsKey('applicationName') ? eventCoordinates['applicationName'] : APPLICATION_NAME,
-                eventCoordinates.containsKey('boundedContextName') ? eventCoordinates['boundedContextName'] : BOUNDED_CONTEXT_NAME,
                 eventCoordinates.containsKey('aggregateName') ? eventCoordinates['aggregateName'] : AGGREGATE_NAME,
                 eventCoordinates.containsKey('aggregateId') ? eventCoordinates['aggregateId'] : AGGREGATE_ID,
                 event
@@ -96,16 +94,6 @@ abstract class EventStore_ContractTest {
 
 
     @Test(expected = IllegalArgumentException)
-    void should_throw_an_exception_when_applicationName_is_empty() {
-        eventStore.commit(unitOfWork(eventStream, applicationName: ''))
-    }
-
-    @Test(expected = IllegalArgumentException)
-    void should_throw_an_exception_when_boundedContextName_is_empty() {
-        eventStore.commit(unitOfWork(eventStream, boundedContextName: ''))
-    }
-
-    @Test(expected = IllegalArgumentException)
     void should_throw_an_exception_when_aggregateName_is_empty() {
         eventStore.commit(unitOfWork(eventStream, aggregateName: ''))
     }
@@ -125,11 +113,11 @@ abstract class EventStore_ContractTest {
 
     @Test(expected = EventCollisionOccurred)
     void should_throw_an_exception_when_there_is_an_aggregate_event_stream_collision() {
-        def unitOfWork_1 = eventStore.createUnitOfWork()
-        def unitOfWork_2 = eventStore.createUnitOfWork()
+        def unitOfWork_1 = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME)
+        def unitOfWork_2 = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME)
 
         [unitOfWork_1, unitOfWork_2].each { unitOfWork ->
-            unitOfWork.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
+            unitOfWork.publishEvent(AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
         }
 
         [unitOfWork_1, unitOfWork_2].each { unitOfWork ->
@@ -139,9 +127,9 @@ abstract class EventStore_ContractTest {
 
     @Test
     void should_filter_matching_EventEnvelopes_from_history() {
-        def unitOfWork = eventStore.createUnitOfWork()
-        unitOfWork.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
-        unitOfWork.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, ANOTHER_AGGREGATE_ID, new Business_event_happened())
+        def unitOfWork = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME)
+        unitOfWork.publishEvent(AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
+        unitOfWork.publishEvent(AGGREGATE_NAME, ANOTHER_AGGREGATE_ID, new Business_event_happened())
         eventStore.commit(unitOfWork)
 
         assertThat history(eventStore, AGGREGATE_ID), equalTo([
@@ -151,13 +139,13 @@ abstract class EventStore_ContractTest {
 
     @Test
     void should_not_persist_any_event_if_any_in_UnitOfWork_conflicts() {
-        def unitOfWork_1 = eventStore.createUnitOfWork()
-        def unitOfWork_2 = eventStore.createUnitOfWork()
+        def unitOfWork_1 = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME)
+        def unitOfWork_2 = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME)
 
-        unitOfWork_1.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
+        unitOfWork_1.publishEvent(AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
 
-        unitOfWork_2.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, ANOTHER_AGGREGATE_ID, new Business_event_happened())
-        unitOfWork_2.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
+        unitOfWork_2.publishEvent(AGGREGATE_NAME, ANOTHER_AGGREGATE_ID, new Business_event_happened())
+        unitOfWork_2.publishEvent(AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
 
         eventStore.commit(unitOfWork_1)
         expect(EventCollisionOccurred) {
@@ -169,10 +157,10 @@ abstract class EventStore_ContractTest {
 
     @Test
     void should_execute_closure_in_unit_of_work() {
-        eventStore.inUnitOfWork {
-            publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
-            publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
-        }
+        eventStore.inBoundedContext(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, {
+            publishEvent(AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
+            publishEvent(AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened())
+        })
 
         assertThat history(eventStore, AGGREGATE_ID), equalTo([
             new Business_event_happened(),
@@ -184,7 +172,7 @@ abstract class EventStore_ContractTest {
     void should_publish_persisted_events_to_registered_EventPublishers() {
         eventStore.publishers = [eventPublisher]
 
-        eventStore.inUnitOfWork publish(expectedEventEnvelope)
+        eventStore.inBoundedContext APPLICATION_NAME, BOUNDED_CONTEXT_NAME, publish(expectedEventEnvelope)
 
         verify(eventPublisher).publish(expectedEventEnvelope)
     }
@@ -192,8 +180,6 @@ abstract class EventStore_ContractTest {
     protected publish(eventEnvelope) {
         return {
             publishEvent(
-                eventEnvelope.applicationName,
-                eventEnvelope.boundedContextName,
                 eventEnvelope.aggregateName,
                 eventEnvelope.aggregateId,
                 new Business_event_happened()
@@ -205,7 +191,7 @@ abstract class EventStore_ContractTest {
     void should_ignore_any_exceptions_thrown_by_EventPublisher() {
         eventStore.publishers = [defectiveEventPublisher, flawlessEventPublisher]
 
-        eventStore.inUnitOfWork publish(expectedEventEnvelope)
+        eventStore.inBoundedContext APPLICATION_NAME, BOUNDED_CONTEXT_NAME, publish(expectedEventEnvelope)
 
         verify(flawlessEventPublisher).publish(expectedEventEnvelope)
     }
@@ -213,11 +199,11 @@ abstract class EventStore_ContractTest {
     @Test
     void should_not_publish_any_event_when_transaction_failed() {
         eventStore.publishers = [eventPublisher]
-        eventStore.inUnitOfWork publish(expectedEventEnvelope)
+        eventStore.inBoundedContext APPLICATION_NAME, BOUNDED_CONTEXT_NAME, publish(expectedEventEnvelope)
 
         reset(eventPublisher)
         expect(EventCollisionOccurred) {
-            eventStore.inUnitOfWork publish(expectedEventEnvelope)
+            eventStore.inBoundedContext APPLICATION_NAME, BOUNDED_CONTEXT_NAME, publish(expectedEventEnvelope)
         }
 
         verify(eventPublisher, never()).publish(expectedEventEnvelope)

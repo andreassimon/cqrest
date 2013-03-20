@@ -14,15 +14,15 @@ class InMemoryEventStore implements EventStore {
     }
 
     @Override
-    void inUnitOfWork(Closure closure) {
-        def unitOfWork = createUnitOfWork()
+    void inBoundedContext(String application, String boundedContext, Closure closure) {
+        def unitOfWork = createUnitOfWork(application, boundedContext)
         unitOfWork.with closure
         commit(unitOfWork)
     }
 
     @Override
-    UnitOfWork createUnitOfWork() {
-        new UnitOfWork(this)
+    UnitOfWork createUnitOfWork(String application, String boundedContext) {
+        new UnitOfWork(this, application, boundedContext)
     }
 
     @Override

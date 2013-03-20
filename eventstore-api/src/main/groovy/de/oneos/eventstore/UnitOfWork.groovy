@@ -7,19 +7,26 @@ import de.oneos.eventsourcing.*
 
 class UnitOfWork {
 
-    protected EventStore eventStore
+    protected final EventStore eventStore
+    protected final String applicationName
+    protected final String boundedContextName
+
     protected AggregateFactory aggregateFactory
     protected List<EventEnvelope> publishedEventEnvelopes = []
 
     Map<String, Map<String, Map<String, Map<UUID, Integer>>>> nextSequenceNumbers =
         emptyMapWithDefault(
-            emptyMapWithDefault(
-                emptyMapWithDefault(
-                    SequenceNumberGenerator.newInstance)))()
+            SequenceNumberGenerator.newInstance)()
 
 
-    UnitOfWork(EventStore eventStore) {
+    UnitOfWork(EventStore eventStore, String application, String boundedContext) {
+        assert eventStore != null
+        assert application != null; assert !application.isEmpty()
+        assert boundedContext != null; assert !boundedContext.isEmpty()
+
         this.eventStore = eventStore
+        this.applicationName = application
+        this.boundedContextName = boundedContext
         this.aggregateFactory = new DefaultAggregateFactory()
     }
 
@@ -52,21 +59,20 @@ class UnitOfWork {
     }
 
     protected nextSequenceNumbers(Class aggregateClass) {
-        nextSequenceNumbers[aggregateClass.applicationName][aggregateClass.boundedContextName][aggregateClass.aggregateName]
+        nextSequenceNumbers[aggregateClass.aggregateName]
     }
 
     protected loadEventEnvelopes(Class aggregateClass, UUID aggregateId, Closure eventFactory) {
         eventStore.loadEventEnvelopes(
-            aggregateClass.applicationName,
-            aggregateClass.boundedContextName,
+            this.applicationName,
+            this.boundedContextName,
             aggregateClass.aggregateName,
             aggregateId,
             eventFactory
         )
     }
 
-    @Override
-    void publishEvent(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Event event) {
+    void publishEvent(String aggregateName, UUID aggregateId, Event event) {
         publishedEventEnvelopes << new EventEnvelope(
             applicationName,
             boundedContextName,
@@ -78,7 +84,7 @@ class UnitOfWork {
     }
 
     protected int nextSequenceNumber(applicationName, boundedContextName, aggregateName, aggregateId) {
-        nextSequenceNumbers[applicationName][boundedContextName][aggregateName][aggregateId]
+        nextSequenceNumbers[aggregateName][aggregateId]
     }
 
     void eachEventEnvelope(Closure callback) {
