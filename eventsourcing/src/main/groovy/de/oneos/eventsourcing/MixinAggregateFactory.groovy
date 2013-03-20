@@ -13,20 +13,19 @@ class MixinAggregateFactory implements AggregateFactory {
         assertBoundedContextNameIsDefined(rawAggregateClass)
         assertAggregateNameIsDefined(rawAggregateClass)
 
-        def instance = rawAggregateClass.newInstance()
+        def instance = rawAggregateClass.newInstance(aggregateId)
         instance.metaClass = defineExpandoMetaClass(rawAggregateClass) {
             emit = { Event event ->
                 eventAggregators[identityHashCode(delegate)].publishEvent(
                     rawAggregateClass.applicationName,
                     rawAggregateClass.boundedContextName,
                     rawAggregateClass.aggregateName,
-                    aggregateIds[identityHashCode(delegate)],
+                    delegate.id,
                     event
                 )
                 event.applyTo(delegate)
             }
         }
-        aggregateIds[identityHashCode(instance)] = aggregateId
         eventAggregators[identityHashCode(instance)] = eventAggregator
         aggregateHistory.each { event ->
             assertIsApplicableTo(event, instance)

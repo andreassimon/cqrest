@@ -93,6 +93,12 @@ class MixinAggregateFactoryTest {
         static final applicationName = 'APPLICATION'
         static final boundedContextName = 'BOUNDED CONTEXT'
         static final aggregateName = 'AGGREGATE'
+
+        final UUID id
+
+        IncompatibleAggregateClass(UUID id) {
+            this.id = id
+        }
     }
 
     @Test
@@ -167,8 +173,13 @@ class MixinAggregateFactoryTest {
         static boundedContextName = 'BOUNDED CONTEXT'
         static aggregateName = 'AGGREGATE'
 
+        final UUID id
         boolean businessEventWasApplied = false
         int numberOfAppliedEvents = 0
+
+        Aggregate(UUID id) {
+            this.id = id
+        }
 
         void emit__Business_event_happened() {
             emit(new Business_event_happened())

@@ -20,7 +20,7 @@ class UnitOfWorkTest {
     static final int LAST_SEQUENCE_NUMBER = 2
     static UUID AGGREGATE_ID = randomUUID()
     static UUID ANOTHER_AGGREGATE_ID = randomUUID()
-    static final Aggregate DUMMY_AGGREGATE = new Aggregate() {
+    static final Aggregate DUMMY_AGGREGATE = new Aggregate(randomUUID()) {
         String toString() { 'DUMMY AGGREGATE' }
 
         boolean equals(Object that) { this.toString() == that.toString() }
@@ -88,7 +88,7 @@ class UnitOfWorkTest {
         unitOfWork.publishEvent(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, aggregateId, new Business_event_happened())
     }
 
-    static List<EventEnvelope> listOfEvents(eventProperties = [:]) {
+    protected static List<EventEnvelope> listOfEvents(eventProperties = [:]) {
         (0..2).collect { sequenceNumber ->
             new EventEnvelope<Aggregate>(APPLICATION_NAME,
                 BOUNDED_CONTEXT_NAME,
@@ -132,7 +132,7 @@ class UnitOfWorkTest {
         assertThat 'callback', callback, wasCalledOnceWith(sequenceNumber: LAST_SEQUENCE_NUMBER + 1);
     }
 
-    static newEventEnvelope(Map<String, Integer> attributes) {
+    protected static newEventEnvelope(Map<String, Integer> attributes) {
         new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened(), attributes['sequenceNumber'])
     }
 
@@ -142,7 +142,12 @@ class UnitOfWorkTest {
         static boundedContextName = BOUNDED_CONTEXT_NAME
         static aggregateName = AGGREGATE_NAME
 
+        final UUID id
         int numberOfAppliedEvents = 0
+
+        Aggregate(UUID id) {
+            this.id = id
+        }
     }
 
     static class Business_event_happened extends Event<Aggregate> {
