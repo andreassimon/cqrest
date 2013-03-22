@@ -66,7 +66,7 @@ class SpringJdbcEventStoreTest extends EventStore_ContractTest {
 
         eventStore.createTable()
 
-        verify(mockJdbcTemplate).execute(contains("CREATE TABLE ${SpringJdbcEventStore.TABLE_NAME}"))
+        verify(mockJdbcTemplate).execute(contains("CREATE TABLE IF NOT EXISTS ${SpringJdbcEventStore.TABLE_NAME}"))
     }
 
     @Test

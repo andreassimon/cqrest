@@ -97,7 +97,7 @@ WHERE application_name = ? AND
 
     void createTable() {
         jdbcTemplate.execute("""\
-CREATE TABLE ${TABLE_NAME} (
+CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
     application_name     VARCHAR(255) NOT NULL,
     bounded_context_name VARCHAR(255) NOT NULL,
     aggregate_name       VARCHAR(255) NOT NULL,
@@ -124,7 +124,7 @@ CREATE TABLE ${TABLE_NAME} (
          'event_name',
          'timestamp'
         ].each { columnName ->
-            jdbcTemplate.execute("CREATE INDEX idx_${TABLE_NAME}_${columnName} ON ${TABLE_NAME} (${columnName});")
+            jdbcTemplate.execute("CREATE INDEX IF NOT EXISTS idx_${TABLE_NAME}_${columnName} ON ${TABLE_NAME} (${columnName});")
         }
     }
 
