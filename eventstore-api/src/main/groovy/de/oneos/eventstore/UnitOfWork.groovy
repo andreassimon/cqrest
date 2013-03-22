@@ -66,8 +66,11 @@ class UnitOfWork {
         aggregates.each { attach(it) }
     }
 
-    void attach(aggregate) {
+    // allows fluent code, e.g.
+    //   def newAggregate = attach(new Aggregate(...))
+    def attach(aggregate) {
         attachedAggregates << aggregate
+        aggregate
     }
 
     void eachEventEnvelope(Closure callback) {
