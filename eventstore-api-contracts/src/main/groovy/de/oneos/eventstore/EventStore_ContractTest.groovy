@@ -84,7 +84,7 @@ abstract class EventStore_ContractTest {
     void should_throw_an_exception_when_eventName_is_empty() {
         eventStore.commit(unitOfWork([new Business_event_happened() {
             @Override
-            String getName() { '' }
+            String getEventName() { '' }
         }]))
     }
 

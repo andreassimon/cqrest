@@ -32,7 +32,7 @@ class EventEnvelope<AggregateType> {
     }
 
     String getEventName() {
-        return event?.name
+        return event?.eventName
     }
 
     String getSerializedEvent() {
@@ -65,7 +65,7 @@ class EventEnvelope<AggregateType> {
 "boundedContextName":"$boundedContextName",\
 "aggregateName":"$aggregateName",\
 "aggregateId":"$aggregateId",\
-"eventName":"$event.name",\
+"eventName":"$event.eventName",\
 "attributes":$serializedEvent,\
 "timestamp":"$serializedTimestamp",\
 "correlationId":$serializedCorrelationId,\
