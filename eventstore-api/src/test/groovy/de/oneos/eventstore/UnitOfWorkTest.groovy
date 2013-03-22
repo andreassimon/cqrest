@@ -117,7 +117,7 @@ class UnitOfWorkTest {
     @Test
     void should_create_aggregate_instances_with_AggregateFactory() {
         // TODO Das Test-Setup ist zu kompliziert; das stinkt nach schlechtem Design
-        when(eventStore.loadEventEnvelopes(eq(AGGREGATE_NAME), eq(AGGREGATE_ID))).then(answer {
+        when(eventStore.loadEventEnvelopes(AGGREGATE_ID)).then(answer {
             [new EventEnvelope(
                 APPLICATION_NAME,
                 BOUNDED_CONTEXT_NAME,
@@ -138,7 +138,7 @@ class UnitOfWorkTest {
 
     @Test
     void should_update_the_next_sequenceNumber_for_loaded_aggregates() {
-        when(eventStore.loadEventEnvelopes(eq(AGGREGATE_NAME), eq(AGGREGATE_ID))).then(answer {
+        when(eventStore.loadEventEnvelopes(AGGREGATE_ID)).then(answer {
             (0..LAST_SEQUENCE_NUMBER).collect { newEventEnvelope(sequenceNumber: it) }
         })
         Aggregate aggregate = unitOfWork.get(Aggregate, AGGREGATE_ID)

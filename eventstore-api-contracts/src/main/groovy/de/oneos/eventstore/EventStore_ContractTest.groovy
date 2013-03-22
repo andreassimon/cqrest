@@ -73,10 +73,7 @@ abstract class EventStore_ContractTest {
     }
 
     protected history(EventStore eventStore, aggregateId = AGGREGATE_ID) {
-        eventStore.loadEventEnvelopes(
-            AGGREGATE_NAME,
-            aggregateId
-        ).collect { it.event }
+        eventStore.loadEventEnvelopes(aggregateId).collect { it.event }
     }
 
 

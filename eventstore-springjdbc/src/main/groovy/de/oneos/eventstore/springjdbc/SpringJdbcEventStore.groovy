@@ -23,11 +23,11 @@ class SpringJdbcEventStore implements EventStore {
     static String TABLE_NAME = 'events'
     static String INSERT_EVENT = """\
 INSERT INTO ${TABLE_NAME} (
+    aggregate_id,
+    sequence_number,
     application_name,
     bounded_context_name,
     aggregate_name,
-    aggregate_id,
-    sequence_number,
     event_name,
     attributes,
     timestamp
@@ -37,10 +37,7 @@ INSERT INTO ${TABLE_NAME} (
     static String FIND_AGGREGATE_EVENTS = """\
 SELECT *
 FROM ${TABLE_NAME}
-WHERE application_name = ? AND
-      bounded_context_name = ? AND
-      aggregate_name = ? AND
-      aggregate_id = ?;\
+WHERE aggregate_id = ?;\
 """.toString()
 
 
@@ -98,18 +95,15 @@ WHERE application_name = ? AND
     void createTable() {
         jdbcTemplate.execute("""\
 CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
+    aggregate_id         UUID         NOT NULL,
+    sequence_number      INTEGER      NOT NULL,
     application_name     VARCHAR(255) NOT NULL,
     bounded_context_name VARCHAR(255) NOT NULL,
     aggregate_name       VARCHAR(255) NOT NULL,
-    aggregate_id         UUID         NOT NULL,
-    sequence_number      INTEGER      NOT NULL,
     event_name           VARCHAR(255) NOT NULL,
     attributes           TEXT         NOT NULL,
     timestamp            TIMESTAMP    NOT NULL,
     CONSTRAINT unambiguous_event_sequence UNIQUE (
-        application_name,
-        bounded_context_name,
-        aggregate_name,
         aggregate_id,
         sequence_number
     )
@@ -175,11 +169,11 @@ CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
 
         try {
             jdbcTemplate.update(INSERT_EVENT,
+                eventEnvelope.aggregateId,
+                eventEnvelope.sequenceNumber,
                 eventEnvelope.applicationName,
                 eventEnvelope.boundedContextName,
                 eventEnvelope.aggregateName,
-                eventEnvelope.aggregateId,
-                eventEnvelope.sequenceNumber,
                 eventEnvelope.eventName,
                 eventEnvelope.serializedEvent,
                 eventEnvelope.timestamp
@@ -190,12 +184,9 @@ CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
     }
 
     @Override
-    List<EventEnvelope> loadEventEnvelopes(String aggregateName, UUID aggregateId) {
+    List<EventEnvelope> loadEventEnvelopes(UUID aggregateId) {
         jdbcTemplate.query(FIND_AGGREGATE_EVENTS,
             eventEnvelopeMapper,
-            application,
-            boundedContext,
-            aggregateName,
             aggregateId
         )
     }

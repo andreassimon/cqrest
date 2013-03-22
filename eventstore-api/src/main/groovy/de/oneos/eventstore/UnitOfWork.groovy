@@ -30,7 +30,7 @@ class UnitOfWork {
 
 
     public <A> A get(Class<A> aggregateClass, UUID aggregateId) {
-        List<EventEnvelope> eventEnvelopes = loadEventEnvelopes(aggregateClass, aggregateId)
+        List<EventEnvelope> eventEnvelopes = loadEventEnvelopes(aggregateId)
 
         def aggregate = newAggregateInstance(aggregateClass, aggregateId, eventEnvelopes)
         attach(aggregate)
@@ -55,11 +55,8 @@ class UnitOfWork {
         eventEnvelopes.inject(-1) { int maximumSequenceNumber, envelope -> max(maximumSequenceNumber, envelope.sequenceNumber) }
     }
 
-    protected loadEventEnvelopes(Class aggregateClass, UUID aggregateId) {
-        eventStore.loadEventEnvelopes(
-            aggregateClass.aggregateName,
-            aggregateId
-        )
+    protected loadEventEnvelopes(UUID aggregateId) {
+        eventStore.loadEventEnvelopes(aggregateId)
     }
 
     void attach(Object[] aggregates) {

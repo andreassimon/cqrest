@@ -13,6 +13,6 @@ interface EventStore {
 
     void commit(UnitOfWork unitOfWork) throws IllegalArgumentException, EventCollisionOccurred
 
-    List<EventEnvelope> loadEventEnvelopes(String aggregateName, UUID aggregateId)
+    List<EventEnvelope> loadEventEnvelopes(UUID aggregateId)
 
 }

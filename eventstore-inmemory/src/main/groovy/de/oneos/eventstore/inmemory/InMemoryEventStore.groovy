@@ -38,15 +38,7 @@ class InMemoryEventStore implements EventStore {
     void commit(UnitOfWork unitOfWork) {
         unitOfWork.eachEventEnvelope { EventEnvelope it ->
             AssertEventEnvelope.isValid(it)
-            if(history.find { persistedEnvelope ->
-                persistedEnvelope.applicationName == it.applicationName &&
-                persistedEnvelope.boundedContextName == it.boundedContextName &&
-                persistedEnvelope.aggregateName == it.aggregateName &&
-                persistedEnvelope.aggregateId == it.aggregateId &&
-                persistedEnvelope.sequenceNumber == it.sequenceNumber
-            }) {
-                throw new EventCollisionOccurred(it)
-            }
+            assertIsUnique(it)
         }
         unitOfWork.eachEventEnvelope {
             history << it
@@ -58,12 +50,18 @@ class InMemoryEventStore implements EventStore {
         }
     }
 
+    protected assertIsUnique(EventEnvelope eventEnvelope) {
+        if (history.find { persistedEnvelope ->
+            persistedEnvelope.aggregateId == eventEnvelope.aggregateId &&
+                persistedEnvelope.sequenceNumber == eventEnvelope.sequenceNumber
+        }) {
+            throw new EventCollisionOccurred(eventEnvelope)
+        }
+    }
+
     @Override
-    List<EventEnvelope> loadEventEnvelopes(String aggregateName, UUID aggregateId) {
+    List<EventEnvelope> loadEventEnvelopes(UUID aggregateId) {
         return history.findAll {
-            application == it.applicationName &&
-            boundedContext == it.boundedContextName &&
-            aggregateName == it.aggregateName &&
             aggregateId == it.aggregateId
         }
     }
