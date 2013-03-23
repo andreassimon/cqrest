@@ -36,7 +36,7 @@ class EventEnvelope<AggregateType> {
     }
 
     String getSerializedEvent() {
-        new JsonBuilder(event.attributes()).toString()
+        new JsonBuilder(event.serializableForm).toString()
     }
 
     String getSerializedTimestamp() {

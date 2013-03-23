@@ -88,8 +88,49 @@ class EventTest {
         assertThat Event.serializableForm(value), equalTo(value)
     }
 
+    @Test
+    void serializableForm_should_convert_keys_and_values_of_a_map() {
+        def mapKey = new SerializableValue()
+        def mapValue = new SerializableValue()
+        def value = [
+            (mapKey): mapValue
+        ]
+        assertThat Event.serializableForm(value), equalTo([
+            (mapKey.serializableForm): mapValue.serializableForm
+        ])
+    }
+
+    @Test
+    void serializableForm_should_return_a_list_of_primitives() {
+        def entry1 = 'Entry 1'
+        def entry2 = 'Entry 2'
+        List value = [ entry1, entry2 ]
+        assertThat Event.serializableForm(value), equalTo([ Event.serializableForm(entry1), Event.serializableForm(entry2) ])
+    }
+
+    @Test
+    void serializableForm_should_convert_the_entries_of_a_list() {
+        def entry1 = new SerializableValue()
+        def entry2 = new SerializableValue()
+        List value = [ entry1, entry2 ]
+        assertThat Event.serializableForm(value), equalTo([ Event.serializableForm(entry1), Event.serializableForm(entry2) ])
+    }
+
+    @Test
+    void serializableForm_should_convert_any_non_primitive_to_its_serializable_form() {
+        def value = new SerializableValue()
+        assertThat Event.serializableForm(value), equalTo(value.serializableForm)
+    }
+
+
     static class Simple_Event_happened extends Event {
         void applyTo(Object t) { }
+    }
+
+    static class SerializableValue {
+        public String getSerializableForm() {
+            'serializable form of SerializableValue'
+        }
     }
 
 }

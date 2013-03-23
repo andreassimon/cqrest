@@ -12,20 +12,24 @@ abstract class Event<T> {
     }
 
     Map<String, ?> getSerializableForm() {
-        return properties.findAll({ key, value ->
+        return properties.findAll { key, value ->
             ! UNSERIALIZED_PROPERTIES.contains(key)
-        }).collectEntries { k, v -> [(k): v.toString()] }
+        }.collectEntries { k, v -> [(k): serializableForm(v)] }
     }
 
     public static def serializableForm(value) {
-//        if(value == null) { return value }
+        if(value == null) { return value }
         switch(value.getClass()) {
             case UUID:
                 return value.toString()
             case [Boolean, Byte, Short, Integer, Long, Float, Double, Character, String]:
                 return value
+            case Map:
+                return value.collectEntries { k, v -> [(serializableForm(k)): serializableForm(v)]}
+            case List:
+                return value.collect { item -> serializableForm(item) }
         }
-//        return value.serializableForm
+        return value.serializableForm
     }
 
     @Override
