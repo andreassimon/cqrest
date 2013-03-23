@@ -40,19 +40,6 @@ FROM ${TABLE_NAME}
 WHERE aggregate_id = ?;\
 """.toString()
 
-
-    static Closure<Event> prototypeBasedEventClassLoader(Class examplaryEventClass) {
-        ClassLoader eventClassLoader = examplaryEventClass.classLoader
-        String eventPackageName = examplaryEventClass.package.name
-        return { eventName, eventAttributes ->
-            def simpleEventClassName = eventName.replaceAll(' ', '_')
-            def fullEventClassName = [eventPackageName, simpleEventClassName].join('.')
-            (Event) eventClassLoader.loadClass(fullEventClassName).newInstance(eventAttributes)
-        }
-    }
-
-    Closure<Event> eventFactory
-
     protected eventEnvelopeMapper = [
         mapRow: { ResultSet rs, int rowNum ->
             new EventEnvelope(
@@ -60,7 +47,7 @@ WHERE aggregate_id = ?;\
                 rs.getString('bounded_context_name'),
                 rs.getString('aggregate_name'),
                 (UUID)rs.getObject('aggregate_id'),
-                this.eventFactory(
+                buildEvent(
                     rs.getString('event_name'),
                     json.parseText(rs.getString('attributes'))
                 ),
@@ -78,6 +65,7 @@ WHERE aggregate_id = ?;\
 
     JdbcOperations jdbcTemplate
     TransactionTemplate transactionTemplate
+    EventClassResolver eventClassResolver
     protected List<EventPublisher> publishers = []
 
     void setDataSource(DataSource dataSource) {
@@ -190,5 +178,16 @@ CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
             aggregateId
         )
     }
+
+    protected Event buildEvent(String eventName, Map eventAttributes) {
+        // TODO How to deal with events that no class can be found for, e.g. inner classes?
+        Class<Event> eventClass = eventClassResolver.resolveEvent(eventName)
+        def deserializedEvent = eventClass.newInstance()
+        eventAttributes.each { propertyName, rawValue ->
+            deserializedEvent[propertyName] = rawValue
+        }
+        return deserializedEvent
+    }
+
 
 }

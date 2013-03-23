@@ -41,7 +41,7 @@ class SpringJdbcEventStoreTest extends EventStore_ContractTest {
             dataSource: dataSource,
             application: APPLICATION_NAME,
             boundedContext: BOUNDED_CONTEXT_NAME,
-            eventFactory: prototypeBasedEventClassLoader(EventStore_ContractTest.Business_event_happened)
+            eventClassResolver: new MapBasedEventClassResolver(eventMap: ['Business event happened': EventStore_ContractTest.Business_event_happened])
         )
 
         eventStore.createTable()
