@@ -4,11 +4,12 @@ import static java.util.UUID.randomUUID
 
 import org.junit.*
 import static org.junit.Assert.*
-import static org.mockito.Mockito.*
 import static org.hamcrest.Matchers.*
 
 
 class EventTest {
+
+    static boolean DEFAULT_BOOLEAN_VALUE
 
     @Test
     void should_derive_eventName_from_class_name() {
@@ -122,8 +123,139 @@ class EventTest {
         assertThat Event.serializableForm(value), equalTo(value.serializableForm)
     }
 
+    @Test(expected=MissingFieldException)
+    void should_throw_Exception_when_assigning_undefined_property() {
+        def event = new Simple_Event_happened()
+
+        event['undefinedProperty'] = 'Raw String'
+    }
+
+    @Test
+    void should_assign_raw_value_to_boolean_properties() {
+        boolean rawValue = !DEFAULT_BOOLEAN_VALUE
+        def event = new Simple_Event_happened()
+
+        event['booleanProperty'] = rawValue
+
+        assertThat event.booleanProperty, equalTo(rawValue)
+    }
+
+    @Test
+    void should_assign_raw_value_to_boxed_Boolean_properties() {
+        def rawValue = new Boolean(!DEFAULT_BOOLEAN_VALUE)
+        def event = new Simple_Event_happened()
+
+        event['boxedBooleanProperty'] = rawValue
+
+        assertThat event.boxedBooleanProperty, equalTo(rawValue)
+    }
+
+    @Test
+    void should_assign_raw_value_to_byte_properties() {
+        byte rawValue = Byte.MAX_VALUE
+        def event = new Simple_Event_happened()
+
+        event['byteProperty'] = rawValue
+
+        assertThat event.byteProperty, equalTo(rawValue)
+    }
+
+    @Test
+    void should_assign_raw_value_to_short_properties() {
+        short rawValue = Short.MAX_VALUE
+        def event = new Simple_Event_happened()
+
+        event['shortProperty'] = rawValue
+
+        assertThat event.shortProperty, equalTo(rawValue)
+    }
+
+    @Test
+    void should_assign_raw_value_to_int_properties() {
+        int rawValue = Integer.MAX_VALUE
+        def event = new Simple_Event_happened()
+
+        event['intProperty'] = rawValue
+
+        assertThat event.intProperty, equalTo(rawValue)
+    }
+
+    @Test
+    void should_assign_raw_value_to_long_properties() {
+        long rawValue = Long.MAX_VALUE
+        def event = new Simple_Event_happened()
+
+        event['longProperty'] = rawValue
+
+        assertThat event.longProperty, equalTo(rawValue)
+    }
+
+    @Test
+    void should_assign_raw_value_to_float_properties() {
+        float rawValue = Float.MAX_VALUE
+        def event = new Simple_Event_happened()
+
+        event['floatProperty'] = rawValue
+
+        assertThat event.floatProperty, equalTo(rawValue)
+    }
+
+    @Test
+    void should_assign_raw_value_to_double_properties() {
+        double rawValue = Double.MAX_VALUE
+        def event = new Simple_Event_happened()
+
+        event['doubleProperty'] = rawValue
+
+        assertThat event.doubleProperty, equalTo(rawValue)
+    }
+
+    @Test
+    void should_assign_raw_value_to_char_properties() {
+        char rawValue = 'a' as char
+        def event = new Simple_Event_happened()
+
+        event['charProperty'] = rawValue
+
+        assertThat event.charProperty, equalTo(rawValue)
+    }
+
+    @Test
+    void should_assign_raw_value_to_String_properties() {
+        def event = new Simple_Event_happened()
+
+        event['stringProperty'] = 'Raw String'
+
+        assertThat event.stringProperty, equalTo('Raw String')
+    }
+
+    @Test
+    void should_convert_Strings_assigned_to_UUID_properties() {
+        def aUUID = UUID.fromString('9176e966-f9c2-4ca8-89e4-fa888ac73aaf')
+        def event = new Simple_Event_happened()
+
+        event['uuidProperty'] = '9176e966-f9c2-4ca8-89e4-fa888ac73aaf'
+
+        assertThat event.uuidProperty, equalTo(aUUID)
+    }
+
+    // TODO Werden handgeschriebene Setter aufgerufen?
+
 
     static class Simple_Event_happened extends Event {
+        boolean booleanProperty
+        Boolean boxedBooleanProperty
+        byte byteProperty
+        short shortProperty
+        int intProperty
+        long longProperty
+        float floatProperty
+        double doubleProperty
+        char charProperty
+
+        String stringProperty
+        UUID uuidProperty
+
         void applyTo(Object t) { }
     }
 
@@ -134,4 +266,3 @@ class EventTest {
     }
 
 }
-
