@@ -69,7 +69,7 @@ abstract class EventStore_ContractTest {
     }
 
     protected getEventStream() {
-        [new Business_event_happened()]
+        [new Business_event_happened(comment: 'Some very informative words')]
     }
 
     protected history(EventStore eventStore, aggregateId = AGGREGATE_ID) {
@@ -217,6 +217,9 @@ abstract class EventStore_ContractTest {
     }
 
     static class Business_event_happened extends Event {
+        // Having an attribute is important to test deserialization
+        String comment
+
         @Override
         void applyTo(aggregate) { }
     }
