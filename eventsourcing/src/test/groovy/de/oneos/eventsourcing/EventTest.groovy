@@ -6,6 +6,8 @@ import org.junit.*
 import static org.junit.Assert.*
 import static org.hamcrest.Matchers.*
 
+import org.codehaus.groovy.runtime.typehandling.GroovyCastException
+
 
 class EventTest {
 
@@ -239,7 +241,31 @@ class EventTest {
         assertThat event.uuidProperty, equalTo(aUUID)
     }
 
-    // TODO Werden handgeschriebene Setter aufgerufen?
+    @Test
+    void should_use_type_factories_for_assigning_value_object_properties() {
+        def valueObject = new SerializableValue()
+        def event = new Simple_Event_happened()
+
+        event['valueObjectProperty'] = valueObject.serializableForm
+
+        assertThat event.valueObjectProperty, equalTo(valueObject)
+    }
+
+    @Test(expected=GroovyCastException)
+    void should_throw_an_exception_for_values_without_type_factory() {
+        def event = new Simple_Event_happened()
+
+        event['unserializableObjectProperty'] = 'some serialized value'
+    }
+
+    @Test
+    void should_call_custom_setters() {
+        def event = new Simple_Event_happened()
+
+        event['customProperty'] = 'some serialized value'
+
+        assertThat event.customProperty, equalTo(new UnserializableValue())
+    }
 
 
     static class Simple_Event_happened extends Event {
@@ -256,12 +282,44 @@ class EventTest {
         String stringProperty
         UUID uuidProperty
 
+        SerializableValue valueObjectProperty
+        UnserializableValue unserializableObjectProperty
+
+        void setCustomProperty(String customProperty) {
+            // handle deserialization manually
+            this.customProperty = new UnserializableValue()
+        }
+
+        UnserializableValue customProperty
+
         void applyTo(Object t) { }
     }
 
     static class SerializableValue {
+        protected static final String SERIALIZED_FORM = 'serializable form of SerializableValue'
+
         public String getSerializableForm() {
-            'serializable form of SerializableValue'
+            SERIALIZED_FORM
+        }
+
+        public static SerializableValue from(String serializedForm) {
+            if(serializedForm != SERIALIZED_FORM) {
+                throw new IllegalArgumentException("Expected '$serializedForm' to be '$SERIALIZED_FORM'")
+            }
+            return new SerializableValue()
+        }
+
+        String toString() { this.getClass().simpleName }
+
+        boolean equals(Object that) {
+            this.getClass().isInstance(that)
+        }
+    }
+
+
+    static class UnserializableValue {
+        boolean equals(Object that) {
+            this.getClass().isInstance(that)
         }
     }
 

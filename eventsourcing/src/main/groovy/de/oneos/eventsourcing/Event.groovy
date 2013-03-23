@@ -49,38 +49,35 @@ abstract class Event<AT> extends GroovyObjectSupport {
             super.setProperty(property, newValue); return
         }
         def getterType = metaProperty.type
-        if(getterType.isPrimitive()) {
-            switch (getterType) {
-                case boolean.class:
-                    super.setProperty(property, Boolean.valueOf(newValue)); return
-                case byte.class:
-                    super.setProperty(property, Byte.valueOf(newValue)); return
-                case short.class:
-                    super.setProperty(property, Short.valueOf(newValue)); return
-                case int.class:
-                    super.setProperty(property, Integer.valueOf(newValue)); return
-                case long.class:
-                    super.setProperty(property, Long.valueOf(newValue)); return
-                case float.class:
-                    super.setProperty(property, Float.valueOf(newValue)); return
-                case double.class:
-                    super.setProperty(property, Double.valueOf(newValue)); return
-                case char.class:
-                    super.setProperty(property, Character.valueOf(newValue)); return
-            }
+        switch (getterType) {
+            case newValue.getClass():
+                super.setProperty(property, newValue); return
+            case boolean.class:
+                super.setProperty(property, Boolean.valueOf(newValue)); return
+            case byte.class:
+                super.setProperty(property, Byte.valueOf(newValue)); return
+            case short.class:
+                super.setProperty(property, Short.valueOf(newValue)); return
+            case int.class:
+                super.setProperty(property, Integer.valueOf(newValue)); return
+            case long.class:
+                super.setProperty(property, Long.valueOf(newValue)); return
+            case float.class:
+                super.setProperty(property, Float.valueOf(newValue)); return
+            case double.class:
+                super.setProperty(property, Double.valueOf(newValue)); return
+            case char.class:
+                super.setProperty(property, Character.valueOf(newValue)); return
+            case UUID:
+                if(newValue instanceof String) {
+                    super.setProperty(property, UUID.fromString(newValue)); return
+                }
         }
-        if(newValue.getClass() == getterType) {
-            super.setProperty(property, newValue); return
+        if(getterType.metaClass.respondsTo(getterType, 'from', newValue.getClass())) {
+            def coercedValue = getterType.from(newValue)
+            super.setProperty(property, coercedValue); return
         }
-        if(newValue instanceof String) {
-            super.setProperty(property, UUID.fromString(newValue)); return
-        }
-//        def factoryMethod = getterType.metaClass.getStaticMetaMethod('from', newValue.getClass())
-//        if(factoryMethod == null) {
-//            throw new RuntimeException("Cannot set property $property on $this, coerce $newValue to $getterType.canonicalName because the class has no method 'from(${newValue.getClass()})'")
-//        }
-//        def coercedValue = factoryMethod.invoke(getterType, newValue)
-//        super.setProperty(property, coercedValue) //newValue)    //To change body of overridden methods use File | Settings | File Templates.
+        super.setProperty(property, newValue)
     }
 
 }
