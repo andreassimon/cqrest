@@ -1,4 +1,5 @@
 include(
+    'validation',
     'eventsourcing',
     'eventstore-api',
     'eventstore-api-contracts',

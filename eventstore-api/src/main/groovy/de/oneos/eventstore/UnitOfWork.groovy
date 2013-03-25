@@ -71,6 +71,7 @@ class UnitOfWork {
     }
 
     void eachEventEnvelope(Closure callback) {
+        // TODO Validate aggregates (if possible)
         attachedAggregates.collect { aggregate ->
             aggregate.newEvents.inject([]) { List eventEnvelopes, Event newEvent ->
                 eventEnvelopes + new EventEnvelope(

@@ -181,7 +181,7 @@ CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
 
     protected Event buildEvent(String eventName, Map eventAttributes) {
         // TODO How to deal with events that no class can be found for, e.g. inner classes?
-        Class<Event> eventClass = eventClassResolver.resolveEvent(eventName)
+        Class<? extends Event> eventClass = eventClassResolver.resolveEvent(eventName)
         def deserializedEvent = eventClass.newInstance()
         eventAttributes.each { propertyName, rawValue ->
             deserializedEvent[propertyName] = rawValue
