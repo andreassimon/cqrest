@@ -195,7 +195,7 @@ abstract class EventStore_ContractTest {
         verify(eventPublisher, never()).publish(expectedEventEnvelope)
     }
 
-    void expect(Class<Throwable> exceptionClass, Closure<Void> block) {
+    void expect(Class<? extends Throwable> exceptionClass, Closure<Void> block) {
         try {
             block.call()
             throw new AssertionFailedError("Expected $exceptionClass, but none was thrown")
@@ -205,6 +205,8 @@ abstract class EventStore_ContractTest {
             }
         }
     }
+
+    // TODO should flush the UnitOfWork after persisting its events
 
 
     static class Aggregate {

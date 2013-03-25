@@ -1,9 +1,9 @@
 package de.oneos.eventstore
 
-import static java.lang.Math.*
 import static java.util.Collections.*
 
 import de.oneos.eventsourcing.*
+import de.oneos.validation.*
 
 
 class UnitOfWork {
@@ -52,7 +52,7 @@ class UnitOfWork {
     }
 
     protected static maximumSequenceNumber(Collection<EventEnvelope> eventEnvelopes) {
-        eventEnvelopes.inject(-1) { int maximumSequenceNumber, envelope -> max(maximumSequenceNumber, envelope.sequenceNumber) }
+        eventEnvelopes.inject(-1) { int maximumSequenceNumber, envelope -> Math.max(maximumSequenceNumber, envelope.sequenceNumber) }
     }
 
     protected loadEventEnvelopes(UUID aggregateId) {
@@ -70,8 +70,12 @@ class UnitOfWork {
         aggregate
     }
 
-    void eachEventEnvelope(Closure callback) {
-        // TODO Validate aggregates (if possible)
+    void eachEventEnvelope(Closure callback) throws ValidationException {
+        attachedAggregates.
+            findAll { Validatable.isAssignableFrom(it.getClass()) }.
+            findAll { Validatable it -> !it.isValid() }.
+            each { Validatable it -> throw new ValidationException(it, it.validationMessage()) }
+
         attachedAggregates.collect { aggregate ->
             aggregate.newEvents.inject([]) { List eventEnvelopes, Event newEvent ->
                 eventEnvelopes + new EventEnvelope(

@@ -10,6 +10,7 @@ import static de.oneos.Matchers.*
 import static de.oneos.Stubbing.*
 
 import de.oneos.eventsourcing.*
+import de.oneos.validation.*
 
 
 class UnitOfWorkTest {
@@ -149,29 +150,77 @@ class UnitOfWorkTest {
         assertThat 'callback', callback, wasCalledOnceWith(EventEnvelope, [sequenceNumber: LAST_SEQUENCE_NUMBER + 1]);
     }
 
-    protected static newEventEnvelope(Map<String, Integer> attributes) {
-        new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened(), attributes['sequenceNumber'])
+
+    @Test(expected=ValidationException)
+    void should_throw_an_Exception_when_any_aggregate_is_invalid() {
+        unitOfWork.attach(new ValidAggregate(), new ValidAggregate(), new InvalidAggregate())
+
+        unitOfWork.eachEventEnvelope { println(it) }
+    }
+
+    @Test
+    void should_not_throw_an_Exception_when_an_aggregate_cannot_be_validated() {
+        unitOfWork.attach(new NotValidatableAggregate(AGGREGATE_ID)).emit(new Business_event_happened())
+
+        unitOfWork.eachEventEnvelope(callback)
+
+        assertThat 'callback', callback, wasCalledOnceWith(EventEnvelope, [aggregateId: AGGREGATE_ID])
+    }
+
+    @Test
+    void should_not_provide_any_event_when_any_aggregate_is_invalid() {
+        unitOfWork.attach(new NotValidatableAggregate(AGGREGATE_ID)).emit(new Business_event_happened())
+        unitOfWork.attach(new InvalidAggregate())
+
+        try {
+            unitOfWork.eachEventEnvelope(callback)
+        } catch(ValidationException) {}
+
+        assertThat 'callback', callback, wasNeverCalled()
     }
 
 
-    static class Aggregate {
-        static { Aggregate.mixin(EventSourcing) }
+    static class NotValidatableAggregate {
+        static { NotValidatableAggregate.mixin(EventSourcing) }
         static aggregateName = AGGREGATE_NAME
 
         final UUID id
         int numberOfAppliedEvents = 0
 
-        Aggregate(UUID id) {
+        NotValidatableAggregate(UUID id) {
             this.id = id
         }
     }
 
-    static class Business_event_happened extends Event<Aggregate> {
+    static class Aggregate extends NotValidatableAggregate {
+        Aggregate(UUID id) { super(id) }
+    }
+
+    protected static newEventEnvelope(Map<String, Integer> attributes) {
+        new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened(), attributes['sequenceNumber'])
+    }
+
+    static class InvalidAggregate implements Validatable<InvalidAggregate> {
+        static { InvalidAggregate.mixin(EventSourcing) }
+        boolean isValid() { return false }
+        String validationMessage() { return 'will never be valid' }
+        String toString() { 'InvalidAggregate' }
+    }
+
+    static class ValidAggregate implements Validatable<ValidAggregate> {
+        static { ValidAggregate.mixin(EventSourcing) }
+        boolean isValid() { return true }
+        String validationMessage() { if(isValid()) return ''; throw new IllegalStateException('Should always be valid') }
+        String toString() { 'ValidAggregate' }
+    }
+
+
+    static class Business_event_happened<A extends NotValidatableAggregate> extends Event<A> {
         static { UNSERIALIZED_PROPERTIES << 'function' }
-        Closure<Void> function = {}
+        Closure<Void> function = { aggregate -> return }
 
         @Override
-        void applyTo(Aggregate aggregate) {
+        void applyTo(NotValidatableAggregate aggregate) {
             function(aggregate)
         }
     }
