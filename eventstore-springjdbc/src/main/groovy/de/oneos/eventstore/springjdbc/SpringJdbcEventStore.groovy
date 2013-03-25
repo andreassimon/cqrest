@@ -134,6 +134,7 @@ CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
             unitOfWork.eachEventEnvelope saveEventEnvelope
         }
         unitOfWork.eachEventEnvelope { publish(it) }
+        unitOfWork.flush()
     }
 
     protected publish(envelope) {

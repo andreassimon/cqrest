@@ -48,6 +48,7 @@ class InMemoryEventStore implements EventStore {
                 } catch (all) { }
             }
         }
+        unitOfWork.flush()
     }
 
     protected assertIsUnique(EventEnvelope eventEnvelope) {

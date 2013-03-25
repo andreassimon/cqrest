@@ -206,7 +206,21 @@ abstract class EventStore_ContractTest {
         }
     }
 
-    // TODO should flush the UnitOfWork after persisting its events
+    @Test
+    void should_flush_the_UnitOfWork_after_persisting_its_events() {
+        int numberOfCalls = 0
+        UnitOfWork unitOfWork = new UnitOfWork(eventStore, APPLICATION_NAME, BOUNDED_CONTEXT_NAME) {
+            @Override
+            void flush() {
+                numberOfCalls++
+                super.flush()
+            }
+        }
+
+        eventStore.commit(unitOfWork)
+
+        assertThat numberOfCalls, equalTo(1)
+    }
 
 
     static class Aggregate {
