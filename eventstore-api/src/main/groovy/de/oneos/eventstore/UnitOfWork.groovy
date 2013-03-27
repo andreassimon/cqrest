@@ -19,7 +19,7 @@ class UnitOfWork {
     protected Map<Integer, Integer> aggregateVersion = synchronizedMap([:])
 
 
-    UnitOfWork(EventStore eventStore, String application, String boundedContext, UUID correlationId = null, String user = null) {
+    UnitOfWork(EventStore eventStore, String application, String boundedContext, UUID correlationId, String user) {
         assert eventStore != null
         assert application != null; assert !application.isEmpty()
         assert boundedContext != null; assert !boundedContext.isEmpty()

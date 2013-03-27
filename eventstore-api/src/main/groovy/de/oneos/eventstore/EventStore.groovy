@@ -7,9 +7,9 @@ interface EventStore {
 
     void setPublishers(List<EventPublisher> eventPublishers)
 
-    void inUnitOfWork(Closure closure)
+    void inUnitOfWork(UUID correlationId, String user, Closure closure)
 
-    UnitOfWork createUnitOfWork()
+    UnitOfWork createUnitOfWork(UUID correlationId, String user)
 
     void commit(UnitOfWork unitOfWork) throws IllegalArgumentException, EventCollisionOccurred
 

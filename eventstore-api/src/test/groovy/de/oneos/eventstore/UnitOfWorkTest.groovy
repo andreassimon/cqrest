@@ -46,7 +46,7 @@ class UnitOfWorkTest {
         eventStore = mock(EventStore)
         aggregateFactory = mock(AggregateFactory)
 
-        unitOfWork = new UnitOfWork(eventStore, APPLICATION_NAME, BOUNDED_CONTEXT_NAME)
+        unitOfWork = new UnitOfWork(eventStore, APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN)
     }
 
 
