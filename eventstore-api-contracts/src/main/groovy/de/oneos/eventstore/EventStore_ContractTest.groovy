@@ -11,13 +11,13 @@ import static org.hamcrest.Matchers.*
 import de.oneos.eventsourcing.*
 
 
-// TODO Must persist correlationId and user(name) attributes
 abstract class EventStore_ContractTest {
     static final String APPLICATION_NAME = 'APPLICATION_NAME'
     static final String BOUNDED_CONTEXT_NAME = 'BOUNDED_CONTEXT_NAME'
     static final String AGGREGATE_NAME = 'AGGREGATE_NAME'
     static UUID AGGREGATE_ID = randomUUID()
     static UUID ANOTHER_AGGREGATE_ID = randomUUID()
+    static UUID NO_CORRELATION_ID = null
 
     abstract EventStore getEventStore()
 
@@ -27,7 +27,8 @@ abstract class EventStore_ContractTest {
         BOUNDED_CONTEXT_NAME,
         Aggregate.aggregateName,
         AGGREGATE_ID,
-        new Business_event_happened()
+        new Business_event_happened(),
+        NO_CORRELATION_ID
     )
 
 
@@ -59,6 +60,28 @@ abstract class EventStore_ContractTest {
 
         assertThat history(eventStore), equalTo(eventStream)
     }
+
+
+    @Test
+    void should_persist_the_correlationId() {
+        UUID correlationId = randomUUID()
+        def unitOfWork = new UnitOfWork(eventStore, APPLICATION_NAME, BOUNDED_CONTEXT_NAME, correlationId)
+        Aggregate aggregate = unitOfWork.attach(new Aggregate(AGGREGATE_ID))
+        aggregate.emit(new Business_event_happened())
+        eventStore.commit(unitOfWork)
+
+        def envelopes = eventStore.loadEventEnvelopes(AGGREGATE_ID)
+
+        envelopes.each { EventEnvelope envelope ->
+            assertThat envelope.correlationId, equalTo(correlationId)
+        }
+    }
+
+    @Test
+    void should_persist_the_user() {
+        fail()
+    }
+
 
     protected unitOfWork(Map eventCoordinates = [:], List<Event> events) {
         def unitOfWork = eventStore.createUnitOfWork()
@@ -119,7 +142,7 @@ abstract class EventStore_ContractTest {
     }
 
     @Test
-    void should_not_persist_any_event_if_any_in_UnitOfWork_conflicts() {
+    void should_not_persist_any_event_if_there_are_collisions_in_UnitOfWork() {
         def unitOfWork_1 = eventStore.createUnitOfWork()
         def unitOfWork_2 = eventStore.createUnitOfWork()
 

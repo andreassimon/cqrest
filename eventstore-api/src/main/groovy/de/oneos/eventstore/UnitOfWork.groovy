@@ -11,13 +11,14 @@ class UnitOfWork {
     protected final EventStore eventStore
     protected final String applicationName
     protected final String boundedContextName
+    protected final UUID correlationId
 
     protected AggregateFactory aggregateFactory
     protected Collection attachedAggregates = new LinkedList()
     protected Map<Integer, Integer> aggregateVersion = synchronizedMap([:])
 
 
-    UnitOfWork(EventStore eventStore, String application, String boundedContext) {
+    UnitOfWork(EventStore eventStore, String application, String boundedContext, UUID correlationId = null) {
         assert eventStore != null
         assert application != null; assert !application.isEmpty()
         assert boundedContext != null; assert !boundedContext.isEmpty()
@@ -25,6 +26,7 @@ class UnitOfWork {
         this.eventStore = eventStore
         this.applicationName = application
         this.boundedContextName = boundedContext
+        this.correlationId      = correlationId
         this.aggregateFactory = new DefaultAggregateFactory()
     }
 
@@ -65,7 +67,7 @@ class UnitOfWork {
 
     // allows fluent code, e.g.
     //   def newAggregate = attach(new Aggregate(...))
-    def attach(aggregate) {
+    public <A> A attach(A aggregate) {
         attachedAggregates << aggregate
         aggregate
     }
@@ -79,12 +81,13 @@ class UnitOfWork {
         attachedAggregates.collect { aggregate ->
             aggregate.newEvents.inject([]) { List eventEnvelopes, Event newEvent ->
                 eventEnvelopes + new EventEnvelope(
-                    applicationName,
-                    boundedContextName,
+                    this.applicationName,
+                    this.boundedContextName,
                     aggregate.aggregateName,
                     aggregate.id,
                     newEvent,
-                    version(aggregate) + 1 + eventEnvelopes.size()
+                    version(aggregate) + 1 + eventEnvelopes.size(),
+                    this.correlationId
                 )
             }
         }.flatten().each { callback(it) }

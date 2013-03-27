@@ -25,13 +25,14 @@ class SpringJdbcEventStore implements EventStore {
 INSERT INTO ${TABLE_NAME} (
     aggregate_id,
     sequence_number,
+    correlation_id,
     application_name,
     bounded_context_name,
     aggregate_name,
     event_name,
     attributes,
     timestamp
-) VALUES (?,?,?,?,?,?,?,?);\
+) VALUES (?,?,?,?,?,?,?,?,?);\
 """.toString()
 
     static String FIND_AGGREGATE_EVENTS = """\
@@ -52,7 +53,8 @@ WHERE aggregate_id = ?;\
                     json.parseText(rs.getString('attributes'))
                 ),
                 rs.getInt('sequence_number'),
-                rs.getTimestamp('timestamp')
+                rs.getTimestamp('timestamp'),
+                (UUID)rs.getObject('correlation_id')
             )
         }
     ] as RowMapper<EventEnvelope>
@@ -97,12 +99,16 @@ CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
     )
 );\
 """)
+        jdbcTemplate.execute("""\
+ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS correlation_id UUID AFTER sequence_number;
+        """)
 
-        ['application_name',
+        ['aggregate_id',
+         'sequence_number',
+         'correlation_id',
+         'application_name',
          'bounded_context_name',
          'aggregate_name',
-         'aggregate_id',
-         'sequence_number',
          'event_name',
          'timestamp'
         ].each { columnName ->
@@ -160,6 +166,7 @@ CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
             jdbcTemplate.update(INSERT_EVENT,
                 eventEnvelope.aggregateId,
                 eventEnvelope.sequenceNumber,
+                eventEnvelope.correlationId,
                 eventEnvelope.applicationName,
                 eventEnvelope.boundedContextName,
                 eventEnvelope.aggregateName,
