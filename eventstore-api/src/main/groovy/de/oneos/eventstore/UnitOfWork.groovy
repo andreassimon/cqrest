@@ -76,6 +76,7 @@ class UnitOfWork {
 
     void eachEventEnvelope(Closure callback) throws ValidationException {
         attachedAggregates.
+            findAll { !((Collection)it.newEvents).empty }.
             findAll { Validatable.isAssignableFrom(it.getClass()) }.
             findAll { Validatable it -> !it.isValid() }.
             each { Validatable it -> throw new ValidationException(it, it.validationMessage()) }
