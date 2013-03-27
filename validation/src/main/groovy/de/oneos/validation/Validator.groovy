@@ -2,8 +2,8 @@ package de.oneos.validation
 
 public interface Validator<T> {
 
-    boolean isSatisfiedBy(T instance)
+    boolean isSatisfiedBy(T candidate)
 
-    String validationMassage(T instance)
+    String validationMassage(T candidate)
 
 }

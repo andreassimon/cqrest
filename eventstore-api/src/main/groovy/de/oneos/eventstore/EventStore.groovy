@@ -1,9 +1,10 @@
 package de.oneos.eventstore
 
-import de.oneos.eventsourcing.*
-
 
 interface EventStore {
+
+    public static final UUID NO_CORRELATION_ID = null
+    public static final String USER_UNKNOWN = null
 
     void setPublishers(List<EventPublisher> eventPublishers)
 
