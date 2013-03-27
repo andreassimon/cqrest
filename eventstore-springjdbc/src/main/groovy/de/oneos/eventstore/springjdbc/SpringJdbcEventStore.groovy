@@ -31,8 +31,9 @@ INSERT INTO ${TABLE_NAME} (
     aggregate_name,
     event_name,
     attributes,
+    user,
     timestamp
-) VALUES (?,?,?,?,?,?,?,?,?);\
+) VALUES (?,?,?,?,?,?,?,?,?,?);\
 """.toString()
 
     static String FIND_AGGREGATE_EVENTS = """\
@@ -54,7 +55,8 @@ WHERE aggregate_id = ?;\
                 ),
                 rs.getInt('sequence_number'),
                 rs.getTimestamp('timestamp'),
-                (UUID)rs.getObject('correlation_id')
+                (UUID)rs.getObject('correlation_id'),
+                rs.getString('user')
             )
         }
     ] as RowMapper<EventEnvelope>
@@ -103,6 +105,10 @@ CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
 ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS correlation_id UUID AFTER sequence_number;
         """)
 
+        jdbcTemplate.execute("""\
+ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE timestamp;
+        """)
+
         ['aggregate_id',
          'sequence_number',
          'correlation_id',
@@ -110,6 +116,7 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS correlation_id UUID AFTER seq
          'bounded_context_name',
          'aggregate_name',
          'event_name',
+         'user',
          'timestamp'
         ].each { columnName ->
             jdbcTemplate.execute("CREATE INDEX IF NOT EXISTS idx_${TABLE_NAME}_${columnName} ON ${TABLE_NAME} (${columnName});")
@@ -172,6 +179,7 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS correlation_id UUID AFTER seq
                 eventEnvelope.aggregateName,
                 eventEnvelope.eventName,
                 eventEnvelope.serializedEvent,
+                eventEnvelope.user,
                 eventEnvelope.timestamp
             ); return
         } catch (DuplicateKeyException e) {

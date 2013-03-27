@@ -24,7 +24,7 @@ class EventEnvelopeTest {
 
     JsonSlurper parser = new JsonSlurper()
 
-    EventEnvelope envelope = new EventEnvelope(APPLICATION, BOUNDED_CONTEXT, AGGREGATE, AGGREGATE_ID, EVENT, SEQUENCE_NUMBER, TIMESTAMP)
+    EventEnvelope envelope = new EventEnvelope(APPLICATION, BOUNDED_CONTEXT, AGGREGATE, AGGREGATE_ID, EVENT, SEQUENCE_NUMBER, TIMESTAMP, CORRELATION_ID, USER)
 
 
     @Test

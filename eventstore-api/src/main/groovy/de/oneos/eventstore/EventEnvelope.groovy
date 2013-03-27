@@ -21,7 +21,17 @@ class EventEnvelope<AggregateType> {
     String user
 
 
-    EventEnvelope(String applicationName, String boundedContextName, String aggregateName, UUID aggregateId, Event<AggregateType> event, int sequenceNumber = 0, Date timestamp = new Date(), UUID correlationId) {
+    EventEnvelope(
+        String applicationName,
+        String boundedContextName,
+        String aggregateName,
+        UUID aggregateId,
+        Event<AggregateType> event,
+        int sequenceNumber = 0,
+        Date timestamp = new Date(),
+        UUID correlationId,
+        String user
+    ) {
         this.applicationName = applicationName
         this.boundedContextName = boundedContextName
         this.aggregateName = aggregateName
@@ -30,6 +40,7 @@ class EventEnvelope<AggregateType> {
         this.event = event
         this.timestamp = timestamp
         this.correlationId = correlationId
+        this.user = user
     }
 
     String getEventName() {

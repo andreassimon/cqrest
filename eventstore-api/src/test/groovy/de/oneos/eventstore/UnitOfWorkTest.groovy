@@ -18,6 +18,9 @@ class UnitOfWorkTest {
     static final String BOUNDED_CONTEXT_NAME = 'BOUNDED_CONTEXT_NAME'
     static final String AGGREGATE_NAME = 'AGGREGATE_NAME'
 
+    static UUID NO_CORRELATION_ID = null
+    static String USER_UNKNOWN = null
+
     static UUID AGGREGATE_ID = randomUUID()
     static UUID ANOTHER_AGGREGATE_ID = randomUUID()
     static final Aggregate DUMMY_AGGREGATE = new Aggregate(randomUUID()) {
@@ -124,7 +127,10 @@ class UnitOfWorkTest {
                 BOUNDED_CONTEXT_NAME,
                 Aggregate.aggregateName,
                 AGGREGATE_ID,
-                new Business_event_happened())]
+                new Business_event_happened(),
+                NO_CORRELATION_ID,
+                USER_UNKNOWN
+            )]
         })
         unitOfWork.aggregateFactory = aggregateFactory
         when(aggregateFactory.newInstance(Aggregate, AGGREGATE_ID, [new Business_event_happened()])).thenReturn DUMMY_AGGREGATE
@@ -197,7 +203,7 @@ class UnitOfWorkTest {
     }
 
     protected static newEventEnvelope(Map<String, Integer> attributes) {
-        new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened(), attributes['sequenceNumber'])
+        new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened(), attributes['sequenceNumber'], NO_CORRELATION_ID, USER_UNKNOWN)
     }
 
     static class InvalidAggregate implements Validatable<InvalidAggregate> {

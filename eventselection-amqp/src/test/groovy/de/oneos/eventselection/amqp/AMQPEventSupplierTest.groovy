@@ -13,6 +13,8 @@ import static org.mockito.Mockito.*
 
 class AMQPEventSupplierTest {
 
+    static final UUID NO_CORRELATION_ID = null
+    static final String USER_UNKNOWN = null
     static final String APPLICATION_NAME = 'APPLICATION NAME'
     static final String BOUNDED_CONTEXT_NAME = 'BOUNDED CONTEXT NAME'
     static final String AGGREGATE_NAME = 'AGGREGATE NAME'
@@ -32,7 +34,15 @@ class AMQPEventSupplierTest {
     def generatedAggregateId = UUID.randomUUID()
     def businessEventHappened = new BusinessEventHappened()
 
-    EventEnvelope boxedBusinessEvent = new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, generatedAggregateId, businessEventHappened)
+    EventEnvelope boxedBusinessEvent = new EventEnvelope(
+        APPLICATION_NAME,
+        BOUNDED_CONTEXT_NAME,
+        AGGREGATE_NAME,
+        generatedAggregateId,
+        businessEventHappened,
+        NO_CORRELATION_ID,
+        USER_UNKNOWN
+    )
 
 
     @Before

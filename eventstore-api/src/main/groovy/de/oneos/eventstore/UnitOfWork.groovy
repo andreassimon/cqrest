@@ -12,13 +12,14 @@ class UnitOfWork {
     protected final String applicationName
     protected final String boundedContextName
     protected final UUID correlationId
+    protected final String user
 
     protected AggregateFactory aggregateFactory
     protected Collection attachedAggregates = new LinkedList()
     protected Map<Integer, Integer> aggregateVersion = synchronizedMap([:])
 
 
-    UnitOfWork(EventStore eventStore, String application, String boundedContext, UUID correlationId = null) {
+    UnitOfWork(EventStore eventStore, String application, String boundedContext, UUID correlationId = null, String user = null) {
         assert eventStore != null
         assert application != null; assert !application.isEmpty()
         assert boundedContext != null; assert !boundedContext.isEmpty()
@@ -27,6 +28,7 @@ class UnitOfWork {
         this.applicationName = application
         this.boundedContextName = boundedContext
         this.correlationId      = correlationId
+        this.user               = user
         this.aggregateFactory = new DefaultAggregateFactory()
     }
 
@@ -87,7 +89,8 @@ class UnitOfWork {
                     aggregate.id,
                     newEvent,
                     version(aggregate) + 1 + eventEnvelopes.size(),
-                    this.correlationId
+                    this.correlationId,
+                    this.user
                 )
             }
         }.flatten().each { callback(it) }

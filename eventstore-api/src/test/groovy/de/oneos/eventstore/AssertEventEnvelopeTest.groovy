@@ -38,7 +38,9 @@ public class AssertEventEnvelopeTest {
             properties.aggregateId,
             properties.event,
             properties.sequenceNumber,
-            properties.timestamp
+            properties.timestamp,
+            properties.correlationId,
+            properties.user
         )
     }
 

@@ -18,6 +18,7 @@ abstract class EventStore_ContractTest {
     static UUID AGGREGATE_ID = randomUUID()
     static UUID ANOTHER_AGGREGATE_ID = randomUUID()
     static UUID NO_CORRELATION_ID = null
+    static String USER_UNKNOWN = null
 
     abstract EventStore getEventStore()
 
@@ -28,7 +29,8 @@ abstract class EventStore_ContractTest {
         Aggregate.aggregateName,
         AGGREGATE_ID,
         new Business_event_happened(),
-        NO_CORRELATION_ID
+        NO_CORRELATION_ID,
+        USER_UNKNOWN
     )
 
 
@@ -79,7 +81,17 @@ abstract class EventStore_ContractTest {
 
     @Test
     void should_persist_the_user() {
-        fail()
+        String user = 'a.simon@quagilis.de'
+        def unitOfWork = new UnitOfWork(eventStore, APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, user)
+        Aggregate aggregate = unitOfWork.attach(new Aggregate(AGGREGATE_ID))
+        aggregate.emit(new Business_event_happened())
+        eventStore.commit(unitOfWork)
+
+        def envelopes = eventStore.loadEventEnvelopes(AGGREGATE_ID)
+
+        envelopes.each { EventEnvelope envelope ->
+            assertThat envelope.user, equalTo(user)
+        }
     }
 
 

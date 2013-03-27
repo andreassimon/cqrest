@@ -10,6 +10,8 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 
 class AMQPEventPublisherTest {
+    static final UUID NO_CORRELATION_ID = null
+    static final String USER_UNKNOWN = null
 
     AMQPEventPublisher eventPublisher
     Connection connection
@@ -42,7 +44,7 @@ class AMQPEventPublisherTest {
 
     @Test
     void should_send_a_serialized_event_to_the_message_broker() {
-        def eventEnvelope = new EventEnvelope('Readmodels Library', 'AMQP Tests', 'An Aggregate', aggregateId, anEvent)
+        def eventEnvelope = new EventEnvelope('Readmodels Library', 'AMQP Tests', 'An Aggregate', aggregateId, anEvent, NO_CORRELATION_ID, USER_UNKNOWN)
         eventPublisher.publish(eventEnvelope)
 
         assertThat receivedMessage(), equalTo(eventEnvelope.toJSON())
@@ -50,7 +52,7 @@ class AMQPEventPublisherTest {
 
     @Test(expected = EventPublishingException)
     void should_throw_Exception_when_event_coordinate_contains_a_dot() {
-        def eventEnvelope = new EventEnvelope('Readmodels.Library', 'AMQP.Tests', 'An.Aggregate', aggregateId, anEvent)
+        def eventEnvelope = new EventEnvelope('Readmodels.Library', 'AMQP.Tests', 'An.Aggregate', aggregateId, anEvent, NO_CORRELATION_ID, USER_UNKNOWN)
         eventPublisher.publish(eventEnvelope)
     }
 
