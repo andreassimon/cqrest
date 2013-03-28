@@ -159,7 +159,9 @@ class UnitOfWorkTest {
 
     @Test(expected=ValidationException)
     void should_throw_an_Exception_when_any_aggregate_is_invalid() {
-        unitOfWork.attach(new ValidAggregate(), new ValidAggregate(), new InvalidAggregate())
+        unitOfWork.attach(new ValidAggregate()).emit(new Business_event_happened())
+        unitOfWork.attach(new ValidAggregate()).emit(new Business_event_happened())
+        unitOfWork.attach(new InvalidAggregate()).emit(new Business_event_happened())
 
         unitOfWork.eachEventEnvelope { println(it) }
     }
@@ -176,7 +178,7 @@ class UnitOfWorkTest {
     @Test
     void should_not_provide_any_event_when_any_aggregate_is_invalid() {
         unitOfWork.attach(new NotValidatableAggregate(AGGREGATE_ID)).emit(new Business_event_happened())
-        unitOfWork.attach(new InvalidAggregate())
+        unitOfWork.attach(new InvalidAggregate()).emit(new Business_event_happened())
 
         try {
             unitOfWork.eachEventEnvelope(callback)
@@ -221,13 +223,8 @@ class UnitOfWorkTest {
     }
 
 
-    static class Business_event_happened<A extends NotValidatableAggregate> extends Event<A> {
-        static { UNSERIALIZED_PROPERTIES << 'function' }
-        Closure<Void> function = { aggregate -> return }
-
+    static class Business_event_happened<A> extends Event<A> {
         @Override
-        void applyTo(NotValidatableAggregate aggregate) {
-            function(aggregate)
-        }
+        void applyTo(A aggregate) { }
     }
 }
