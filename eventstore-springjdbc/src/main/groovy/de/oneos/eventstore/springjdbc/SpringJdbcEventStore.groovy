@@ -205,5 +205,9 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
         return deserializedEvent
     }
 
+    @Override
+    String toString() {
+        "SpringJdbcEventStore[application:'$application', boundedContext:'$boundedContext']"
+    }
 
 }
