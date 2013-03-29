@@ -1,6 +1,9 @@
 package de.oneos.eventstore.inmemory
 
 import de.oneos.eventstore.*
+import de.oneos.eventsourcing.Event
+
+import static de.oneos.eventstore.EventStore.*
 
 
 class InMemoryEventStore implements EventStore {
@@ -51,6 +54,20 @@ class InMemoryEventStore implements EventStore {
         unitOfWork.flush()
     }
 
+    void addEventEnvelope(UUID aggregateId, Event event, int sequenceNumber, String user) {
+        EventEnvelope newEnvelope = new EventEnvelope(
+            this.application,
+            this.boundedContext,
+            'UNKNOWN',
+            aggregateId, event, sequenceNumber,
+            NO_CORRELATION_ID,
+            USER_UNKNOWN
+        )
+        AssertEventEnvelope.isValid(newEnvelope)
+        assertIsUnique(newEnvelope)
+        history << newEnvelope
+    }
+
     protected assertIsUnique(EventEnvelope eventEnvelope) {
         if (history.find { persistedEnvelope ->
             persistedEnvelope.aggregateId == eventEnvelope.aggregateId &&
@@ -66,5 +83,6 @@ class InMemoryEventStore implements EventStore {
             aggregateId == it.aggregateId
         }
     }
+
 }
 
