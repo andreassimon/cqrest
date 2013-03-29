@@ -2,7 +2,7 @@ package de.oneos.eventsourcing
 
 
 abstract class Event<AT> extends GroovyObjectSupport {
-    protected static List<String> UNSERIALIZED_PROPERTIES = ['class', 'eventName', 'serializedProperties', 'serializableForm']
+    protected static List<String> UNSERIALIZED_PROPERTIES = ['class', 'eventName', 'serializableForm']
 
     abstract void applyTo(AT aggregate)
 
@@ -12,11 +12,11 @@ abstract class Event<AT> extends GroovyObjectSupport {
     }
 
     Map<String, ?> getSerializableForm() {
-        return serializedProperties.collectEntries { k, v -> [(k): serializableForm(v)] }
+        return serializedProperties().collectEntries { k, v -> [(k): serializableForm(v)] }
     }
 
-    Map<String, ?> getSerializedProperties() {
-        properties.findAll { key, value ->
+    Map<String, ?> serializedProperties() {
+        return properties.findAll { key, value ->
             !UNSERIALIZED_PROPERTIES.contains(key)
         }
     }
