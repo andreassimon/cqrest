@@ -10,5 +10,5 @@ include(
     'projections',
     'readmodels-api',
     'readmodels-springjdbc',
-    'core-test'
+    'eventsourcing-test'
 )
