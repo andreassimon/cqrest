@@ -102,12 +102,12 @@ CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
 );\
 """)
         jdbcTemplate.execute("""\
-ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS correlation_id UUID AFTER sequence_number;
-        """)
+ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS correlation_id UUID BEFORE application_name;\
+""")
 
         jdbcTemplate.execute("""\
-ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE timestamp;
-        """)
+ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE timestamp;\
+""")
 
         ['aggregate_id',
          'sequence_number',
