@@ -6,7 +6,7 @@ class PrototypeBasedEventClassResolver implements EventClassResolver {
 
     Class<Event> examplaryEventClass
 
-    PrototypeBasedEventClassResolver(Class<Event> examplaryEventClass) {
+    PrototypeBasedEventClassResolver(Class<Event> exemplaryEventClass) {
         assert examplaryEventClass != null
 
         this.examplaryEventClass = examplaryEventClass
