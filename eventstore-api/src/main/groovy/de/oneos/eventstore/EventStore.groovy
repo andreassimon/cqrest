@@ -16,4 +16,6 @@ interface EventStore {
 
     List<EventEnvelope> loadEventEnvelopes(UUID aggregateId)
 
+    List<EventEnvelope> findAll(Map<String, ?> criteria)
+
 }

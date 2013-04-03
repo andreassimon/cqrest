@@ -148,10 +148,28 @@ abstract class EventStore_ContractTest {
 
         eventStore.commit(unitOfWork)
 
-        assertThat history(eventStore, AGGREGATE_ID), equalTo([
+        assertThat eventStore.loadEventEnvelopes(AGGREGATE_ID).collect { it.event }, equalTo([
             new Business_event_happened()
         ])
     }
+
+    @Test
+    void should_find_EventEnvelopes_by_aggregate_id() {
+        def unitOfWork = eventStore.createUnitOfWork(NO_CORRELATION_ID, USER_UNKNOWN)
+        unitOfWork.attach(
+            new Aggregate(AGGREGATE_ID).emit(new Business_event_happened())
+        )
+        unitOfWork.attach(
+            new Aggregate(ANOTHER_AGGREGATE_ID).emit(new Business_event_happened())
+        )
+
+        eventStore.commit(unitOfWork)
+
+        assertThat eventStore.findAll(aggregateId: AGGREGATE_ID).collect { it.event }, equalTo([
+            new Business_event_happened()
+        ])
+    }
+
 
     @Test
     void should_not_persist_any_event_if_there_are_collisions_in_UnitOfWork() {
