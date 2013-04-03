@@ -33,6 +33,10 @@ class UnitOfWork {
     }
 
 
+    public List<EventEnvelope> findAll(Map<String, ?> criteria) {
+        return eventStore.findAll(criteria)
+    }
+
     public <A> A get(Class<A> aggregateClass, UUID aggregateId) {
         List<EventEnvelope> eventEnvelopes = loadEventEnvelopes(aggregateId)
 
