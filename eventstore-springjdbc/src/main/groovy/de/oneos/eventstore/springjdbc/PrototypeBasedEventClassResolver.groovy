@@ -4,18 +4,18 @@ import de.oneos.eventsourcing.Event
 
 class PrototypeBasedEventClassResolver implements EventClassResolver {
 
-    Class<Event> examplaryEventClass
+    Class<? extends Event> exemplaryEventClass
 
-    PrototypeBasedEventClassResolver(Class<Event> exemplaryEventClass) {
-        assert examplaryEventClass != null
+    PrototypeBasedEventClassResolver(Class<? extends Event> exemplaryEventClass) {
+        assert exemplaryEventClass != null
 
-        this.examplaryEventClass = examplaryEventClass
+        this.exemplaryEventClass = exemplaryEventClass
     }
 
     Class<Event> resolveEvent(String eventName) {
-        String eventPackageName = examplaryEventClass.package.name
+        String eventPackageName = exemplaryEventClass.package.name
         String fullEventClassName = fullyQualifiedEventClassName(eventPackageName, eventName)
-        ClassLoader eventClassLoader = examplaryEventClass.classLoader
+        ClassLoader eventClassLoader = exemplaryEventClass.classLoader
         eventClassLoader.loadClass(fullEventClassName) as Class<Event>
     }
 
