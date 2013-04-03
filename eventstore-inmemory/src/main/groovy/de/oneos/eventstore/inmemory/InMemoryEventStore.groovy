@@ -85,7 +85,9 @@ class InMemoryEventStore implements EventStore {
     @Override
     List<EventEnvelope> findAll(Map<String, ?> criteria) {
         return history.findAll {
-            criteria['aggregateId'] == it.aggregateId
+            criteria.every { attribute, value ->
+                value == it[attribute]
+            }
         }
     }
 

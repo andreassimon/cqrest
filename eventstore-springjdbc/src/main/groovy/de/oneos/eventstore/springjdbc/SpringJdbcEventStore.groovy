@@ -36,12 +36,6 @@ INSERT INTO ${TABLE_NAME} (
 ) VALUES (?,?,?,?,?,?,?,?,?,?);\
 """.toString()
 
-    static String FIND_AGGREGATE_EVENTS = """\
-SELECT *
-FROM ${TABLE_NAME}
-WHERE aggregate_id = ?;\
-""".toString()
-
     protected eventEnvelopeMapper = [
         mapRow: { ResultSet rs, int rowNum ->
             new EventEnvelope(
@@ -194,10 +188,29 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
 
     @Override
     List<EventEnvelope> findAll(Map<String, ?> criteria) {
-        jdbcTemplate.query(FIND_AGGREGATE_EVENTS,
+        jdbcTemplate.query("""\
+SELECT *
+FROM ${TABLE_NAME}
+${whereClause(criteria)}
+;\
+""".toString(),
             eventEnvelopeMapper,
-            criteria['aggregateId']
+            criteria.values().toArray()
         )
+    }
+
+    protected whereClause(Map<String, ?> criteria) {
+        if (criteria.isEmpty()) {
+            return ''
+        }
+        'WHERE ' +
+            criteria.collect { attribute, constrainedValue ->
+                switch (attribute) {
+                    case 'aggregateId': return 'aggregate_id = ?'
+                    case 'eventName':   return 'event_name = ?'
+                    default: return 'false'
+                }
+            }.join(' AND ')
     }
 
     protected Event buildEvent(String eventName, Map eventAttributes) {

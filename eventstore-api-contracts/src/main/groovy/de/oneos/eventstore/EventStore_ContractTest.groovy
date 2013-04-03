@@ -170,6 +170,23 @@ abstract class EventStore_ContractTest {
         ])
     }
 
+    @Test
+    void should_find_EventEnvelopes_by_event_name() {
+        def unitOfWork = eventStore.createUnitOfWork(NO_CORRELATION_ID, USER_UNKNOWN)
+        unitOfWork.attach(
+            new Aggregate(AGGREGATE_ID).emit(new Business_event_happened())
+        )
+        unitOfWork.attach(
+            new Aggregate(ANOTHER_AGGREGATE_ID).emit(new Business_event_happened())
+        )
+
+        eventStore.commit(unitOfWork)
+
+        assertThat eventStore.findAll(eventName: new Business_event_happened().eventName), equalTo([
+            new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME,         AGGREGATE_ID, new Business_event_happened(), NO_CORRELATION_ID, USER_UNKNOWN),
+            new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, ANOTHER_AGGREGATE_ID, new Business_event_happened(), NO_CORRELATION_ID, USER_UNKNOWN),
+        ])
+    }
 
     @Test
     void should_not_persist_any_event_if_there_are_collisions_in_UnitOfWork() {
