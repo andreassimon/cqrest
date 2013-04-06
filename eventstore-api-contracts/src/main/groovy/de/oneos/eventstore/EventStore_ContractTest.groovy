@@ -53,7 +53,7 @@ abstract class EventStore_ContractTest {
 
     @Test
     void should_provide_UnitOfWork_instances() {
-        assertThat eventStore.createUnitOfWork(NO_CORRELATION_ID, USER_UNKNOWN), notNullValue()
+        assertThat eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN), notNullValue()
     }
 
     @Test
@@ -96,7 +96,7 @@ abstract class EventStore_ContractTest {
 
 
     protected unitOfWork(Map eventCoordinates = [:], List<Event> events) {
-        def unitOfWork = eventStore.createUnitOfWork(NO_CORRELATION_ID, USER_UNKNOWN)
+        def unitOfWork = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN)
         Aggregate aggregate = new Aggregate(AGGREGATE_ID)
         unitOfWork.attach(aggregate)
         events.each { aggregate.emit(it) }
@@ -122,8 +122,8 @@ abstract class EventStore_ContractTest {
 
     @Test(expected = EventCollisionOccurred)
     void should_throw_an_exception_when_there_is_an_aggregate_event_stream_collision() {
-        def unitOfWork_1 = eventStore.createUnitOfWork(NO_CORRELATION_ID, USER_UNKNOWN)
-        def unitOfWork_2 = eventStore.createUnitOfWork(NO_CORRELATION_ID, USER_UNKNOWN)
+        def unitOfWork_1 = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN)
+        def unitOfWork_2 = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN)
 
         [unitOfWork_1, unitOfWork_2].each { unitOfWork ->
             Aggregate aggregate = new Aggregate(AGGREGATE_ID)
@@ -138,7 +138,7 @@ abstract class EventStore_ContractTest {
 
     @Test
     void should_filter_matching_EventEnvelopes_from_history() {
-        def unitOfWork = eventStore.createUnitOfWork(NO_CORRELATION_ID, USER_UNKNOWN)
+        def unitOfWork = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN)
         unitOfWork.attach(
             new Aggregate(AGGREGATE_ID).emit(new Business_event_happened())
         )
@@ -155,7 +155,7 @@ abstract class EventStore_ContractTest {
 
     @Test
     void should_find_EventEnvelopes_by_aggregate_id() {
-        def unitOfWork = eventStore.createUnitOfWork(NO_CORRELATION_ID, USER_UNKNOWN)
+        def unitOfWork = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN)
         unitOfWork.attach(
             new Aggregate(AGGREGATE_ID).emit(new Business_event_happened())
         )
@@ -172,7 +172,7 @@ abstract class EventStore_ContractTest {
 
     @Test
     void should_find_EventEnvelopes_by_event_name() {
-        def unitOfWork = eventStore.createUnitOfWork(NO_CORRELATION_ID, USER_UNKNOWN)
+        def unitOfWork = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN)
         unitOfWork.attach(
             new Aggregate(AGGREGATE_ID).emit(new Business_event_happened())
         )
@@ -190,8 +190,8 @@ abstract class EventStore_ContractTest {
 
     @Test
     void should_not_persist_any_event_if_there_are_collisions_in_UnitOfWork() {
-        def unitOfWork_1 = eventStore.createUnitOfWork(NO_CORRELATION_ID, USER_UNKNOWN)
-        def unitOfWork_2 = eventStore.createUnitOfWork(NO_CORRELATION_ID, USER_UNKNOWN)
+        def unitOfWork_1 = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN)
+        def unitOfWork_2 = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN)
 
         unitOfWork_1.with {
             attach(new Aggregate(AGGREGATE_ID).emit(new Business_event_happened()))
@@ -212,7 +212,7 @@ abstract class EventStore_ContractTest {
 
     @Test
     void should_execute_closure_in_unit_of_work() {
-        eventStore.inUnitOfWork(NO_CORRELATION_ID, USER_UNKNOWN, {
+        eventStore.inUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, {
             Aggregate aggregate = new Aggregate(AGGREGATE_ID)
             aggregate.emit(new Business_event_happened())
             aggregate.emit(new Business_event_happened())
@@ -229,7 +229,7 @@ abstract class EventStore_ContractTest {
     void should_publish_persisted_events_to_registered_EventPublishers() {
         eventStore.publishers = [eventPublisher]
 
-        eventStore.inUnitOfWork NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
+        eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
 
         verify(eventPublisher).publish(expectedEventEnvelope)
     }
@@ -247,7 +247,7 @@ abstract class EventStore_ContractTest {
     void should_ignore_any_exceptions_thrown_by_EventPublisher() {
         eventStore.publishers = [defectiveEventPublisher, flawlessEventPublisher]
 
-        eventStore.inUnitOfWork NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
+        eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
 
         verify(flawlessEventPublisher).publish(expectedEventEnvelope)
     }
@@ -255,11 +255,11 @@ abstract class EventStore_ContractTest {
     @Test
     void should_not_publish_any_event_when_transaction_failed() {
         eventStore.publishers = [eventPublisher]
-        eventStore.inUnitOfWork NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
+        eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
 
         reset(eventPublisher)
         expect(EventCollisionOccurred) {
-            eventStore.inUnitOfWork NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
+            eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
         }
 
         verify(eventPublisher, never()).publish(expectedEventEnvelope)

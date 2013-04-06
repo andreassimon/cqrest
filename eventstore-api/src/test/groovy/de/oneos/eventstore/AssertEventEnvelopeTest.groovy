@@ -15,7 +15,7 @@ public class AssertEventEnvelopeTest {
         boundedContextName: 'BOUNDED_CONTEXT',
         aggregateName: 'AGGREGATE',
         aggregateId: AGGREGATE_ID,
-        event: new Event() { void applyTo(Object t) { } },
+        event: new BaseEvent() { void applyTo(Object t) { } },
         sequenceNumber: 0,
         timestamp: new Date()
     ]

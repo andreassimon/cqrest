@@ -39,8 +39,6 @@ class SpringJdbcEventStoreTest extends EventStore_ContractTest {
 
         eventStore = new SpringJdbcEventStore(
             dataSource: dataSource,
-            application: APPLICATION_NAME,
-            boundedContext: BOUNDED_CONTEXT_NAME,
             eventClassResolver: new MapBasedEventClassResolver(eventMap: ['Business event happened': EventStore_ContractTest.Business_event_happened])
         )
 

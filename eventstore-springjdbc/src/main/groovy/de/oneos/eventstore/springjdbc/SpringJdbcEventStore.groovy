@@ -58,9 +58,6 @@ INSERT INTO ${TABLE_NAME} (
 
     JsonSlurper json = new JsonSlurper()
 
-    String application
-    String boundedContext
-
     JdbcOperations jdbcTemplate
     TransactionTemplate transactionTemplate
     EventClassResolver eventClassResolver
@@ -123,15 +120,15 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
     }
 
     @Override
-    void inUnitOfWork(UUID correlationId, String user, Closure closure) {
-        UnitOfWork unitOfWork = createUnitOfWork(correlationId, user)
+    void inUnitOfWork(String application, String boundedContext, UUID correlationId, String user, Closure closure) {
+        UnitOfWork unitOfWork = createUnitOfWork(application, boundedContext, correlationId, user)
         closure.delegate = unitOfWork
         closure()
         commit(unitOfWork)
     }
 
     @Override
-    UnitOfWork createUnitOfWork(UUID correlationId, String user) {
+    UnitOfWork createUnitOfWork(String application, String boundedContext, UUID correlationId, String user) {
         return new UnitOfWork(this, application, boundedContext, correlationId, user)
     }
 
@@ -221,11 +218,6 @@ ${whereClause(criteria)}
             deserializedEvent[propertyName] = rawValue
         }
         return deserializedEvent
-    }
-
-    @Override
-    String toString() {
-        "SpringJdbcEventStore[application:'$application', boundedContext:'$boundedContext']"
     }
 
 }

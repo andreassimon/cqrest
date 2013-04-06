@@ -9,16 +9,6 @@ import static de.oneos.eventstore.EventStore.*
 class InMemoryEventStore implements EventStore {
     List<EventEnvelope> history = []
     Collection<EventPublisher> eventPublishers = []
-    String application
-    String boundedContext
-
-    InMemoryEventStore(String application, String boundedContext) {
-        assert application != null
-        assert boundedContext != null
-
-        this.application = application
-        this.boundedContext = boundedContext
-    }
 
     @Override
     void setPublishers(List<EventPublisher> eventPublishers) {
@@ -26,14 +16,14 @@ class InMemoryEventStore implements EventStore {
     }
 
     @Override
-    void inUnitOfWork(UUID correlationId, String user, Closure closure) {
-        def unitOfWork = createUnitOfWork(correlationId, user)
+    void inUnitOfWork(String application, String boundedContext, UUID correlationId, String user, Closure closure) {
+        def unitOfWork = createUnitOfWork(application, boundedContext, correlationId, user)
         unitOfWork.with closure
         commit(unitOfWork)
     }
 
     @Override
-    UnitOfWork createUnitOfWork(UUID correlationId, String user) {
+    UnitOfWork createUnitOfWork(String application, String boundedContext, UUID correlationId, String user) {
         new UnitOfWork(this, application, boundedContext, correlationId, user)
     }
 
@@ -54,10 +44,10 @@ class InMemoryEventStore implements EventStore {
         unitOfWork.flush()
     }
 
-    void addEventEnvelope(UUID aggregateId, Event event, int sequenceNumber, String user) {
+    void addEventEnvelope(UUID aggregateId, String application, String boundedContext, Event event, int sequenceNumber, String user) {
         EventEnvelope newEnvelope = new EventEnvelope(
-            this.application,
-            this.boundedContext,
+            application,
+            boundedContext,
             'UNKNOWN',
             aggregateId, event, sequenceNumber,
             NO_CORRELATION_ID,
@@ -89,6 +79,11 @@ class InMemoryEventStore implements EventStore {
                 value == it[attribute]
             }
         }
+    }
+
+    @Override
+    String toString() {
+        "InMemoryEventStore[application:'$application', boundedContext:'$boundedContext']"
     }
 
 }
