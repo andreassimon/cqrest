@@ -32,6 +32,8 @@ class EventEnvelope<AggregateType> {
         UUID correlationId,
         String user
     ) {
+        assert aggregateName != null
+
         this.applicationName = application
         this.boundedContextName = boundedContext
         this.aggregateName = aggregateName

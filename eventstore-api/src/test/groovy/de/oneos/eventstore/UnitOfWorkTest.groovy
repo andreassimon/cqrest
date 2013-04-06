@@ -210,6 +210,7 @@ class UnitOfWorkTest {
 
     static class InvalidAggregate implements Validatable<InvalidAggregate> {
         static { InvalidAggregate.mixin(EventSourcing) }
+        static String aggregateName = 'Invalid Aggregate'
         boolean isValid() { return false }
         String validationMessage() { return 'will never be valid' }
         String toString() { 'InvalidAggregate' }
@@ -217,6 +218,7 @@ class UnitOfWorkTest {
 
     static class ValidAggregate implements Validatable<ValidAggregate> {
         static { ValidAggregate.mixin(EventSourcing) }
+        static String aggregateName = 'Valid Aggregate'
         boolean isValid() { return true }
         String validationMessage() { if(isValid()) return ''; throw new IllegalStateException('Should always be valid') }
         String toString() { 'ValidAggregate' }

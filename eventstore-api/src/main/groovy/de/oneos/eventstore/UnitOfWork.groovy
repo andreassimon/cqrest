@@ -74,6 +74,8 @@ class UnitOfWork {
     // allows fluent code, e.g.
     //   def newAggregate = attach(new Aggregate(...))
     public <A> A attach(A aggregate) {
+        assert aggregate.aggregateName != null
+
         attachedAggregates << aggregate
         aggregate
     }
@@ -110,7 +112,11 @@ class UnitOfWork {
     }
 
     void flush() {
-        attachedAggregates.each { it.flushEvents() }
+        attachedAggregates.each {
+            try {
+                it.flushEvents()
+            } catch (MissingMethodException e) { /* Ignore */ }
+        }
     }
 
 }
