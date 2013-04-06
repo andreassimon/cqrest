@@ -7,11 +7,20 @@ class EventAttributeDiff {
     public static final String DEFAULT_ATTRIBUTE_DIFF_FORMAT = '               %-20s    %-10s    %s%n'
 
 
+    String attributeName
     def leftAttribute, rightAttribute
 
-    EventAttributeDiff(leftAttribute, rightAttribute) {
-        this.leftAttribute = leftAttribute
-        this.rightAttribute = rightAttribute
+    EventAttributeDiff(attributeName, leftValue, rightValue) {
+        assert attributeName != null
+
+        this.leftAttribute = [value: leftValue]
+        this.rightAttribute = [value: rightValue]
+
+        if (valuesAreDifferent()) {
+            this.attributeName = "[$attributeName]"
+        } else {
+            this.attributeName = " $attributeName "
+        }
     }
 
 
@@ -28,13 +37,6 @@ class EventAttributeDiff {
         format(attributeDiffFormat, attributeName, leftValue, rightValue)
     }
 
-    public String getAttributeName() {
-        if(valuesAreDifferent()) {
-            return "[$leftAttribute.key]"
-        }
-        return " $leftAttribute.key "
-    }
-
     public getLeftValue() {
         return valueOf(leftAttribute)
     }
@@ -45,13 +47,13 @@ class EventAttributeDiff {
 
     protected valueOf(def attribute) {
         if (valuesAreDifferent()) {
-            return attribute.value
+            return attribute?.value
         }
         return '='
     }
 
     protected valuesAreDifferent() {
-        leftAttribute.value != rightAttribute.value
+        leftAttribute?.value != rightAttribute?.value
     }
 
 }

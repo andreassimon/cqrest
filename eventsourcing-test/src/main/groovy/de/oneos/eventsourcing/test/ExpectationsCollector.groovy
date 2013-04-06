@@ -30,7 +30,7 @@ class ExpectationsCollector {
             }
         }
 
-        de.oneos.eventsourcing.test.Util.pairwise(expectedEvents, actualEvents) { expected, actual ->
+        [expectedEvents, actualEvents].transpose().each { expected, actual ->
             if(expected != actual)
                 throw new AssertionError("Expected events weren't emitted:\n" + diffEventStreams(expectedEvents, actualEvents))
         }

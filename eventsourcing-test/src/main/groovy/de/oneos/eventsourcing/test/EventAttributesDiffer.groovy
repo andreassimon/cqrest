@@ -19,9 +19,10 @@ class EventAttributesDiffer extends EventDiff {
         def leftAttributes = left.event.serializedProperties().sort { a, b -> a.key <=> b.key }
         def rightAttributes = right.event.serializedProperties().sort { a, b -> a.key <=> b.key }
 
-        attributeDiffs = []
-        de.oneos.eventsourcing.test.Util.pairwise(leftAttributes.iterator(), rightAttributes.iterator()) { leftAttribute, rightAttribute ->
-            attributeDiffs << new EventAttributeDiff(leftAttribute, rightAttribute)
+        def unitedAttributes = (leftAttributes + rightAttributes).collect { it.key }.unique()
+
+        attributeDiffs = unitedAttributes.collect { attribute ->
+            new EventAttributeDiff(attribute, leftAttributes[attribute], rightAttributes[attribute])
         }
     }
 
