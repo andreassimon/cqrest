@@ -1,7 +1,7 @@
 package de.oneos.eventsourcing
 
 
-abstract class BaseEvent<AT> extends GroovyObjectSupport implements Event {
+abstract class BaseEvent<AT> extends GroovyObjectSupport implements Event<AT> {
     protected static List<String> UNSERIALIZED_PROPERTIES = ['class', 'eventName', 'serializableForm']
 
     abstract void applyTo(AT aggregate)

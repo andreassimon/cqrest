@@ -33,6 +33,10 @@ abstract class EventSourcingTest {
     }
 
     protected when(Closure<?> action) {
+        inUnitOfWork(action)
+    }
+
+    protected inUnitOfWork(Closure<?> action) {
         eventStore.inUnitOfWork(application, boundedContext, NO_CORRELATION_ID, USER_UNKNOWN, action)
     }
 

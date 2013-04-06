@@ -8,7 +8,7 @@ interface EventStore {
 
     void setPublishers(List<EventPublisher> eventPublishers)
 
-    void inUnitOfWork(String application, String boundedContext, UUID correlationId, String user, Closure closure)
+    public <T> T inUnitOfWork(String application, String boundedContext, UUID correlationId, String user, Closure<T> closure)
 
     UnitOfWork createUnitOfWork(String application, String boundedContext, UUID correlationId, String user)
 

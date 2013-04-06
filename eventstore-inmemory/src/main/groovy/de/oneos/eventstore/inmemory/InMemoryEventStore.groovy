@@ -16,10 +16,11 @@ class InMemoryEventStore implements EventStore {
     }
 
     @Override
-    void inUnitOfWork(String application, String boundedContext, UUID correlationId, String user, Closure closure) {
+    public <T> T inUnitOfWork(String application, String boundedContext, UUID correlationId, String user, Closure<T> closure) {
         def unitOfWork = createUnitOfWork(application, boundedContext, correlationId, user)
-        unitOfWork.with closure
+        T result = unitOfWork.with(closure)
         commit(unitOfWork)
+        return result
     }
 
     @Override
@@ -28,7 +29,7 @@ class InMemoryEventStore implements EventStore {
     }
 
     @Override
-    void commit(UnitOfWork unitOfWork) {
+    void commit(UnitOfWork unitOfWork) throws IllegalArgumentException, EventCollisionOccurred {
         unitOfWork.eachEventEnvelope { EventEnvelope it ->
             AssertEventEnvelope.isValid(it)
             assertIsUnique(it)

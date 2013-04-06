@@ -120,11 +120,17 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
     }
 
     @Override
-    void inUnitOfWork(String application, String boundedContext, UUID correlationId, String user, Closure closure) {
+    public <T> T inUnitOfWork(String application, String boundedContext, UUID correlationId, String user, Closure<T> closure) {
         UnitOfWork unitOfWork = createUnitOfWork(application, boundedContext, correlationId, user)
         closure.delegate = unitOfWork
-        closure()
+        T result
+        if(closure.maximumNumberOfParameters == 0) {
+            result = closure.call()
+        } else {
+            result = closure.call(unitOfWork)
+        }
         commit(unitOfWork)
+        return result
     }
 
     @Override

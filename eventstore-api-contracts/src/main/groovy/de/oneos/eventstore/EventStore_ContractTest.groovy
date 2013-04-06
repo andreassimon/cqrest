@@ -226,6 +226,13 @@ abstract class EventStore_ContractTest {
     }
 
     @Test
+    void should_return_the_result_of_the_closure() {
+        assertThat eventStore.inUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN) {
+            return 'EXPECTED RESULT'
+        }, equalTo('EXPECTED RESULT')
+    }
+
+    @Test
     void should_publish_persisted_events_to_registered_EventPublishers() {
         eventStore.publishers = [eventPublisher]
 
