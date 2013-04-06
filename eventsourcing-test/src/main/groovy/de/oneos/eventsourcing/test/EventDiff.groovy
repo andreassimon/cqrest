@@ -15,6 +15,9 @@ abstract class EventDiff {
         if(left.event.eventName != right.event.eventName) {
             return new EventTypesDiffer(left, right)
         }
+        if(left.sequenceNumber != right.sequenceNumber) {
+            return new SequenceNumbersDiffer(left, right)
+        }
         return new EventAttributesDiffer(left, right)
     }
 

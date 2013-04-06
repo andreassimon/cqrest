@@ -1,5 +1,8 @@
 package de.oneos.eventsourcing.test
 
+import static de.oneos.eventsourcing.test.Util.*
+
+
 class EventTypesDiffer extends EventDiff {
     RecordedEvent left
     RecordedEvent right
@@ -12,7 +15,7 @@ class EventTypesDiffer extends EventDiff {
     @Override
     String toString() {
         StringBuilder builder = new StringBuilder()
-        builder.append(de.oneos.eventsourcing.test.Util.abbreviate(aggregateId))
+        builder.append(abbreviate(aggregateId))
         builder.append('    ')
         builder.append(String.format('%-30s', leftEventName))
         builder.append('    ')
