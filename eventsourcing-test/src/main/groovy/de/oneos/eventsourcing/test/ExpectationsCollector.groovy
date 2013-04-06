@@ -30,9 +30,17 @@ class ExpectationsCollector {
             }
         }
 
-        [expectedEvents, actualEvents].transpose().each { expected, actual ->
+        List fillingEvents = []
+        def sizeDiff = actualEvents.size() - expectedEvents.size()
+        if(sizeDiff > 0) {
+            fillingEvents = Collections.nCopies(sizeDiff, null)
+        }
+
+        List filledExpectedEvents = expectedEvents + fillingEvents
+
+        [filledExpectedEvents, actualEvents].transpose().each { expected, actual ->
             if(expected != actual)
-                throw new AssertionError("Expected events weren't emitted:\n" + diffEventStreams(expectedEvents, actualEvents))
+                throw new AssertionError("Expected events weren't emitted:\n" + diffEventStreams(filledExpectedEvents, actualEvents))
         }
     }
 
