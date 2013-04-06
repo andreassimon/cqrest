@@ -8,7 +8,7 @@ class EventSourcing {
 
     static Map<Integer, List> newEvents = Collections.synchronizedMap([:])
 
-    static emit(aggregate, Event[] events) {
+    static <A> A emit(A aggregate, Event[] events) {
         if(!newEvents.containsKey(identityHashCode(aggregate))) {
             newEvents[identityHashCode(aggregate)] = []
         }
