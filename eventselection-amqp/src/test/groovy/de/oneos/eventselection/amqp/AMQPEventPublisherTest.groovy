@@ -71,7 +71,7 @@ class AMQPEventPublisherTest {
     }
 
 
-    static class Business_event_happened extends Event {
+    static class Business_event_happened extends BaseEvent {
         @Override
         void applyTo(aggregate) { aggregate }
     }

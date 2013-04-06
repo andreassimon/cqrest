@@ -223,7 +223,7 @@ class UnitOfWorkTest {
     }
 
 
-    static class Business_event_happened<A> extends Event<A> {
+    static class Business_event_happened<A> extends BaseEvent<A> {
         @Override
         void applyTo(A aggregate) { }
     }

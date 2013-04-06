@@ -87,7 +87,7 @@ class DefaultAggregateFactoryTest {
         }
     }
 
-    static class Business_event_happened extends Event<Aggregate> {
+    static class Business_event_happened extends BaseEvent<Aggregate> {
         static { UNSERIALIZED_PROPERTIES << 'function' }
 
         @Override

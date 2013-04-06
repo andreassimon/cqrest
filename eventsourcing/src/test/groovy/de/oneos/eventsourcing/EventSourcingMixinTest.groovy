@@ -75,13 +75,13 @@ class EventSourcingMixinTest {
         }
     }
 
-    static class Order_was_created extends Event<Order> {
+    static class Order_was_created extends BaseEvent<Order> {
         void applyTo(Order order) {
             order
         }
     }
 
-    static class Order_line_was_added extends Event<Order> {
+    static class Order_line_was_added extends BaseEvent<Order> {
         UUID article
 
         Order_line_was_added(UUID article) {

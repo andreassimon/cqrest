@@ -64,7 +64,7 @@ class EventEnvelopeTest {
     }
 
 
-    static class Business_event_happened extends Event {
+    static class Business_event_happened extends BaseEvent {
         static { UNSERIALIZED_PROPERTIES << 'function' }
         Closure<Void> function = {}
 

@@ -302,7 +302,7 @@ abstract class EventStore_ContractTest {
         Aggregate(UUID id) { this.id = id }
     }
 
-    static class Business_event_happened extends Event {
+    static class Business_event_happened extends BaseEvent {
         // Having an attribute is important to test deserialization
         String comment
 
