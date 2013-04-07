@@ -7,17 +7,26 @@ import static org.junit.Assert.*
 import static org.hamcrest.Matchers.*
 
 
-class EventSourcingMixinTest {
+class AggregateAnnotationTest {
 
     UUID generatedOrderId = randomUUID()
     UUID article1 = randomUUID()
     UUID article2 = randomUUID()
 
     @Test
-    void instance_method__emit__should_collect_emitted_events() {
-        def order = Order.create(generatedOrderId)
+    void instance_method__emit__should_return_constant_string() {
+        def order = new Order(randomUUID())
 
-        order.addArticles([article1, article2])
+        assertThat order.emit( new Order_line_was_added(article1) ), equalTo('emit called')
+    }
+
+    @Test
+    void instance_method__emit__should_collect_emitted_events() {
+//        def order = Order.create(generatedOrderId)
+        def order = new Order(randomUUID())
+
+        order.emit( new Order_line_was_added(article1) )
+//        order.addArticles([article1, article2])
 
         assertThat order.newEvents, equalTo([
             new Order_was_created(),
@@ -30,7 +39,8 @@ class EventSourcingMixinTest {
     void instance_method__emit__should_apply_the_event_to_the_emitting_instance_immediately() {
         def order = new Order(randomUUID())
 
-        order.addArticles([article1, article2])
+        order.emit( new Order_line_was_added(article1) )
+//        order.addArticles([article1, article2])
 
         assertThat order.orderLines, equalTo([article1, article2])
     }
@@ -47,8 +57,8 @@ class EventSourcingMixinTest {
 
 
 
+    @Aggregate
     static class Order {
-        static { Order.mixin(EventSourcing) }
 
         static aggregateName = 'AGGREGATE'
 
@@ -69,9 +79,9 @@ class EventSourcingMixinTest {
         }
 
         void addArticles(List<UUID> articles) {
-            emit(
-                *articles.collect { new Order_line_was_added(it) }
-            )
+//            emit(
+//                *articles.collect { new Order_line_was_added(it) }
+//            )
         }
     }
 
