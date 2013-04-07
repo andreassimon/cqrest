@@ -21,6 +21,29 @@ class BaseEventTest {
     }
 
     @Test
+    void should_produce_string_representation() {
+        def event = new Simple_Event_happened(charProperty: 'c' as char )
+
+        assertThat event.toString(), equalTo("""\
+Simple Event happened [
+    doubleProperty: '0.0'
+    unserializableObjectProperty: 'null'
+    floatProperty: '0.0'
+    shortProperty: '0'
+    customProperty: 'null'
+    uuidProperty: 'null'
+    valueObjectProperty: 'null'
+    boxedBooleanProperty: 'null'
+    charProperty: 'c'
+    stringProperty: 'null'
+    booleanProperty: 'false'
+    intProperty: '0'
+    byteProperty: '0'
+    longProperty: '0'
+]""")
+    }
+
+    @Test
     void serializableForm_should_convert_null_to_null() {
         assertThat BaseEvent.serializableForm(null), nullValue()
     }

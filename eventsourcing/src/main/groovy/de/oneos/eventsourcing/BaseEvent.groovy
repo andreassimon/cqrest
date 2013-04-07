@@ -38,10 +38,9 @@ abstract class BaseEvent<AT> extends GroovyObjectSupport implements Event<AT> {
 
     @Override
     String toString() {
-        "${eventName} ${serializableForm}"
         serializableForm.inject("$eventName [") { String readableForm, property, value ->
             readableForm + "\n    $property: '$value'"
-        } + "]"
+        } + "\n]"
     }
 
     @Override
