@@ -1,0 +1,3 @@
+#!/bin/bash
+
+gradle classes && groovyConsole --classpath "build/classes/main/" "bin/AST-Inspection.groovy"
