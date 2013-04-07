@@ -37,6 +37,10 @@ class UnitOfWork {
         return eventStore.findAll(criteria)
     }
 
+    public Repositories getRepositories() {
+        new Repositories(unitOfWork: this)
+    }
+
     public <A> A get(Class<A> aggregateClass, UUID aggregateId) {
         List<EventEnvelope> eventEnvelopes = loadEventEnvelopes(aggregateId)
 
