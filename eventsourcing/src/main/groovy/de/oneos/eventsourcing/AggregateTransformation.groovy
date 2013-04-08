@@ -6,9 +6,8 @@ import org.codehaus.groovy.ast.stmt.*
 import org.codehaus.groovy.control.*
 import org.codehaus.groovy.transform.*
 
-
 /**
- * Be careful! This is not tested extensively yet!
+ * TODO Be careful! This is not tested extensively yet!
  */
 @GroovyASTTransformation(phase=CompilePhase.SEMANTIC_ANALYSIS)
 class AggregateTransformation implements ASTTransformation {
@@ -21,8 +20,8 @@ class AggregateTransformation implements ASTTransformation {
         classes.findAll { ClassNode clazz ->
             clazz.getAnnotations(new ClassNode(Aggregate))
         }.each { ClassNode aggregate ->
-            aggregate.addField(newEvents(aggregate))
-            aggregate.addMethod(getterFor(newEvents(aggregate)))
+            aggregate.addField(_newEvents(aggregate))
+            aggregate.addMethod(getterFor(_newEvents(aggregate)))
             aggregate.addMethod(emitEvents(aggregate))
             aggregate.addMethod(flushEvents(aggregate))
         }
@@ -35,44 +34,56 @@ class AggregateTransformation implements ASTTransformation {
         )
     }
 
-    FieldNode newEvents(ClassNode parentClass) {
-        return new FieldNode(
-            'newEvents', 0, new ClassNode(List), parentClass, new ListExpression([])
+    FieldNode _newEvents(ClassNode parentClass) {
+        def field = new FieldNode(
+            '_newEvents', 0, new ClassNode(List), parentClass, new ListExpression([])
         )
+        field.closureSharedVariable = true
+        return field
     }
 
     MethodNode emitEvents(ClassNode parentClass) {
+        def methodScope = new VariableScope()
+        methodScope.putReferencedClassVariable(_newEvents(parentClass))
+        final BlockStatement block = new BlockStatement(
+            [
+                callMethod(field(_newEvents(parentClass)), 'add', event()),
+                callMethod(event(), 'applyTo', thiz())
+            ],
+            methodScope.copy()
+        )
         return new MethodNode(
             'emit',
             MethodNode.ACC_PUBLIC,
-            parentClass,
-            [new Parameter(new ClassNode(Event[]), 'events')] as Parameter[],
+            parentClass.getPlainNodeReference(),
+            [eventsParameter()] as Parameter[],
             NO_EXCEPTIONS,
-            new BlockStatement([
-                iterate(events(),
-                    new BlockStatement([
-                        addToCollection(field(newEvents(parentClass)), event()),
-                        callMethod(event(), 'applyTo', thiz())
-                    ], new VariableScope()
-                    )
-                ),
-                returnResult(thiz())
-            ], new VariableScope())
+            new BlockStatement(
+                [
+                    callMethod(events(), 'each', wrapInClosure(block, methodScope.copy(), parentClass)),
+                    returnResult(thiz())
+                ],
+                methodScope
+            )
         )
+    }
+
+    protected Parameter eventsParameter() {
+        new Parameter(new ClassNode(Event).makeArray(), 'events')
     }
 
     MethodNode flushEvents(ClassNode parentClass) {
         return new MethodNode(
             'flushEvents',
             MethodNode.ACC_PUBLIC,
-            returnsVoid(),
+            ClassHelper.VOID_TYPE,
             new Parameter[0],
             NO_EXCEPTIONS,
-            callMethod(field(newEvents(parentClass)), 'clear', new EmptyExpression())
+            callMethod(field(_newEvents(parentClass)), 'clear', new ArgumentListExpression())
         )
     }
 
-    protected returnsVoid() {
+    protected ClassNode returnsVoid() {
         new ClassNode(Void)
     }
 
@@ -81,38 +92,36 @@ class AggregateTransformation implements ASTTransformation {
     }
 
     protected Expression field(FieldNode fieldNode) {
-        new FieldExpression(fieldNode)
+        def field = new FieldExpression(fieldNode)
+        field.useReferenceDirectly = true
+        return field
     }
 
     protected events() {
         new VariableExpression('events')
     }
 
-    Statement iterate(Expression collection, Statement statement) {
-        return new ExpressionStatement(
-            new MethodCallExpression(
-                collection,
-                new ConstantExpression('each'),
-                new ClosureExpression(
-                    [new Parameter(new ClassNode(Event), 'event')] as Parameter[],
-                    statement
-                )
-            )
+    private ClosureExpression wrapInClosure(BlockStatement block, VariableScope methodScope, ClassNode clazz) {
+        def closure = new ClosureExpression(
+            [new Parameter(new ClassNode(Event), 'event')] as Parameter[],
+            block
         )
+        closure.setType(ClassHelper.VOID_TYPE)
+        closure.variableScope = methodScope.copy()
+        closure.variableScope.putReferencedClassVariable(_newEvents(clazz))
+        closure
     }
 
-    private Statement addToCollection(Expression collection, Expression newItem) {
-        return callMethod(collection, 'add', newItem)
-    }
 
-    private Statement callMethod(Expression collection, String method, Expression argument) {
-        return new ExpressionStatement(
+    private ExpressionStatement callMethod(Expression target, String method, Expression argument) {
+        def statement = new ExpressionStatement(
             new MethodCallExpression(
-                collection,
-                new ConstantExpression(method),
+                target,
+                method,
                 argument
             )
         )
+        return statement
     }
 
     private Statement returnResult(Expression result) {

@@ -5,6 +5,9 @@ import static java.util.UUID.randomUUID
 import org.junit.*
 import static org.junit.Assert.*
 import static org.hamcrest.Matchers.*
+import de.oneos.eventsourcing.orders.Order
+import de.oneos.eventsourcing.orders.Order_line_was_added
+import de.oneos.eventsourcing.orders.Order_was_created
 
 
 @Ignore
@@ -56,53 +59,8 @@ class AggregateAnnotationTest {
         assertThat order.newEvents, empty()
     }
 
-
-
-    @Aggregate
-    static class Order {
-
-        static aggregateName = 'AGGREGATE'
-
-        final UUID id
-        def orderLines = []
-
-        static Order create(UUID id) {
-            assert id != null
-            Order newOrder = new Order(id)
-            newOrder.emit(
-                new Order_was_created()
-            )
-            return newOrder
-        }
-
-        Order(UUID id) {
-            this.id = id
-        }
-
-        void addArticles(List<UUID> articles) {
-//            emit(
-//                *articles.collect { new Order_line_was_added(it) }
-//            )
-        }
-    }
-
-    static class Order_was_created extends BaseEvent<Order> {
-        void applyTo(Order order) {
-            order
-        }
-    }
-
-    static class Order_line_was_added extends BaseEvent<Order> {
-        UUID article
-
-        Order_line_was_added(UUID article) {
-            this.article = article
-        }
-
-        @Override
-        void applyTo(Order order) {
-            order.orderLines << article
-        }
-    }
-
 }
+
+
+
+
