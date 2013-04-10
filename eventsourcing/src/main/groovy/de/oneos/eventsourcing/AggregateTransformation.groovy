@@ -4,14 +4,15 @@ import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.expr.*
 import org.codehaus.groovy.ast.stmt.*
 import org.codehaus.groovy.control.*
+import org.codehaus.groovy.syntax.*
 import org.codehaus.groovy.transform.*
+
 
 /**
  * TODO Be careful! This is not tested extensively yet!
  */
 @GroovyASTTransformation(phase=CompilePhase.SEMANTIC_ANALYSIS)
 class AggregateTransformation implements ASTTransformation {
-    public static final ClassNode[] NO_EXCEPTIONS = new ClassNode[0]
 
     @Override
     void visit(ASTNode[] nodes, SourceUnit sourceUnit) {
@@ -20,52 +21,76 @@ class AggregateTransformation implements ASTTransformation {
         classes.findAll { ClassNode clazz ->
             clazz.getAnnotations(new ClassNode(Aggregate))
         }.each { ClassNode aggregate ->
+            aggregate.addField(_version(aggregate))
             aggregate.addField(_newEvents(aggregate))
-            aggregate.addMethod(getterFor(_newEvents(aggregate)))
+            aggregate.addMethod(versionSetter(aggregate))
+            aggregate.addMethod(newEventsGetter(aggregate))
             aggregate.addMethod(emitEvents(aggregate))
             aggregate.addMethod(flushEvents(aggregate))
         }
     }
 
-    MethodNode getterFor(FieldNode fieldNode) {
+    protected MethodNode newEventsGetter(ClassNode clazz) {
         return new MethodNode(
-            'getNewEvents', MethodNode.ACC_PUBLIC, fieldNode.type, new Parameter[0], NO_EXCEPTIONS,
-            returnResult( field(fieldNode) )
+            'getNewEvents', MethodNode.ACC_PUBLIC, _newEvents(clazz).type, noParameters(), noExceptions(),
+            returnResult( field(_newEvents(clazz)) )
         )
     }
 
-    FieldNode _newEvents(ClassNode parentClass) {
-        def field = new FieldNode(
-            '_newEvents', 0, new ClassNode(List), parentClass, new ListExpression([])
+    protected MethodNode versionSetter(ClassNode clazz) {
+        new MethodNode(
+            'setVersion', MethodNode.ACC_PUBLIC, ClassHelper.VOID_TYPE, [new Parameter(_version(clazz).type, 'version')] as Parameter[], noExceptions(),
+            new ExpressionStatement(
+                new BinaryExpression(
+                    new VariableExpression('_version'),
+                    Token.newSymbol('=', -1, -1),
+                    new VariableExpression('version')
+                )
+            )
         )
-        field.closureSharedVariable = true
-        return field
+    }
+
+    protected Parameter[] noParameters() { new Parameter[0] }
+    protected ClassNode[] noExceptions() { new ClassNode[0] }
+
+
+    FieldNode _newEvents(ClassNode parentClass) {
+        return new FieldNode(
+            '_newEvents', FieldNode.ACC_PROTECTED, new ClassNode(List), parentClass, new ListExpression([])
+        )
+    }
+
+    FieldNode _version(ClassNode parentClass) {
+        return new FieldNode(
+            '_version', FieldNode.ACC_PROTECTED, ClassHelper.int_TYPE, parentClass, new ConstantExpression(-1)
+        )
     }
 
     MethodNode emitEvents(ClassNode parentClass) {
-        def methodScope = new VariableScope()
-        methodScope.putReferencedClassVariable(_newEvents(parentClass))
+        VariableScope methodScope = new VariableScope()
         final BlockStatement block = new BlockStatement(
             [
                 callMethod(field(_newEvents(parentClass)), 'add', event()),
                 callMethod(event(), 'applyTo', thiz())
             ],
-            methodScope.copy()
+            new VariableScope(methodScope)
         )
-        return new MethodNode(
+        def method = new MethodNode(
             'emit',
             MethodNode.ACC_PUBLIC,
             parentClass.getPlainNodeReference(),
             [eventsParameter()] as Parameter[],
-            NO_EXCEPTIONS,
+            noExceptions(),
             new BlockStatement(
                 [
-                    callMethod(events(), 'each', wrapInClosure(block, methodScope.copy(), parentClass)),
+                    callMethod(events(), 'each', wrapInClosure(block, new VariableScope(methodScope), parentClass)),
                     returnResult(thiz())
                 ],
                 methodScope
             )
         )
+        method.setVariableScope(methodScope)
+        return method
     }
 
     protected Parameter eventsParameter() {
@@ -77,8 +102,8 @@ class AggregateTransformation implements ASTTransformation {
             'flushEvents',
             MethodNode.ACC_PUBLIC,
             ClassHelper.VOID_TYPE,
-            new Parameter[0],
-            NO_EXCEPTIONS,
+            noParameters(),
+            noExceptions(),
             callMethod(field(_newEvents(parentClass)), 'clear', new ArgumentListExpression())
         )
     }
@@ -101,14 +126,13 @@ class AggregateTransformation implements ASTTransformation {
         new VariableExpression('events')
     }
 
-    private ClosureExpression wrapInClosure(BlockStatement block, VariableScope methodScope, ClassNode clazz) {
+    private ClosureExpression wrapInClosure(BlockStatement block, VariableScope scope, ClassNode clazz) {
         def closure = new ClosureExpression(
             [new Parameter(new ClassNode(Event), 'event')] as Parameter[],
             block
         )
         closure.setType(ClassHelper.VOID_TYPE)
-        closure.variableScope = methodScope.copy()
-        closure.variableScope.putReferencedClassVariable(_newEvents(clazz))
+        closure.variableScope = scope
         closure
     }
 
