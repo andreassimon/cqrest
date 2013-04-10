@@ -16,7 +16,6 @@ class UnitOfWork {
 
     protected AggregateFactory aggregateFactory
     protected Collection attachedAggregates = new LinkedList()
-    protected Map<Integer, Integer> aggregateVersion = synchronizedMap([:])
 
 
     UnitOfWork(EventStore eventStore, String application, String boundedContext, UUID correlationId, String user) {
@@ -60,7 +59,7 @@ class UnitOfWork {
     }
 
     protected setVersion(aggregate, calculatedVersion) {
-        aggregateVersion[System.identityHashCode(aggregate)] = calculatedVersion
+        aggregate.setVersion(calculatedVersion)
     }
 
     protected static maximumSequenceNumber(Collection<EventEnvelope> eventEnvelopes) {
@@ -108,11 +107,7 @@ class UnitOfWork {
     }
 
     protected version(aggregate) {
-        def aggregateHash = System.identityHashCode(aggregate)
-        if(aggregateVersion.containsKey(aggregateHash)) {
-            return aggregateVersion[aggregateHash]
-        }
-        return -1
+        aggregate.getVersion()
     }
 
     void flush() {

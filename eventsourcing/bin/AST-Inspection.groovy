@@ -42,4 +42,6 @@ account = new Account()
 account.emit(new Account_was_opened())
 
 order = new Order()
+assert -1 == order.getVersion()
+
 order.emitSomeEvent()

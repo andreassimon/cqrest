@@ -23,6 +23,7 @@ class AggregateTransformation implements ASTTransformation {
         }.each { ClassNode aggregate ->
             aggregate.addField(_version(aggregate))
             aggregate.addField(_newEvents(aggregate))
+            aggregate.addMethod(versionGetter(aggregate))
             aggregate.addMethod(versionSetter(aggregate))
             aggregate.addMethod(newEventsGetter(aggregate))
             aggregate.addMethod(emitEvents(aggregate))
@@ -34,6 +35,13 @@ class AggregateTransformation implements ASTTransformation {
         return new MethodNode(
             'getNewEvents', MethodNode.ACC_PUBLIC, _newEvents(clazz).type, noParameters(), noExceptions(),
             returnResult( field(_newEvents(clazz)) )
+        )
+    }
+
+    protected MethodNode versionGetter(ClassNode clazz) {
+        return new MethodNode(
+            'getVersion', MethodNode.ACC_PUBLIC, _version(clazz).type, noParameters(), noExceptions(),
+            returnResult( field(_version(clazz)) )
         )
     }
 
