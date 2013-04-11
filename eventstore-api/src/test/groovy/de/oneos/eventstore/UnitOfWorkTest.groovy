@@ -12,7 +12,6 @@ import static de.oneos.Stubbing.*
 import de.oneos.eventsourcing.*
 import de.oneos.validation.*
 
-
 class UnitOfWorkTest {
     static final String APPLICATION_NAME = 'APPLICATION_NAME'
     static final String BOUNDED_CONTEXT_NAME = 'BOUNDED_CONTEXT_NAME'
@@ -188,8 +187,8 @@ class UnitOfWorkTest {
     }
 
 
+    @de.oneos.eventsourcing.Aggregate
     static class NotValidatableAggregate {
-        static { NotValidatableAggregate.mixin(EventSourcing) }
         static aggregateName = AGGREGATE_NAME
 
         final UUID id
@@ -200,6 +199,7 @@ class UnitOfWorkTest {
         }
     }
 
+    @de.oneos.eventsourcing.Aggregate
     static class Aggregate extends NotValidatableAggregate {
         Aggregate(UUID id) { super(id) }
     }
@@ -208,16 +208,16 @@ class UnitOfWorkTest {
         new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened(), attributes['sequenceNumber'], NO_CORRELATION_ID, USER_UNKNOWN)
     }
 
+    @de.oneos.eventsourcing.Aggregate
     static class InvalidAggregate implements Validatable<InvalidAggregate> {
-        static { InvalidAggregate.mixin(EventSourcing) }
         static String aggregateName = 'Invalid Aggregate'
         boolean isValid() { return false }
         String validationMessage() { return 'will never be valid' }
         String toString() { 'InvalidAggregate' }
     }
 
+    @de.oneos.eventsourcing.Aggregate
     static class ValidAggregate implements Validatable<ValidAggregate> {
-        static { ValidAggregate.mixin(EventSourcing) }
         static String aggregateName = 'Valid Aggregate'
         boolean isValid() { return true }
         String validationMessage() { if(isValid()) return ''; throw new IllegalStateException('Should always be valid') }
