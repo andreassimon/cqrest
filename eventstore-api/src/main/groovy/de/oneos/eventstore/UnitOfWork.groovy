@@ -55,11 +55,7 @@ class UnitOfWork {
     }
 
     protected updateVersion(aggregate, Collection<EventEnvelope> eventEnvelopes) {
-        setVersion(aggregate, maximumSequenceNumber(eventEnvelopes))
-    }
-
-    protected setVersion(aggregate, calculatedVersion) {
-        aggregate.setVersion(calculatedVersion)
+        aggregate.setVersion(maximumSequenceNumber(eventEnvelopes))
     }
 
     protected static maximumSequenceNumber(Collection<EventEnvelope> eventEnvelopes) {
@@ -85,29 +81,25 @@ class UnitOfWork {
 
     void eachEventEnvelope(Closure callback) throws ValidationException {
         attachedAggregates.
-            findAll { !((Collection)it.newEvents).empty }.
+            findAll { !((Collection)it.getNewEvents()).empty }.
             findAll { Validatable.isAssignableFrom(it.getClass()) }.
             findAll { Validatable it -> !it.isValid() }.
             each { Validatable it -> throw new ValidationException(it, it.validationMessage()) }
 
         attachedAggregates.collect { aggregate ->
-            aggregate.newEvents.inject([]) { List eventEnvelopes, Event newEvent ->
+            aggregate.getNewEvents().inject([]) { List eventEnvelopes, Event newEvent ->
                 eventEnvelopes + new EventEnvelope(
                     this.applicationName,
                     this.boundedContextName,
                     aggregate.aggregateName,
                     aggregate.id,
                     newEvent,
-                    version(aggregate) + 1 + eventEnvelopes.size(),
+                    aggregate.getVersion() + 1 + eventEnvelopes.size(),
                     this.correlationId,
                     this.user
                 )
             }
         }.flatten().each { callback(it) }
-    }
-
-    protected version(aggregate) {
-        aggregate.getVersion()
     }
 
     void flush() {
