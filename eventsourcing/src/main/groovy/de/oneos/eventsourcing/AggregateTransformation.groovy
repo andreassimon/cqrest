@@ -92,7 +92,7 @@ class AggregateTransformation implements ASTTransformation {
     MethodNode emitEvents(ClassNode parentClass) {
         VariableScope methodScope = new VariableScope()
         def builder = new AstBuilder()
-        final List<Statement> block = builder.buildFromSpec {
+        final List<BlockStatement> block = builder.buildFromSpec {
             block {
                 expression {
                     methodCall {
@@ -113,7 +113,7 @@ class AggregateTransformation implements ASTTransformation {
                     }
                 }
             }
-        } as List<Statement>
+        } as List<BlockStatement>
         def method = new MethodNode(
             'emit',
             MethodNode.ACC_PUBLIC,
