@@ -1,6 +1,7 @@
 package de.oneos.eventsourcing
 
 import org.codehaus.groovy.ast.*
+import org.codehaus.groovy.ast.builder.*
 import org.codehaus.groovy.ast.expr.*
 import org.codehaus.groovy.ast.stmt.*
 import org.codehaus.groovy.control.*
@@ -90,13 +91,29 @@ class AggregateTransformation implements ASTTransformation {
 
     MethodNode emitEvents(ClassNode parentClass) {
         VariableScope methodScope = new VariableScope()
-        final BlockStatement block = new BlockStatement(
-            [
-                callMethod(field(_newEvents(parentClass)), 'add', event()),
-                callMethod(event(), 'applyTo', thiz())
-            ],
-            new VariableScope(methodScope)
-        )
+        def builder = new AstBuilder()
+        final List<Statement> block = builder.buildFromSpec {
+            block {
+                expression {
+                    methodCall {
+                        variable '_newEvents'
+                        constant 'add'
+                        argumentList {
+                            variable 'event'
+                        }
+                    }
+                }
+                expression {
+                    methodCall {
+                        variable 'event'
+                        constant 'applyTo'
+                        argumentList {
+                            variable 'this'
+                        }
+                    }
+                }
+            }
+        } as List<Statement>
         def method = new MethodNode(
             'emit',
             MethodNode.ACC_PUBLIC,
@@ -105,7 +122,7 @@ class AggregateTransformation implements ASTTransformation {
             noExceptions(),
             new BlockStatement(
                 [
-                    callMethod(events(), 'each', wrapInClosure(block, new VariableScope(methodScope), parentClass)),
+                    callMethod(events(), 'each', wrapInClosure(block.first(), new VariableScope(methodScope), parentClass)),
                     returnResult(thiz())
                 ],
                 methodScope
