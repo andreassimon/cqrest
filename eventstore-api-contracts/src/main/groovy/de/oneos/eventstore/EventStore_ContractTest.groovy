@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.*
 
 import de.oneos.eventsourcing.*
 
-
 abstract class EventStore_ContractTest {
     static final String APPLICATION_NAME = 'APPLICATION_NAME'
     static final String BOUNDED_CONTEXT_NAME = 'BOUNDED_CONTEXT_NAME'
@@ -300,8 +299,8 @@ abstract class EventStore_ContractTest {
     }
 
 
+    @de.oneos.eventsourcing.Aggregate
     static class Aggregate {
-        static { Aggregate.mixin(EventSourcing) }
         static aggregateName = AGGREGATE_NAME
 
         final UUID id
