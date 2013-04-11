@@ -21,13 +21,27 @@ class AggregateTransformation implements ASTTransformation {
         classes.findAll { ClassNode clazz ->
             clazz.getAnnotations(new ClassNode(Aggregate))
         }.each { ClassNode aggregate ->
-            aggregate.addField(_version(aggregate))
-            aggregate.addField(_newEvents(aggregate))
-            aggregate.addMethod(versionGetter(aggregate))
-            aggregate.addMethod(versionSetter(aggregate))
-            aggregate.addMethod(newEventsGetter(aggregate))
-            aggregate.addMethod(emitEvents(aggregate))
-            aggregate.addMethod(flushEvents(aggregate))
+            if(aggregate.getField('_version') == null) {
+                aggregate.addField(_version(aggregate))
+            }
+            if(aggregate.getField('_newEvents') == null) {
+                aggregate.addField(_newEvents(aggregate))
+            }
+            if(aggregate.getMethods('getVersion').empty) {
+                aggregate.addMethod(versionGetter(aggregate))
+            }
+            if(aggregate.getMethods('setVersion').empty) {
+                aggregate.addMethod(versionSetter(aggregate))
+            }
+            if(aggregate.getMethods('getNewEvents').empty) {
+                aggregate.addMethod(newEventsGetter(aggregate))
+            }
+            if(aggregate.getMethods('emit').empty) {
+                aggregate.addMethod(emitEvents(aggregate))
+            }
+            if(aggregate.getMethods('flushEvents').empty) {
+                aggregate.addMethod(flushEvents(aggregate))
+            }
         }
     }
 
