@@ -22,7 +22,11 @@ class CombinedEventClassResolver implements EventClassResolver {
     @Override
     Class<? extends Event> resolveEvent(String eventName) {
         resolvers.findResult {
-            return it.resolveEvent(eventName)
+            try {
+                return it.resolveEvent(eventName)
+            } catch(ClassNotFoundException e) {
+                return null
+            }
         }
     }
 

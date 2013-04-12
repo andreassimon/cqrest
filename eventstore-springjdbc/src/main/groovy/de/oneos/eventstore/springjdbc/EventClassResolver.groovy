@@ -5,6 +5,6 @@ import de.oneos.eventsourcing.Event
 
 interface EventClassResolver {
 
-    Class<? extends Event> resolveEvent(String eventName)
+    Class<? extends Event> resolveEvent(String eventName) throws ClassNotFoundException
 
 }
