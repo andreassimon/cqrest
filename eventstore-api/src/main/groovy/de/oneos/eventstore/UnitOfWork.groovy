@@ -45,17 +45,13 @@ class UnitOfWork {
 
         def aggregate = newAggregateInstance(aggregateClass, aggregateId, eventEnvelopes)
         attach(aggregate)
-        updateVersion(aggregate, eventEnvelopes)
+        aggregate.setVersion(maximumSequenceNumber(eventEnvelopes))
 
         return aggregate
     }
 
     protected newAggregateInstance(Class aggregateClass, UUID aggregateId, List<EventEnvelope> eventEnvelopes) {
         aggregateFactory.newInstance(aggregateClass, aggregateId, eventEnvelopes.collect { it.event })
-    }
-
-    protected updateVersion(aggregate, Collection<EventEnvelope> eventEnvelopes) {
-        aggregate.setVersion(maximumSequenceNumber(eventEnvelopes))
     }
 
     protected static maximumSequenceNumber(Collection<EventEnvelope> eventEnvelopes) {
