@@ -1,7 +1,5 @@
 package de.oneos.eventstore
 
-import static java.util.Collections.*
-
 import de.oneos.eventsourcing.*
 import de.oneos.validation.*
 
@@ -43,19 +41,23 @@ class UnitOfWork {
     public <A> A get(Class<A> aggregateClass, UUID aggregateId) {
         List<EventEnvelope> eventEnvelopes = loadEventEnvelopes(aggregateId)
 
-        def aggregate = newAggregateInstance(aggregateClass, aggregateId, eventEnvelopes)
+        if(eventEnvelopes.empty) {
+            throw new AggregateNotFoundException(aggregateClass, aggregateId)
+        }
+
+        A aggregate = newAggregateInstance(aggregateClass, aggregateId, eventEnvelopes)
         attach(aggregate)
         aggregate.setVersion(maximumSequenceNumber(eventEnvelopes))
 
         return aggregate
     }
 
-    protected newAggregateInstance(Class aggregateClass, UUID aggregateId, List<EventEnvelope> eventEnvelopes) {
+    protected <A> A newAggregateInstance(Class<A> aggregateClass, UUID aggregateId, List<EventEnvelope> eventEnvelopes) {
         aggregateFactory.newInstance(aggregateClass, aggregateId, eventEnvelopes.collect { it.event })
     }
 
     protected static maximumSequenceNumber(Collection<EventEnvelope> eventEnvelopes) {
-        eventEnvelopes.inject(-1) { int maximumSequenceNumber, envelope -> Math.max(maximumSequenceNumber, envelope.sequenceNumber) }
+        eventEnvelopes.max { it.sequenceNumber }.sequenceNumber
     }
 
     protected loadEventEnvelopes(UUID aggregateId) {

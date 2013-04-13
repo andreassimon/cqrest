@@ -116,6 +116,12 @@ class UnitOfWorkTest {
         assertThat aggregate.newEvents, empty()
     }
 
+    @Test(expected = AggregateNotFoundException)
+    void should_throw_Exception_when_aggregate_cannot_be_found() {
+        when(eventStore.loadEventEnvelopes(AGGREGATE_ID)).then(answer { [] })
+
+        unitOfWork.get(Aggregate, AGGREGATE_ID)
+    }
 
     @Test
     void should_create_aggregate_instances_with_AggregateFactory() {
