@@ -83,9 +83,7 @@ class InMemoryEventStore implements EventStore {
     }
 
     @Override
-    String toString() {
-        "InMemoryEventStore[application:'$application', boundedContext:'$boundedContext']"
-    }
+    String toString() { "InMemoryEventStore" }
 
 }
 
