@@ -209,18 +209,15 @@ ${whereClause(criteria)}
         )
     }
 
+    protected final static Map<String, String> CONDITIONS = [
+        aggregateName: 'aggregate_name = ?',
+        aggregateId: 'aggregate_id = ?',
+        eventName:   'event_name = ?'
+    ]
+
     protected whereClause(Map<String, ?> criteria) {
-        if (criteria.isEmpty()) {
-            return ''
-        }
-        'WHERE ' +
-            criteria.collect { attribute, constrainedValue ->
-                switch (attribute) {
-                    case 'aggregateId': return 'aggregate_id = ?'
-                    case 'eventName':   return 'event_name = ?'
-                    default: return 'false'
-                }
-            }.join(' AND ')
+        if (criteria.isEmpty()) { return '' }
+        'WHERE ' + criteria.collect { attribute, _ -> CONDITIONS[attribute] }.join(' AND ')
     }
 
     protected Event buildEvent(String eventName, Map eventAttributes) {

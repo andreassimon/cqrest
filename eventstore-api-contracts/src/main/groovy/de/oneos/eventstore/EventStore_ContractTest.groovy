@@ -11,10 +11,11 @@ import static org.hamcrest.Matchers.*
 import de.oneos.eventsourcing.*
 
 abstract class EventStore_ContractTest {
-    static final String APPLICATION_NAME = 'APPLICATION_NAME'
-    static final String BOUNDED_CONTEXT_NAME = 'BOUNDED_CONTEXT_NAME'
-    static UUID AGGREGATE_ID = randomUUID()
-    static UUID ANOTHER_AGGREGATE_ID = randomUUID()
+    static final String APPLICATION_NAME = 'APPLICATION'
+    static final String BOUNDED_CONTEXT_NAME = 'BOUNDED CONTEXT'
+    static UUID ORDER_ID = UUID.fromString('836ed0d1-e87f-4d70-80f3-7aa44d00ed5d')
+    static UUID ANOTHER_ORDER_ID = UUID.fromString('92bc8efe-0f5e-42f7-8dd6-3029d2d1a4eb')
+    static UUID CUSTOMER_ID = UUID.fromString('3faeb1ad-6d46-458e-9b77-ee3a6e0ff3ce')
     static UUID NO_CORRELATION_ID = null
     static String USER_UNKNOWN = null
 
@@ -25,7 +26,7 @@ abstract class EventStore_ContractTest {
         APPLICATION_NAME,
         BOUNDED_CONTEXT_NAME,
         Order.aggregateName,
-        AGGREGATE_ID,
+        ORDER_ID,
         new Order_line_was_added(),
         NO_CORRELATION_ID,
         USER_UNKNOWN
@@ -35,10 +36,6 @@ abstract class EventStore_ContractTest {
     Closure<Object> eventFactory
 
     void setUp() {
-        while(ANOTHER_AGGREGATE_ID == AGGREGATE_ID) {
-            ANOTHER_AGGREGATE_ID = randomUUID()
-        }
-
         eventPublisher = mock(EventPublisher)
 
         defectiveEventPublisher = mock(EventPublisher, 'defectiveEventPublisher')
@@ -66,11 +63,11 @@ abstract class EventStore_ContractTest {
     void should_persist_the_correlationId() {
         UUID correlationId = randomUUID()
         def unitOfWork = new UnitOfWork(eventStore, APPLICATION_NAME, BOUNDED_CONTEXT_NAME, correlationId, USER_UNKNOWN)
-        Order aggregate = unitOfWork.attach(new Order(AGGREGATE_ID))
+        Order aggregate = unitOfWork.attach(new Order(ORDER_ID))
         aggregate.emit(new Order_line_was_added())
         eventStore.commit(unitOfWork)
 
-        def envelopes = eventStore.loadEventEnvelopes(AGGREGATE_ID)
+        def envelopes = eventStore.loadEventEnvelopes(ORDER_ID)
 
         envelopes.each { EventEnvelope envelope ->
             assertThat envelope.correlationId, equalTo(correlationId)
@@ -81,11 +78,11 @@ abstract class EventStore_ContractTest {
     void should_persist_the_user() {
         String user = 'a.simon@quagilis.de'
         def unitOfWork = new UnitOfWork(eventStore, APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, user)
-        Order aggregate = unitOfWork.attach(new Order(AGGREGATE_ID))
+        Order aggregate = unitOfWork.attach(new Order(ORDER_ID))
         aggregate.emit(new Order_line_was_added())
         eventStore.commit(unitOfWork)
 
-        def envelopes = eventStore.loadEventEnvelopes(AGGREGATE_ID)
+        def envelopes = eventStore.loadEventEnvelopes(ORDER_ID)
 
         envelopes.each { EventEnvelope envelope ->
             assertThat envelope.user, equalTo(user)
@@ -94,8 +91,8 @@ abstract class EventStore_ContractTest {
 
 
     protected unitOfWork(Map eventCoordinates = [:], List<Event> events) {
-        def unitOfWork = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN)
-        Order aggregate = new Order(AGGREGATE_ID)
+        def unitOfWork = createUnitOfWork()
+        Order aggregate = new Order(ORDER_ID)
         unitOfWork.attach(aggregate)
         events.each { aggregate.emit(it) }
         unitOfWork
@@ -105,7 +102,7 @@ abstract class EventStore_ContractTest {
         [new Order_line_was_added(article: 'Teddy Bear')]
     }
 
-    protected history(EventStore eventStore, aggregateId = AGGREGATE_ID) {
+    protected history(EventStore eventStore, aggregateId = ORDER_ID) {
         eventStore.loadEventEnvelopes(aggregateId).collect { it.event }
     }
 
@@ -124,7 +121,7 @@ abstract class EventStore_ContractTest {
         def unitOfWork_2 = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN)
 
         [unitOfWork_1, unitOfWork_2].each { unitOfWork ->
-            Order aggregate = new Order(AGGREGATE_ID)
+            Order aggregate = new Order(ORDER_ID)
             unitOfWork.attach(aggregate)
             aggregate.emit(new Order_line_was_added())
         }
@@ -136,29 +133,29 @@ abstract class EventStore_ContractTest {
 
     @Test
     void should_filter_matching_EventEnvelopes_from_history() {
-        def unitOfWork = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN)
+        def unitOfWork = createUnitOfWork()
         unitOfWork.attach(
-            new Order(AGGREGATE_ID).emit(new Order_line_was_added())
+            new Order(ORDER_ID).emit(new Order_line_was_added())
         )
         unitOfWork.attach(
-            new Order(ANOTHER_AGGREGATE_ID).emit(new Order_line_was_added())
+            new Order(ANOTHER_ORDER_ID).emit(new Order_line_was_added())
         )
 
         eventStore.commit(unitOfWork)
 
-        assertThat eventStore.loadEventEnvelopes(AGGREGATE_ID).collect { it.event }, equalTo([
+        assertThat eventStore.loadEventEnvelopes(ORDER_ID).collect { it.event }, equalTo([
             new Order_line_was_added()
         ])
     }
 
     @Test
     void should_find_EventEnvelopes_by_aggregate_id() {
-        def unitOfWork = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN)
-        unitOfWork.attach(new Order(AGGREGATE_ID)).emit(new Order_line_was_added())
-        unitOfWork.attach(new Order(ANOTHER_AGGREGATE_ID)).emit(new Order_line_was_added())
+        def unitOfWork = createUnitOfWork()
+        unitOfWork.attach(new Order(ORDER_ID)).emit(new Order_line_was_added())
+        unitOfWork.attach(new Order(ANOTHER_ORDER_ID)).emit(new Order_line_was_added())
         eventStore.commit(unitOfWork)
 
-        def actual = eventStore.findAll(aggregateId: AGGREGATE_ID)
+        def actual = eventStore.findAll(aggregateId: ORDER_ID)
 
         assertThat actual.collect { it.event }, equalTo([
             new Order_line_was_added()
@@ -167,23 +164,37 @@ abstract class EventStore_ContractTest {
 
     @Test
     void should_find_EventEnvelopes_by_event_name() {
-        def unitOfWork = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN)
-        unitOfWork.attach(new Order(AGGREGATE_ID)).emit(new Order_line_was_added())
-        unitOfWork.attach(new Order(ANOTHER_AGGREGATE_ID)).emit(new Order_line_was_added())
+        def unitOfWork = createUnitOfWork()
+        unitOfWork.attach(new Order(ORDER_ID)).emit(new Order_line_was_added())
+        unitOfWork.attach(new Order(ANOTHER_ORDER_ID)).emit(new Order_line_was_added())
         eventStore.commit(unitOfWork)
 
         def actual = eventStore.findAll(eventName: new Order_line_was_added().eventName)
 
         assertThat actual, equalTo([
-            new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, Order.aggregateName,         AGGREGATE_ID, new Order_line_was_added(), NO_CORRELATION_ID, USER_UNKNOWN),
-            new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, Order.aggregateName, ANOTHER_AGGREGATE_ID, new Order_line_was_added(), NO_CORRELATION_ID, USER_UNKNOWN),
+            new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, Order.aggregateName,         ORDER_ID, new Order_line_was_added(), NO_CORRELATION_ID, USER_UNKNOWN),
+            new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, Order.aggregateName, ANOTHER_ORDER_ID, new Order_line_was_added(), NO_CORRELATION_ID, USER_UNKNOWN),
         ])
     }
 
-    @Ignore
     @Test
     void should_find_EventEnvelopes_by_aggregate_name() {
+        UnitOfWork unitOfWork = createUnitOfWork()
+        unitOfWork.attach(new Order(ORDER_ID)).emit(new Order_line_was_added())
+        unitOfWork.attach(new Order(ANOTHER_ORDER_ID)).emit(new Order_line_was_added())
+        unitOfWork.attach(new Customer(CUSTOMER_ID)).emit(premium_state_assigned())
+        eventStore.commit(unitOfWork)
 
+        def actual = eventStore.findAll(aggregateName: Order.aggregateName)
+
+        assertThat actual, equalTo([
+            new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, Order.aggregateName,         ORDER_ID, new Order_line_was_added(), NO_CORRELATION_ID, USER_UNKNOWN),
+            new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, Order.aggregateName, ANOTHER_ORDER_ID, new Order_line_was_added(), NO_CORRELATION_ID, USER_UNKNOWN),
+        ])
+    }
+
+    protected UnitOfWork createUnitOfWork() {
+        eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN)
     }
 
     @Test
@@ -192,12 +203,12 @@ abstract class EventStore_ContractTest {
         def unitOfWork_2 = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN)
 
         unitOfWork_1.with {
-            attach(new Order(AGGREGATE_ID).emit(new Order_line_was_added()))
+            attach(new Order(ORDER_ID).emit(new Order_line_was_added()))
         }
 
         unitOfWork_2.with {
-            attach(new Order(ANOTHER_AGGREGATE_ID).emit(new Order_line_was_added()))
-            attach(new Order(AGGREGATE_ID).emit(new Order_line_was_added()))
+            attach(new Order(ANOTHER_ORDER_ID).emit(new Order_line_was_added()))
+            attach(new Order(ORDER_ID).emit(new Order_line_was_added()))
         }
 
         eventStore.commit(unitOfWork_1)
@@ -205,19 +216,19 @@ abstract class EventStore_ContractTest {
             eventStore.commit(unitOfWork_2)
         }
 
-        assertThat history(eventStore, ANOTHER_AGGREGATE_ID), empty()
+        assertThat history(eventStore, ANOTHER_ORDER_ID), empty()
     }
 
     @Test
     void should_execute_closure_in_unit_of_work() {
         eventStore.inUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, {
-            Order aggregate = new Order(AGGREGATE_ID)
+            Order aggregate = new Order(ORDER_ID)
             aggregate.emit(new Order_line_was_added())
             aggregate.emit(new Order_line_was_added())
             attach(aggregate)
         })
 
-        assertThat history(eventStore, AGGREGATE_ID), equalTo([
+        assertThat history(eventStore, ORDER_ID), equalTo([
             new Order_line_was_added(),
             new Order_line_was_added()
         ])
@@ -300,7 +311,7 @@ abstract class EventStore_ContractTest {
 
     @Aggregate
     static class Order {
-        static aggregateName = 'AGGREGATE_NAME'
+        static aggregateName = 'Order'
 
         final UUID id
 
@@ -313,6 +324,25 @@ abstract class EventStore_ContractTest {
 
         @Override
         void applyTo(Order order) { }
+    }
+
+
+    @Aggregate
+    static class Customer {
+        static aggregateName = 'Customer'
+
+        final UUID id
+
+        Customer(UUID id) { this.id = id }
+    }
+
+    static Customer_was_assigned_premium_state premium_state_assigned() {
+        return new Customer_was_assigned_premium_state()
+    }
+
+    static class Customer_was_assigned_premium_state extends BaseEvent<Customer> {
+        @Override
+        void applyTo(Customer aggregate) {  }
     }
 
 }
