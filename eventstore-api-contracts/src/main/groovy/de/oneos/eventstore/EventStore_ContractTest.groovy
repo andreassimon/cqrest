@@ -155,16 +155,13 @@ abstract class EventStore_ContractTest {
     @Test
     void should_find_EventEnvelopes_by_aggregate_id() {
         def unitOfWork = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN)
-        unitOfWork.attach(
-            new Aggregate(AGGREGATE_ID).emit(new Business_event_happened())
-        )
-        unitOfWork.attach(
-            new Aggregate(ANOTHER_AGGREGATE_ID).emit(new Business_event_happened())
-        )
-
+        unitOfWork.attach(new Aggregate(AGGREGATE_ID)).emit(new Business_event_happened())
+        unitOfWork.attach(new Aggregate(ANOTHER_AGGREGATE_ID)).emit(new Business_event_happened())
         eventStore.commit(unitOfWork)
 
-        assertThat eventStore.findAll(aggregateId: AGGREGATE_ID).collect { it.event }, equalTo([
+        def actual = eventStore.findAll(aggregateId: AGGREGATE_ID)
+
+        assertThat actual.collect { it.event }, equalTo([
             new Business_event_happened()
         ])
     }
@@ -172,16 +169,13 @@ abstract class EventStore_ContractTest {
     @Test
     void should_find_EventEnvelopes_by_event_name() {
         def unitOfWork = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN)
-        unitOfWork.attach(
-            new Aggregate(AGGREGATE_ID).emit(new Business_event_happened())
-        )
-        unitOfWork.attach(
-            new Aggregate(ANOTHER_AGGREGATE_ID).emit(new Business_event_happened())
-        )
-
+        unitOfWork.attach(new Aggregate(AGGREGATE_ID)).emit(new Business_event_happened())
+        unitOfWork.attach(new Aggregate(ANOTHER_AGGREGATE_ID)).emit(new Business_event_happened())
         eventStore.commit(unitOfWork)
 
-        assertThat eventStore.findAll(eventName: new Business_event_happened().eventName), equalTo([
+        def actual = eventStore.findAll(eventName: new Business_event_happened().eventName)
+
+        assertThat actual, equalTo([
             new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME,         AGGREGATE_ID, new Business_event_happened(), NO_CORRELATION_ID, USER_UNKNOWN),
             new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, ANOTHER_AGGREGATE_ID, new Business_event_happened(), NO_CORRELATION_ID, USER_UNKNOWN),
         ])
