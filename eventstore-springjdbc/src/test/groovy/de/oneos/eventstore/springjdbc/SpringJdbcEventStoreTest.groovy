@@ -11,7 +11,6 @@ import javax.sql.*
 import org.springframework.jdbc.core.*
 
 import de.oneos.eventstore.*
-import static de.oneos.eventstore.springjdbc.SpringJdbcEventStore.*
 
 
 class SpringJdbcEventStoreTest extends EventStore_ContractTest {
@@ -39,7 +38,7 @@ class SpringJdbcEventStoreTest extends EventStore_ContractTest {
 
         eventStore = new SpringJdbcEventStore(
             dataSource: dataSource,
-            eventClassResolver: new MapBasedEventClassResolver(eventMap: ['Business event happened': EventStore_ContractTest.Business_event_happened])
+            eventClassResolver: new MapBasedEventClassResolver(eventMap: [(new EventStore_ContractTest.Order_line_was_added().eventName): EventStore_ContractTest.Order_line_was_added])
         )
 
         eventStore.createTable()
