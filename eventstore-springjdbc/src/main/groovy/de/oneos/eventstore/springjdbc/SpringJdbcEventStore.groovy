@@ -116,7 +116,14 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
 
     @Override
     void setPublishers(List<EventPublisher> eventPublishers) {
+        assert null != eventPublishers
         this.publishers = eventPublishers
+    }
+
+    @Override
+    void addPublisher(EventPublisher eventPublisher) {
+        assert null != eventPublisher
+        publishers.add(eventPublisher)
     }
 
     @Override

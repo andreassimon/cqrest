@@ -12,7 +12,14 @@ class InMemoryEventStore implements EventStore {
 
     @Override
     void setPublishers(List<EventPublisher> eventPublishers) {
+        assert null != eventPublishers
         this.eventPublishers = eventPublishers
+    }
+
+    @Override
+    void addPublisher(EventPublisher eventPublisher) {
+        assert null != eventPublisher
+        eventPublishers.add(eventPublisher)
     }
 
     @Override
