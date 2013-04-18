@@ -181,6 +181,12 @@ abstract class EventStore_ContractTest {
         ])
     }
 
+    @Ignore
+    @Test
+    void should_find_EventEnvelopes_by_aggregate_name() {
+
+    }
+
     @Test
     void should_not_persist_any_event_if_there_are_collisions_in_UnitOfWork() {
         def unitOfWork_1 = eventStore.createUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN)
