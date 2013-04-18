@@ -37,19 +37,23 @@ class InMemoryEventStore implements EventStore {
 
     @Override
     void commit(UnitOfWork unitOfWork) throws IllegalArgumentException, EventCollisionOccurred {
-        unitOfWork.eachEventEnvelope { EventEnvelope it ->
-            AssertEventEnvelope.isValid(it)
-            assertIsUnique(it)
-        }
-        unitOfWork.eachEventEnvelope {
-            history << it
-            eventPublishers.each { publisher ->
-                try {
-                    publisher.publish(it)
-                } catch (all) { }
-            }
-        }
+        unitOfWork.eachEventEnvelope validateEnvelope
+        unitOfWork.eachEventEnvelope saveEnvelope
         unitOfWork.flush()
+    }
+
+    protected Closure validateEnvelope = { EventEnvelope it ->
+        AssertEventEnvelope.isValid(it)
+        assertIsUnique(it)
+    }
+
+    protected Closure saveEnvelope = { eventEnvelope ->
+        history << eventEnvelope
+        eventPublishers.each { publisher ->
+            try {
+                publisher.publish(eventEnvelope)
+            } catch(all) { }
+        }
     }
 
     void addEventEnvelope(UUID aggregateId, String application, String boundedContext, Event event, int sequenceNumber, String user) {
@@ -61,9 +65,8 @@ class InMemoryEventStore implements EventStore {
             NO_CORRELATION_ID,
             USER_UNKNOWN
         )
-        AssertEventEnvelope.isValid(newEnvelope)
-        assertIsUnique(newEnvelope)
-        history << newEnvelope
+        validateEnvelope.call(newEnvelope)
+        saveEnvelope.call(newEnvelope)
     }
 
     protected assertIsUnique(EventEnvelope eventEnvelope) {
