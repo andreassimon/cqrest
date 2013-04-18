@@ -16,6 +16,8 @@ class FunctionalProjection implements Projection {
 
     @Override
     boolean equals(Object that) {
+        null != that &&
+        this.getClass() == that.getClass() &&
         this.eventFilter == that.eventFilter &&
         this.function == that.function
     }

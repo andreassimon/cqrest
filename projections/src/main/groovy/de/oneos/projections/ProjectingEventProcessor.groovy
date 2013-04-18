@@ -10,7 +10,7 @@ class ProjectingEventProcessor implements EventProcessor {
     static Log log = LogFactory.getLog(ProjectingEventProcessor)
 
     Readmodels readmodels
-    List projections = []
+    List<Projection> projections = []
 
     def subscribeForEventsAt(EventSupplier eventSupplier) {
         projections.each {
@@ -30,7 +30,7 @@ class ProjectingEventProcessor implements EventProcessor {
             it.applyTo(readmodels, event)
             numberOfFunctionCalls++
         }
-        log.debug "${this.toString()} applied $numberOfFunctionCalls functions to $event"
+        log.debug "${this.toString()} applied $numberOfFunctionCalls projections to $event"
     }
 
     @Override
