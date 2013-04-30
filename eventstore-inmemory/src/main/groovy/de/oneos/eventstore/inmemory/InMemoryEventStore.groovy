@@ -85,9 +85,12 @@ class InMemoryEventStore implements EventStore {
 
     @Override
     List<EventEnvelope> findAll(Map<String, ?> criteria) {
-        return history.findAll {
+        return history.findAll { eventEnvelope ->
             criteria.every { attribute, value ->
-                value == it[attribute]
+                if(value instanceof Collection) {
+                    return value.contains(eventEnvelope[attribute])
+                }
+                value == eventEnvelope[attribute]
             }
         }
     }
