@@ -52,6 +52,9 @@ class ExpectationsCollector {
     }
 
     void event(UUID aggregateId, int sequenceNumber, Event event) {
+        assert null != aggregateId
+        assert null != event
+
         expectedEvents << new RecordedEvent(
             aggregateId: aggregateId,
             sequenceNumber: sequenceNumber,
