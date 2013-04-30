@@ -38,7 +38,7 @@ class SpringJdbcEventStoreTest extends EventStore_ContractTest {
 
         eventStore = new SpringJdbcEventStore(
             dataSource: dataSource,
-            eventClassResolver: new MapBasedEventClassResolver(eventMap: [(new EventStore_ContractTest.Order_line_was_added().eventName): EventStore_ContractTest.Order_line_was_added])
+            eventClassResolver: new MapBasedEventClassResolver(eventMap: [order_line_was_added(), order_line_was_removed()].collectEntries { [ (it.eventName): it.getClass() ] } )
         )
 
         eventStore.createTable()

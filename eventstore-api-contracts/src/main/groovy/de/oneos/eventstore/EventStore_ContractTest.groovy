@@ -178,6 +178,21 @@ abstract class EventStore_ContractTest {
     }
 
     @Test
+    void should_find_EventEnvelopes_by_multiple_event_names() {
+        def unitOfWork = createUnitOfWork()
+        unitOfWork.attach(new Order(ORDER_ID)).emit(new Order_line_was_added())
+        unitOfWork.attach(new Order(ANOTHER_ORDER_ID)).emit(new Order_line_was_removed())
+        eventStore.commit(unitOfWork)
+
+        def actual = eventStore.findAll(eventName: [new Order_line_was_added().eventName, new Order_line_was_removed().eventName])
+
+        assertThat actual, equalTo([
+            new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, Order.aggregateName,         ORDER_ID, new Order_line_was_added(),   NO_CORRELATION_ID, USER_UNKNOWN),
+            new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, Order.aggregateName, ANOTHER_ORDER_ID, new Order_line_was_removed(), NO_CORRELATION_ID, USER_UNKNOWN),
+        ])
+    }
+
+    @Test
     void should_find_EventEnvelopes_by_aggregate_name() {
         UnitOfWork unitOfWork = createUnitOfWork()
         unitOfWork.attach(new Order(ORDER_ID)).emit(new Order_line_was_added())
@@ -326,6 +341,21 @@ abstract class EventStore_ContractTest {
         void applyTo(Order order) { }
     }
 
+    static class Order_line_was_removed extends BaseEvent<Order> {
+        // Having an attribute is important to test deserialization
+        String article
+
+        @Override
+        void applyTo(Order order) { }
+    }
+
+    protected Order_line_was_removed order_line_was_removed() {
+        new Order_line_was_removed()
+    }
+
+    protected Order_line_was_added order_line_was_added() {
+        new Order_line_was_added()
+    }
 
     @Aggregate
     static class Customer {

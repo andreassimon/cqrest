@@ -11,9 +11,11 @@ import de.oneos.eventstore.*
 
 import org.springframework.dao.*
 import org.springframework.jdbc.core.*
+import org.springframework.jdbc.core.namedparam.*
 import org.springframework.jdbc.datasource.*
 
 import org.springframework.transaction.support.*
+import sun.misc.REException
 
 
 class SpringJdbcEventStore implements EventStore {
@@ -59,12 +61,14 @@ INSERT INTO ${TABLE_NAME} (
     JsonSlurper json = new JsonSlurper()
 
     JdbcOperations jdbcTemplate
+    NamedParameterJdbcTemplate namedParameterJdbcTemplate
     TransactionTemplate transactionTemplate
     EventClassResolver eventClassResolver
     protected List<EventPublisher> publishers = []
 
     void setDataSource(DataSource dataSource) {
         jdbcTemplate = new JdbcTemplate(dataSource)
+        namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource)
         transactionTemplate =
             new TransactionTemplate(
                 new DataSourceTransactionManager(dataSource))
@@ -198,31 +202,44 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
 
     @Override
     List<EventEnvelope> findAll(Map<String, ?> criteria) {
-        jdbcTemplate.query("""\
+        namedParameterJdbcTemplate.query("""\
 SELECT *
 FROM ${TABLE_NAME}
-${whereClause(criteria)}
-;\
+${whereClause(criteria)};\
 """.toString(),
-            eventEnvelopeMapper,
-            criteria.values().toArray()
+            criteria,
+            eventEnvelopeMapper
         )
     }
 
-    protected final static Map<String, String> CONDITIONS = [
-        aggregateName: 'aggregate_name = ?',
-        aggregateId: 'aggregate_id = ?',
-        eventName:   'event_name = ?'
+    protected final static Map<String, String> COLUMN_NAME = [
+        aggregateName: 'aggregate_name',
+        aggregateId: 'aggregate_id',
+        eventName:   'event_name'
     ]
 
     protected whereClause(Map<String, ?> criteria) {
         if (criteria.isEmpty()) { return '' }
-        'WHERE ' + criteria.collect { attribute, _ -> CONDITIONS[attribute] }.join(' AND ')
+        'WHERE ' + criteria.collect { attribute, values -> condition(attribute, values) }.join(' AND ')
+    }
+
+    protected condition(String attribute, values) {
+        switch(values.getClass()) {
+            case [String, UUID]:
+                return "${COLUMN_NAME[attribute]} = :$attribute".toString()
+            case List:
+                return "event_name IN (:$attribute)".toString()
+            default:
+                throw new RuntimeException("Cannot transform ($attribute, ${values.getClass().simpleName}<$values>) to WHERE clause")
+        }
     }
 
     protected Event buildEvent(String eventName, Map eventAttributes) {
         // TODO How to deal with events that no class can be found for, e.g. inner classes?
         Class<? extends Event> eventClass = eventClassResolver.resolveEvent(eventName)
+        if(null == eventClass) {
+            throw new RuntimeException("Cannot resolve class for event '$eventName'")
+        }
         def deserializedEvent = eventClass.newInstance()
         eventAttributes.each { propertyName, rawValue ->
             deserializedEvent[propertyName] = rawValue
