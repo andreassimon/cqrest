@@ -20,13 +20,17 @@ class PreconditionsCollector {
         this.boundedContext = boundedContext
     }
 
+    ExpectationsCollector capture(Closure<?> preconditions) {
+        this.with(preconditions)
+        return new ExpectationsCollector(
+            this.eventStore,
+            this.eventStore.history.size(),
+            this.eventSequence
+        )
+    }
+
     void event(UUID aggregateId, Event givenEvent) {
         eventStore.addEventEnvelope(aggregateId, this.application, this.boundedContext, givenEvent, eventSequence.next(aggregateId), EventStore.USER_UNKNOWN)
     }
 
-    def getCollectedEvents() {
-        return [
-            size: eventStore.history.size()
-        ]
-    }
 }

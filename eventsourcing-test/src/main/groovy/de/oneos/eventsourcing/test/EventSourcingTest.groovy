@@ -8,9 +8,10 @@ import static de.oneos.eventstore.EventStore.*
 
 abstract class EventSourcingTest {
 
-    int numberOfGivenEvents = 0
     InMemoryEventStore eventStore
     String application, boundedContext
+    PreconditionsCollector preconditionsCollector
+    ExpectationsCollector expectationsCollector
 
     EventSourcingTest(String application, String boundedContext) {
         assert application != null
@@ -23,13 +24,11 @@ abstract class EventSourcingTest {
     @Before
     void setUp() {
         eventStore = new InMemoryEventStore()
-        numberOfGivenEvents = 0
+        preconditionsCollector = new PreconditionsCollector(eventStore, application, boundedContext)
     }
 
     protected given(Closure<?> preconditions) {
-        def collector = new PreconditionsCollector(eventStore, application, boundedContext)
-        collector.with preconditions
-        numberOfGivenEvents = collector.collectedEvents.size
+        expectationsCollector = preconditionsCollector.capture(preconditions)
     }
 
     protected when(Closure<?> action) {
@@ -41,8 +40,10 @@ abstract class EventSourcingTest {
     }
 
     protected then(Closure<?> expectations) {
-        def collector = new ExpectationsCollector(eventStore)
-        collector.assertAreMet(expectations, numberOfGivenEvents)
+        if(null == expectationsCollector) {
+            throw new AssertionError('Your test method must invoke `given { }` before invoking `then { }`')
+        }
+        expectationsCollector.assertAreMet(expectations)
     }
 
 }

@@ -7,13 +7,23 @@ import de.oneos.eventstore.inmemory.*
 class ExpectationsCollector {
 
     InMemoryEventStore eventStore
+    int numberOfGivenEvents
+    EventSequence eventSequence
+
     List<RecordedEvent> expectedEvents = []
 
-    ExpectationsCollector(InMemoryEventStore eventStore) {
+
+    ExpectationsCollector(InMemoryEventStore eventStore, int numberOfGivenEvents, EventSequence eventSequence) {
+        assert null != eventStore
+        assert numberOfGivenEvents >= 0
+        assert null != eventSequence
+
         this.eventStore = eventStore
+        this.numberOfGivenEvents = numberOfGivenEvents
+        this.eventSequence = eventSequence
     }
 
-    void assertAreMet(Closure<?> expectations, int numberOfGivenEvents) {
+    void assertAreMet(Closure<?> expectations) {
         this.with(expectations)
 
         List<RecordedEvent> actualEvents
@@ -51,14 +61,14 @@ class ExpectationsCollector {
         new EventStreamDiff(left, right).toString()
     }
 
-    void event(UUID aggregateId, int sequenceNumber, Event event) {
-        assert null != aggregateId
-        assert null != event
+    void event(UUID aggregate, Event expectedEvent) {
+        assert null != aggregate
+        assert null != expectedEvent
 
         expectedEvents << new RecordedEvent(
-            aggregateId: aggregateId,
-            sequenceNumber: sequenceNumber,
-            event: event
+            aggregateId: aggregate,
+            sequenceNumber: eventSequence.next(aggregate),
+            event: expectedEvent
         )
     }
 
