@@ -6,6 +6,7 @@ import de.oneos.eventstore.EventStore
 
 class PreconditionsCollector {
     InMemoryEventStore eventStore
+    Map<UUID, Integer> sequenceNumbers = [:]
 
     String application, boundedContext
 
@@ -19,8 +20,15 @@ class PreconditionsCollector {
         this.boundedContext = boundedContext
     }
 
-    void event(UUID aggregateId, int sequenceNumber, Event event) {
-        eventStore.addEventEnvelope(aggregateId, this.application, this.boundedContext, event, sequenceNumber, EventStore.USER_UNKNOWN)
+    void event(UUID aggregateId, Event givenEvent) {
+        eventStore.addEventEnvelope(aggregateId, this.application, this.boundedContext, givenEvent, nextSequenceNumber(aggregateId), EventStore.USER_UNKNOWN)
+    }
+
+    int nextSequenceNumber(UUID aggregateId) {
+        if(!sequenceNumbers.containsKey(aggregateId)) {
+            sequenceNumbers[aggregateId] = 0
+        }
+        sequenceNumbers[aggregateId]++
     }
 
     def getCollectedEvents() {
