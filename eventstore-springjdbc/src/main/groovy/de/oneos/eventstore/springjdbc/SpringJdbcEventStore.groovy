@@ -202,14 +202,20 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
 
     @Override
     List<EventEnvelope> findAll(Map<String, ?> criteria) {
-        namedParameterJdbcTemplate.query("""\
-SELECT *
-FROM ${TABLE_NAME}
-${whereClause(criteria)};\
-""".toString(),
+        namedParameterJdbcTemplate.query(
+            queryExpression(criteria),
             criteria,
             eventEnvelopeMapper
         )
+    }
+
+    protected String queryExpression(Map<String, ?> criteria) {
+        """\
+SELECT *
+FROM ${TABLE_NAME}
+${whereClause(criteria)}
+ORDER BY aggregate_id, sequence_number;\
+""".toString()
     }
 
     protected final static Map<String, String> COLUMN_NAME = [

@@ -192,6 +192,20 @@ abstract class EventStore_ContractTest {
         ])
     }
 
+    @Test
+    void should_order_events_by_sequence_number() {
+        def unitOfWork = createUnitOfWork()
+        unitOfWork.attach(new Order(ORDER_ID)).
+            emit(orderLineWasAdded()).
+            emit(orderLineWasRemoved()).
+            emit(orderLineWasAdded())
+        eventStore.commit(unitOfWork)
+
+        def actual = eventStore.findAll(eventName: [orderLineWasAdded().eventName, orderLineWasRemoved().eventName])
+
+        assertThat actual.collect { it.sequenceNumber }, equalTo([ 0, 1, 2 ])
+    }
+
     protected static Order_line_was_added orderLineWasAdded() {
         new Order_line_was_added()
     }
