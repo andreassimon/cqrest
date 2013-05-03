@@ -122,6 +122,7 @@ class AggregateTransformation implements ASTTransformation {
             noExceptions(),
             new BlockStatement(
                 [
+                    callMethod(thiz(), 'println', new ConstantExpression('WARNING! emit(Event[]) is deprecated. Migrate to emit(String, Map)')),
                     callMethod(events(), 'each', wrapInClosure(block.first(), new VariableScope(methodScope), parentClass)),
                     returnResult(thiz())
                 ],
