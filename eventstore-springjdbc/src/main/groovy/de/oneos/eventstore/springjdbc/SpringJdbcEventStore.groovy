@@ -242,6 +242,8 @@ ORDER BY aggregate_id, sequence_number;\
 
     protected Event buildEvent(String eventName, Map eventAttributes) {
         // TODO How to deal with events that no class can be found for, e.g. inner classes?
+        println('WARNING! Usage of interface `Event` is deprecated! <SpringJdbcEventStore.buildEvent(String, Map)>')
+        println("         Trying to build event object for `$eventName`!".toString())
         Class<? extends Event> eventClass = eventClassResolver.resolveEvent(eventName)
         if(null == eventClass) {
             throw new RuntimeException("Cannot resolve class for event '$eventName'")

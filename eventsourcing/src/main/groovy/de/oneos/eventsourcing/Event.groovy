@@ -1,5 +1,6 @@
 package de.oneos.eventsourcing
 
+@Deprecated
 public interface Event<AT> {
 
     public String getEventName()

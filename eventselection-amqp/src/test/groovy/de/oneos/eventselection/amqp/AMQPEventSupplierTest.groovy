@@ -113,7 +113,7 @@ class AMQPEventSupplierTest {
         amqpEventPublisher.publish(boxedBusinessEvent)
 
         // Because AMQP works inherently asynchronously we have to wait
-        sleep(50)
+        sleep(100)
 
         verify(eventProcessor).process(mapMatching(boxedBusinessEvent))
     }

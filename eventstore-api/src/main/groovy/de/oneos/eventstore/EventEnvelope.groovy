@@ -21,6 +21,7 @@ class EventEnvelope<AggregateType> {
     String user
 
 
+    @Deprecated
     EventEnvelope(
         String application,
         String boundedContext,
@@ -39,6 +40,8 @@ class EventEnvelope<AggregateType> {
         this.aggregateName = aggregateName
         this.aggregateId = aggregateId
         this.sequenceNumber = sequenceNumber
+        println('WARNING! Usage of interface `Event` is deprecated! <EventEnvelope.constructor(String, String, String, UUID, Event, int, Date, UUID, String)>')
+        println("         Event `$event` is about to be persisted!".toString())
         this.event = event
         this.timestamp = timestamp
         this.correlationId = correlationId
