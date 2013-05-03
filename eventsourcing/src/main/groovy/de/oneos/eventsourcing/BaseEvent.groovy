@@ -2,8 +2,6 @@ package de.oneos.eventsourcing
 
 
 abstract class BaseEvent<AT> extends GroovyObjectSupport implements Event<AT> {
-    protected static List<String> UNSERIALIZED_PROPERTIES = ['class', 'eventName', 'serializableForm']
-
     abstract void applyTo(AT aggregate)
 
     // Was getName(), but this was very dangerous to conflict with event Attributes to be named 'name'
@@ -12,25 +10,35 @@ abstract class BaseEvent<AT> extends GroovyObjectSupport implements Event<AT> {
     }
 
     Map<String, ?> getSerializableForm() {
-        return serializedProperties().collectEntries { k, v -> [(k): serializableForm(v)] }
+        Map<String, ?> result = [:]
+        for(p in serializedProperties()) {
+            result[p.key] = serializableForm(p.value)
+        }
+        return result
     }
 
     Map<String, ?> serializedProperties() {
-        return properties.findAll { key, value ->
-            !UNSERIALIZED_PROPERTIES.contains(key)
+        Map<String, ?> serializedProps = [:]
+        for(k in properties.keySet()) {
+            if(!UNSERIALIZED_PROPERTIES().contains(k)) {
+                serializedProps[k] = this[k]
+            }
         }
+        return serializedProps
     }
+
+    protected List<String> UNSERIALIZED_PROPERTIES() { ['class', 'eventName', 'serializableForm'].asImmutable() }
 
     public static def serializableForm(value) {
         if(value == null) { return value }
         switch(value.getClass()) {
-            case UUID:
+            case UUID.class:
                 return value.toString()
-            case [Boolean, Byte, Short, Integer, Long, Float, Double, Character, String]:
+            case [Boolean.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class, Character.class, String.class]:
                 return value
-            case Map:
+            case Map.class:
                 return value.collectEntries { k, v -> [(serializableForm(k)): serializableForm(v)]}
-            case List:
+            case List.class:
                 return value.collect { item -> serializableForm(item) }
         }
         return value.serializableForm

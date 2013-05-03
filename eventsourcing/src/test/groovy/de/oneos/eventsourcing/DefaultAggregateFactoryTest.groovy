@@ -88,8 +88,6 @@ class DefaultAggregateFactoryTest {
     }
 
     static class Business_event_happened extends BaseEvent<Aggregate> {
-        static { UNSERIALIZED_PROPERTIES << 'function' }
-
         @Override
         void applyTo(Aggregate aggregate) {
             aggregate.numberOfAppliedEvents++
