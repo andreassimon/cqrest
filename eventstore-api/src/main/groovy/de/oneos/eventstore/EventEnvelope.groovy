@@ -5,6 +5,7 @@ import de.oneos.eventsourcing.Event
 
 
 class EventEnvelope<AggregateType> {
+    org.apache.commons.logging.Log log = org.apache.commons.logging.LogFactory.getLog(EventEnvelope)
 
     static final String NULL = 'null'
     static final String TIMESTAMP_FORMAT = 'yyyy-MM-dd HH:mm:ss.SSS'
@@ -40,8 +41,8 @@ class EventEnvelope<AggregateType> {
         this.aggregateName = aggregateName
         this.aggregateId = aggregateId
         this.sequenceNumber = sequenceNumber
-        println('WARNING! Usage of interface `Event` is deprecated! <EventEnvelope.constructor(String, String, String, UUID, Event, int, Date, UUID, String)>')
-        println("         Event `$event` is about to be persisted!".toString())
+        log.warn('WARNING! Usage of interface `Event` is deprecated! <EventEnvelope.constructor(String, String, String, UUID, Event, int, Date, UUID, String)>')
+        log.warn("         Event `$event` is about to be persisted!".toString())
         this.event = event
         this.timestamp = timestamp
         this.correlationId = correlationId

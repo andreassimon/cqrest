@@ -1,8 +1,10 @@
 package de.oneos.eventsourcing
 
+import org.apache.commons.logging.*
 
 
 class DefaultAggregateFactory implements AggregateFactory {
+    Log log = LogFactory.getLog(DefaultAggregateFactory)
 
     public <A> A newInstance(Class<A> aggregateClass, UUID aggregateId, List<Event> aggregateHistory) {
         assertAggregateNameIsDefined(aggregateClass)
@@ -10,8 +12,8 @@ class DefaultAggregateFactory implements AggregateFactory {
         def instance = aggregateClass.newInstance(aggregateId)
         aggregateHistory.each { event ->
             assertIsApplicableTo(event, instance)
-            println('WARNING! Usage of interface `Event` is deprecated! <DefaultAggregateFactory.newInstance(Class, UUID, List<Event>)>')
-            println("         Event $event is applied to $instance!".toString())
+            log.warn('WARNING! Usage of interface `Event` is deprecated! <DefaultAggregateFactory.newInstance(Class, UUID, List<Event>)>')
+            log.warn("         Event $event is applied to $instance!".toString())
             event.applyTo(instance)
         }
         return instance

@@ -7,6 +7,7 @@ import org.codehaus.groovy.ast.stmt.*
 import org.codehaus.groovy.control.*
 import org.codehaus.groovy.syntax.*
 import org.codehaus.groovy.transform.*
+import org.apache.commons.logging.*
 
 
 /**
@@ -22,6 +23,9 @@ class AggregateTransformation implements ASTTransformation {
         classes.findAll { ClassNode clazz ->
             clazz.getAnnotations(new ClassNode(Aggregate))
         }.each { ClassNode aggregate ->
+            if(aggregate.getField('_log') == null) {
+                aggregate.addField(_log(aggregate))
+            }
             if(aggregate.getField('_version') == null) {
                 aggregate.addField(_version(aggregate))
             }
@@ -83,6 +87,12 @@ class AggregateTransformation implements ASTTransformation {
         )
     }
 
+    FieldNode _log(ClassNode parentClass) {
+        return new FieldNode(
+            '_log', FieldNode.ACC_PROTECTED, new ClassNode(Log), parentClass, new StaticMethodCallExpression(new ClassNode(LogFactory), 'getLog', new TupleExpression(new ConstantExpression(parentClass.name)))
+        )
+    }
+
     FieldNode _version(ClassNode parentClass) {
         return new FieldNode(
             '_version', FieldNode.ACC_PROTECTED, ClassHelper.int_TYPE, parentClass, new ConstantExpression(-1)
@@ -122,7 +132,7 @@ class AggregateTransformation implements ASTTransformation {
             noExceptions(),
             new BlockStatement(
                 [
-                    callMethod(thiz(), 'println', new ConstantExpression('WARNING! emit(Event[]) is deprecated. Migrate to emit(String, Map)')),
+                    callMethod(new VariableExpression('_log'), 'warn', new ConstantExpression('WARNING! emit(Event[]) is deprecated. Migrate to emit(String, Map)')),
                     callMethod(events(), 'each', wrapInClosure(block.first(), new VariableScope(methodScope), parentClass)),
                     returnResult(thiz())
                 ],
