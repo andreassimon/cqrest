@@ -12,7 +12,7 @@ class DefaultAggregateFactory implements AggregateFactory {
         def instance = aggregateClass.newInstance(aggregateId)
         aggregateHistory.each { event ->
             assertIsApplicableTo(event, instance)
-            log.warn('WARNING! Usage of interface `Event` is deprecated! <DefaultAggregateFactory.newInstance(Class, UUID, List<Event>)>')
+            log.warn('Usage of interface `Event` is deprecated! <DefaultAggregateFactory.newInstance(Class, UUID, List<Event>)>')
             log.warn("         Event $event is applied to $instance!".toString())
             event.applyTo(instance)
         }
