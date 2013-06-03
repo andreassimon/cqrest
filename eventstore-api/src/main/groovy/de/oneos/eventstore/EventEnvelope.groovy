@@ -41,10 +41,6 @@ class EventEnvelope<AggregateType> {
         this.aggregateName = aggregateName
         this.aggregateId = aggregateId
         this.sequenceNumber = sequenceNumber
-        log.warn(
-            "Usage of interface `Event` is deprecated! <EventEnvelope.constructor(String, String, String, UUID, Event, int, Date, UUID, String)>\n" +
-            "         But event `$event` is about to be persisted!".toString()
-        )
         this.event = event
         this.timestamp = timestamp
         this.correlationId = correlationId
