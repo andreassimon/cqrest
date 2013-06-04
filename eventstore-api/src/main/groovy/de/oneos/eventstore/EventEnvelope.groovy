@@ -16,7 +16,7 @@ class EventEnvelope<AggregateType> {
     final String aggregateName
     final UUID aggregateId
     final Integer sequenceNumber
-    final Event<AggregateType> event
+    final def event
 
     UUID correlationId
     String user
@@ -28,7 +28,7 @@ class EventEnvelope<AggregateType> {
         String boundedContext,
         String aggregateName,
         UUID aggregateId,
-        Event<AggregateType> event,
+        def event,
         int sequenceNumber = 0,
         Date timestamp = new Date(),
         UUID correlationId,

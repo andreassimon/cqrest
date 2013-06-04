@@ -125,6 +125,10 @@ class UnitOfWorkTest {
 
     @Test
     void should_create_aggregate_instances_with_AggregateFactory() {
+        def businessEvent = [
+            eventName: "Business event happened",
+            eventAttributes: [:]
+        ]
         // TODO Das Test-Setup ist zu kompliziert; das stinkt nach schlechtem Design
         when(eventStore.loadEventEnvelopes(AGGREGATE_ID)).then(answer {
             [new EventEnvelope(
@@ -132,13 +136,13 @@ class UnitOfWorkTest {
                 BOUNDED_CONTEXT_NAME,
                 Aggregate.aggregateName,
                 AGGREGATE_ID,
-                new Business_event_happened(),
+                businessEvent,
                 NO_CORRELATION_ID,
                 USER_UNKNOWN
             )]
         })
         unitOfWork.aggregateFactory = aggregateFactory
-        when(aggregateFactory.newInstance(Aggregate, AGGREGATE_ID, [new Business_event_happened()])).thenReturn DUMMY_AGGREGATE
+        when(aggregateFactory.newInstance(Aggregate, AGGREGATE_ID, [businessEvent])).thenReturn DUMMY_AGGREGATE
 
         def actualAggregate = unitOfWork.get(Aggregate, AGGREGATE_ID)
 

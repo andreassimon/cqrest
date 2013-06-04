@@ -63,9 +63,9 @@ class DefaultAggregateFactoryTest {
         assertThat aggregate.numberOfAppliedEvents, equalTo(aggregateHistory.size())
     }
 
-    List<Event> getAggregateHistory() {
+    List getAggregateHistory() {
         (0..2).collect {
-            new Business_event_happened()
+            [eventName: 'Business event happened', eventAttributes: [:]]
         }
     }
 
