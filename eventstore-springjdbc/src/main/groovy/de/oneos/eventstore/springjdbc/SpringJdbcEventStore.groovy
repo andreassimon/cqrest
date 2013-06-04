@@ -63,7 +63,6 @@ INSERT INTO ${TABLE_NAME} (
     JdbcOperations jdbcTemplate
     NamedParameterJdbcTemplate namedParameterJdbcTemplate
     TransactionTemplate transactionTemplate
-    EventClassResolver eventClassResolver
     protected List<EventPublisher> publishers = []
 
     void setDataSource(DataSource dataSource) {

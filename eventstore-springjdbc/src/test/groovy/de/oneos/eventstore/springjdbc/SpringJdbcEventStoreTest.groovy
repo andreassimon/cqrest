@@ -37,8 +37,7 @@ class SpringJdbcEventStoreTest extends EventStore_ContractTest {
         sentinelConnection = dataSource.getConnection()
 
         eventStore = new SpringJdbcEventStore(
-            dataSource: dataSource,
-            eventClassResolver: new MapBasedEventClassResolver(eventMap: [orderLineWasAdded(), orderLineWasRemoved()].collectEntries { [ (it.eventName): it.getClass() ] } )
+            dataSource: dataSource
         )
 
         eventStore.createTable()
