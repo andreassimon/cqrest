@@ -1,12 +1,8 @@
 import de.oneos.eventsourcing.*
 
-class Order_was_created extends BaseEvent<Order> {
-    void applyTo(Order order) { }
-}
+class Order_was_created extends BaseEvent<Order> { }
 
-class Account_was_opened extends BaseEvent<Account> {
-    void applyTo(Account account) { }
-}
+class Account_was_opened extends BaseEvent<Account> { }
 
 @Aggregate
 class Order {
@@ -27,7 +23,7 @@ class Account {
     public Account emit(Event[] events) {
         events.each { Event event ->
             _newEvents << event
-            event.applyTo(this)
+            this.invokeMethod(event.eventName, event.serializableForm)
         }
         return this
     }

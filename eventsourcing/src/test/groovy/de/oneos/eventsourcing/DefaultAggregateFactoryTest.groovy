@@ -11,18 +11,13 @@ import org.junit.Before
 
 class DefaultAggregateFactoryTest {
     DefaultAggregateFactory aggregateFactory
-    UUID AGGREGATE_ID = randomUUID()
-    UUID ANOTHER_AGGREGATE_ID = randomUUID()
+    UUID AGGREGATE_ID = UUID.fromString("62156002-2b9c-4f25-85a7-286f69a8e273")
 
     Aggregate aggregate
 
     @Before
     void setUp() {
         aggregateFactory = new DefaultAggregateFactory()
-
-        while(AGGREGATE_ID == ANOTHER_AGGREGATE_ID) {
-            ANOTHER_AGGREGATE_ID = randomUUID()
-        }
     }
 
     @Test(expected = IllegalArgumentException)
@@ -85,13 +80,12 @@ class DefaultAggregateFactoryTest {
         Aggregate(UUID id) {
             this.id = id
         }
-    }
 
-    static class Business_event_happened extends BaseEvent<Aggregate> {
-        @Override
-        void applyTo(Aggregate aggregate) {
-            aggregate.numberOfAppliedEvents++
+        def "Business event happened"(Map event) {
+            numberOfAppliedEvents++
         }
     }
+
+    static class Business_event_happened extends BaseEvent<Aggregate> { }
 
 }

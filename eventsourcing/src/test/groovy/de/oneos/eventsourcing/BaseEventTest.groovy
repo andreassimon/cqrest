@@ -314,8 +314,6 @@ Simple Event happened [
         }
 
         UnserializableValue customProperty
-
-        void applyTo(Object t) { }
     }
 
     static class SerializableValue {

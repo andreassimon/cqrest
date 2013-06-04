@@ -29,4 +29,8 @@ class Order {
             * articles.collect { new Order_line_was_added(it) }
         )
     }
+
+    def "Order line was added"(Map orderLine) {
+        orderLines << orderLine['article']
+    }
 }

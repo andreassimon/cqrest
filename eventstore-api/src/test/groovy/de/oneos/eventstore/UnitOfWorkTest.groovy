@@ -203,11 +203,15 @@ class UnitOfWorkTest {
         NotValidatableAggregate(UUID id) {
             this.id = id
         }
+
+        def "Business event happened"(Map event) { }
     }
 
     @de.oneos.eventsourcing.Aggregate
     static class Aggregate extends NotValidatableAggregate {
         Aggregate(UUID id) { super(id) }
+
+        def "Business event happened"(Map event) { }
     }
 
     protected static newEventEnvelope(Map<String, Integer> attributes) {
@@ -220,6 +224,8 @@ class UnitOfWorkTest {
         boolean isValid() { return false }
         String validationMessage() { return 'will never be valid' }
         String toString() { 'InvalidAggregate' }
+
+        def "Business event happened"(Map event) { }
     }
 
     @de.oneos.eventsourcing.Aggregate
@@ -228,11 +234,10 @@ class UnitOfWorkTest {
         boolean isValid() { return true }
         String validationMessage() { if(isValid()) return ''; throw new IllegalStateException('Should always be valid') }
         String toString() { 'ValidAggregate' }
+
+        def "Business event happened"(Map event) { }
     }
 
 
-    static class Business_event_happened<A> extends BaseEvent<A> {
-        @Override
-        void applyTo(A aggregate) { }
-    }
+    static class Business_event_happened<A> extends BaseEvent<A> { }
 }

@@ -104,6 +104,30 @@ class AggregateTransformation implements ASTTransformation {
         def builder = new AstBuilder()
         final List<BlockStatement> block = builder.buildFromSpec {
             block {
+                ifStatement {
+                    booleanExpression { // => if("".equals(event.getEventName()))
+                        methodCall {
+                            constant ""
+                            constant "equals"
+                            methodCall {
+                                variable "event"
+                                constant "getEventName"
+                                argumentList()
+                            }
+                        }
+                    }
+                    // NOTE: if block and else block are order dependent and same type
+                    block { //if block
+                        throwStatement { // => throw new IllegalArgumentException("The event does not have an eventName defined")
+                            constructorCall(IllegalArgumentException) {
+                                argumentList {
+                                     constant "The event does not have an eventName defined"
+                                }
+                            }
+                        }
+                    }
+                    block {} // else block
+                }
                 expression {
                     methodCall {
                         variable '_newEvents'
@@ -115,10 +139,19 @@ class AggregateTransformation implements ASTTransformation {
                 }
                 expression {
                     methodCall {
-                        variable 'event'
-                        constant 'applyTo'
+                        variable 'this'
+                        constant 'invokeMethod'
                         argumentList {
-                            variable 'this'
+                            methodCall {
+                                variable 'event'
+                                constant 'getEventName'
+                                argumentList()
+                            }
+                            methodCall {
+                                variable 'event'
+                                constant 'getSerializableForm'
+                                argumentList()
+                            }
                         }
                     }
                 }

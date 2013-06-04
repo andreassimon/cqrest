@@ -64,17 +64,6 @@ class EventEnvelopeTest {
     }
 
 
-    static class Business_event_happened extends BaseEvent {
-        @Override
-        protected List<String> UNSERIALIZED_PROPERTIES() {
-            return super.UNSERIALIZED_PROPERTIES() + ['function']
-        }
+    static class Business_event_happened extends BaseEvent { }
 
-        Closure<Void> function = {}
-
-        @Override
-        void applyTo(Object aggregate) {
-            function(aggregate)
-        }
-    }
 }

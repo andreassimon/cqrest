@@ -353,22 +353,19 @@ abstract class EventStore_ContractTest {
         final UUID id
 
         Order(UUID id) { this.id = id }
+
+        def "Order line was added"(Map event) { }
+        def "Order line was removed"(Map event) { }
     }
 
     static class Order_line_was_added extends BaseEvent<Order> {
         // Having an attribute is important to test deserialization
         String article
-
-        @Override
-        void applyTo(Order order) { }
     }
 
     static class Order_line_was_removed extends BaseEvent<Order> {
         // Having an attribute is important to test deserialization
         String article
-
-        @Override
-        void applyTo(Order order) { }
     }
 
 
@@ -379,15 +376,15 @@ abstract class EventStore_ContractTest {
         final UUID id
 
         Customer(UUID id) { this.id = id }
+
+        def "Customer was assigned premium state"(Map event) { }
+
     }
 
     static Customer_was_assigned_premium_state premium_state_assigned() {
         return new Customer_was_assigned_premium_state()
     }
 
-    static class Customer_was_assigned_premium_state extends BaseEvent<Customer> {
-        @Override
-        void applyTo(Customer aggregate) {  }
-    }
+    static class Customer_was_assigned_premium_state extends BaseEvent<Customer> { }
 
 }

@@ -11,18 +11,15 @@ class DefaultAggregateFactory implements AggregateFactory {
 
         def instance = aggregateClass.newInstance(aggregateId)
         aggregateHistory.each { event ->
-            assertIsApplicableTo(event, instance)
             log.warn('Usage of interface `Event` is deprecated! <DefaultAggregateFactory.newInstance(Class, UUID, List<Event>)>')
             log.warn("         Event $event is applied to $instance!".toString())
-            event.applyTo(instance)
+            try {
+                instance.invokeMethod(event.eventName, event.serializableForm)
+            } catch(MissingMethodException e) {
+                throw new EventNotApplicable(event, instance, e)
+            }
         }
         return instance
-    }
-
-    protected static assertIsApplicableTo(Event event, instance) {
-        if (!isApplicableTo(event, instance)) {
-            throw new EventNotApplicable(event, instance)
-        }
     }
 
     protected static assertAggregateNameIsDefined(Class rawAggregateClass) {
@@ -33,15 +30,6 @@ class DefaultAggregateFactory implements AggregateFactory {
 
     protected static hasMethod(Class rawAggregateClass, String methodName) {
         rawAggregateClass.metaClass.methods.find { methodName == it.name }
-    }
-
-    protected static isApplicableTo(Event event, instance) {
-        event.metaClass.methods.find { MetaMethod it ->
-            !it.abstract &&
-            it.name == 'applyTo' &&
-            it.parameterTypes.length == 1 &&
-            it.parameterTypes[0].theClass.isAssignableFrom(instance.class)
-        }
     }
 
 }

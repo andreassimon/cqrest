@@ -104,6 +104,6 @@ class EventEnvelope<AggregateType> {
     }
 
     void applyEventTo(aggregate) {
-        event.applyTo(aggregate)
+        aggregate.invokeMethod(event.eventName, event.serializableForm)
     }
 }

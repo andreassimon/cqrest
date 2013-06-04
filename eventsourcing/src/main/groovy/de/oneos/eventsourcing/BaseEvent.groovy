@@ -2,7 +2,6 @@ package de.oneos.eventsourcing
 
 
 abstract class BaseEvent<AT> extends GroovyObjectSupport implements Event<AT> {
-    abstract void applyTo(AT aggregate)
 
     // Was getName(), but this was very dangerous to conflict with event Attributes to be named 'name'
     String getEventName() {

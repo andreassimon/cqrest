@@ -18,9 +18,7 @@ class CombinedEventClassResolverTest {
         assertThat combinedResolver.resolveEvent('An event happened'), equalTo(An_event_happened)
     }
 
-    static class An_event_happened extends de.oneos.eventsourcing.BaseEvent {
-        void applyTo(Object aggregate) { }
-    }
+    static class An_event_happened extends de.oneos.eventsourcing.BaseEvent { }
 
 }
 
