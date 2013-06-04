@@ -149,7 +149,7 @@ class AggregateTransformation implements ASTTransformation {
                             }
                             methodCall {
                                 variable 'event'
-                                constant 'getSerializableForm'
+                                constant 'getEventAttributes'
                                 argumentList()
                             }
                         }

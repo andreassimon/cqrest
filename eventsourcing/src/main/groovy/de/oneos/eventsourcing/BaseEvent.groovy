@@ -3,14 +3,21 @@ package de.oneos.eventsourcing
 
 abstract class BaseEvent<AT> extends GroovyObjectSupport implements Event<AT> {
 
+    protected List<String> UNSERIALIZED_PROPERTIES() { ['class', 'eventName', 'eventAttributes', 'serializableForm'].asImmutable() }
+
     // Was getName(), but this was very dangerous to conflict with event Attributes to be named 'name'
     String getEventName() {
         this.class.name.split('[.$]')[-1].replaceAll('_', ' ')
     }
 
-    Map<String, ?> getSerializableForm() {
+    Map<String, ?> getEventAttributes() {
+        return serializableForm()
+    }
+
+    Map<String, ?> serializableForm() {
         Map<String, ?> result = [:]
-        for(p in serializedProperties()) {
+        def serializedProperties = serializedProperties()
+        for(p in serializedProperties) {
             result[p.key] = serializableForm(p.value)
         }
         return result
@@ -18,15 +25,14 @@ abstract class BaseEvent<AT> extends GroovyObjectSupport implements Event<AT> {
 
     Map<String, ?> serializedProperties() {
         Map<String, ?> serializedProps = [:]
-        for(k in properties.keySet()) {
-            if(!UNSERIALIZED_PROPERTIES().contains(k)) {
-                serializedProps[k] = this[k]
+        def propertyNames = properties.keySet()
+        for(p in propertyNames) {
+            if(!UNSERIALIZED_PROPERTIES().contains(p)) {
+                serializedProps[p] = this[p]
             }
         }
         return serializedProps
     }
-
-    protected List<String> UNSERIALIZED_PROPERTIES() { ['class', 'eventName', 'serializableForm'].asImmutable() }
 
     public static def serializableForm(value) {
         if(value == null) { return value }
@@ -45,7 +51,7 @@ abstract class BaseEvent<AT> extends GroovyObjectSupport implements Event<AT> {
 
     @Override
     String toString() {
-        serializableForm.inject("$eventName [") { String readableForm, property, value ->
+        serializableForm().inject("$eventName [") { String readableForm, property, value ->
             readableForm + "\n    $property: '$value'"
         } + "\n]"
     }

@@ -6,15 +6,13 @@ import org.apache.commons.logging.*
 class DefaultAggregateFactory implements AggregateFactory {
     Log log = LogFactory.getLog(DefaultAggregateFactory)
 
-    public <A> A newInstance(Class<A> aggregateClass, UUID aggregateId, List<Event> aggregateHistory) {
+    public <A> A newInstance(Class<A> aggregateClass, UUID aggregateId, List aggregateHistory) {
         assertAggregateNameIsDefined(aggregateClass)
 
         def instance = aggregateClass.newInstance(aggregateId)
         aggregateHistory.each { event ->
-            log.warn('Usage of interface `Event` is deprecated! <DefaultAggregateFactory.newInstance(Class, UUID, List<Event>)>')
-            log.warn("         Event $event is applied to $instance!".toString())
             try {
-                instance.invokeMethod(event.eventName, event.serializableForm)
+                instance.invokeMethod(event['eventName'] as String, event['eventAttributes'])
             } catch(MissingMethodException e) {
                 throw new EventNotApplicable(event, instance, e)
             }

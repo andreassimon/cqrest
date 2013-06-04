@@ -16,8 +16,8 @@ class EventAttributesDiffer extends EventDiff {
         aggregateId = left.aggregateId
         eventName = left.event.eventName
 
-        def leftAttributes = left.event.serializedProperties().sort { a, b -> a.key.toLowerCase() <=> b.key.toLowerCase() }
-        def rightAttributes = right.event.serializedProperties().sort { a, b -> a.key.toLowerCase() <=> b.key.toLowerCase() }
+        def leftAttributes = left.event.eventAttributes.sort { a, b -> a.key.toLowerCase() <=> b.key.toLowerCase() }
+        def rightAttributes = right.event.eventAttributes.sort { a, b -> a.key.toLowerCase() <=> b.key.toLowerCase() }
 
         def unitedAttributes = (leftAttributes + rightAttributes).collect { it.key }.unique()
 
