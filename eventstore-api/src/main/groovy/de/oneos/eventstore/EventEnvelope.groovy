@@ -51,8 +51,12 @@ class EventEnvelope<AggregateType> {
         return event?.eventName
     }
 
+    Map<String, ?> getEventAttributes() {
+        return event?.eventAttributes
+    }
+
     String getSerializedEvent() {
-        new JsonBuilder(event.eventAttributes).toString()
+        new JsonBuilder(eventAttributes).toString()
     }
 
     String getSerializedTimestamp() {
@@ -71,7 +75,8 @@ class EventEnvelope<AggregateType> {
         this.boundedContextName == that.boundedContextName &&
         this.aggregateName == that.aggregateName &&
         this.aggregateId   == that.aggregateId &&
-        this.event         == that.event &&
+        this.eventName == that.eventName &&
+        this.eventAttributes == that.eventAttributes &&
         this.sequenceNumber == that.sequenceNumber
     }
 

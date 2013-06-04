@@ -58,7 +58,8 @@ abstract class BaseEvent<AT> extends GroovyObjectSupport implements Event<AT> {
 
     @Override
     boolean equals(Object that) {
-        this.toString() == that.toString()
+        this.eventName == that.eventName &&
+        this.eventAttributes == that.eventAttributes
     }
 
     @Override

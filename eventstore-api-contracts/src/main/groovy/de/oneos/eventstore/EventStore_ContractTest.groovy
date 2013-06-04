@@ -55,7 +55,7 @@ abstract class EventStore_ContractTest {
     void should_persist_an_EventEnvelope() {
         eventStore.commit(unitOfWork(eventStream))
 
-        assertThat history(eventStore), equalTo(eventStream)
+        assertThat history(eventStore), equalTo(eventStream.collect { distill(it) })
     }
 
 
@@ -144,7 +144,7 @@ abstract class EventStore_ContractTest {
         eventStore.commit(unitOfWork)
 
         assertThat eventStore.loadEventEnvelopes(ORDER_ID).collect { it.event }, equalTo([
-            orderLineWasAdded()
+            distill(orderLineWasAdded())
         ])
     }
 
@@ -158,7 +158,7 @@ abstract class EventStore_ContractTest {
         def actual = eventStore.findAll(aggregateId: ORDER_ID)
 
         assertThat actual.collect { it.event }, equalTo([
-            orderLineWasAdded()
+            distill(orderLineWasAdded())
         ])
     }
 
@@ -225,8 +225,8 @@ abstract class EventStore_ContractTest {
         def actual = eventStore.findAll(aggregateName: Order.aggregateName)
 
         assertThat actual, equalTo([
-            new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, Order.aggregateName,         ORDER_ID, orderLineWasAdded(), NO_CORRELATION_ID, USER_UNKNOWN),
-            new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, Order.aggregateName, ANOTHER_ORDER_ID, orderLineWasAdded(), NO_CORRELATION_ID, USER_UNKNOWN),
+            new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, Order.aggregateName,         ORDER_ID, [ eventName: orderLineWasAdded().eventName, eventAttributes: orderLineWasAdded().eventAttributes], NO_CORRELATION_ID, USER_UNKNOWN),
+            new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, Order.aggregateName, ANOTHER_ORDER_ID, [ eventName: orderLineWasAdded().eventName, eventAttributes: orderLineWasAdded().eventAttributes], NO_CORRELATION_ID, USER_UNKNOWN),
         ])
     }
 
@@ -266,9 +266,16 @@ abstract class EventStore_ContractTest {
         })
 
         assertThat history(eventStore, ORDER_ID), equalTo([
-            orderLineWasAdded(),
-            orderLineWasAdded()
+            distill(orderLineWasAdded()),
+            distill(orderLineWasAdded())
         ])
+    }
+
+    Map<String, ?> distill(event) {
+        return [
+            eventName:  event['eventName'],
+            eventAttributes:  event['eventAttributes']
+        ]
     }
 
     @Test

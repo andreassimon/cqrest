@@ -45,15 +45,15 @@ class UnitOfWork {
             throw new AggregateNotFoundException(aggregateClass, aggregateId)
         }
 
-        A aggregate = newAggregateInstance(aggregateClass, aggregateId, eventEnvelopes)
+        A aggregate = newAggregateInstance(aggregateClass, aggregateId, eventEnvelopes.collect { it.event })
         attach(aggregate)
         aggregate.setVersion(maximumSequenceNumber(eventEnvelopes))
 
         return aggregate
     }
 
-    protected <A> A newAggregateInstance(Class<A> aggregateClass, UUID aggregateId, List<EventEnvelope> eventEnvelopes) {
-        aggregateFactory.newInstance(aggregateClass, aggregateId, eventEnvelopes.collect { it.event })
+    protected <A> A newAggregateInstance(Class<A> aggregateClass, UUID aggregateId, List events) {
+        aggregateFactory.newInstance(aggregateClass, aggregateId, events)
     }
 
     protected static maximumSequenceNumber(Collection<EventEnvelope> eventEnvelopes) {
