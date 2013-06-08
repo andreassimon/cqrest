@@ -15,7 +15,7 @@ class EventCollisionOccurred extends RuntimeException {
     }
 
     protected static message(EventEnvelope envelope) {
-        "Event ['${envelope.applicationName}'.'${envelope.boundedContextName}'.'${envelope.aggregateName}'[${envelope.aggregateId}] #${envelope.sequenceNumber}] already exists. Dropping [$envelope.event]"
+        "Event ['${envelope.applicationName}'.'${envelope.boundedContextName}'.'${envelope.aggregateName}'[${envelope.aggregateId}] #${envelope.sequenceNumber}] already exists. Dropping <$envelope.eventName[$envelope.eventAttributes]>"
     }
 
 }

@@ -62,7 +62,8 @@ class UnitOfWorkTest {
             boundedContextName: unitOfWork.boundedContextName,
             aggregateName: aggregate.aggregateName,
             aggregateId: aggregate.id,
-            event: new Business_event_happened()
+            eventName: new Business_event_happened().eventName,
+            eventAttributes: new Business_event_happened().eventAttributes
         ])
     }
 

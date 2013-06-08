@@ -1,7 +1,6 @@
 package de.oneos.eventstore
 
 import groovy.json.JsonBuilder
-import de.oneos.eventsourcing.Event
 
 
 class EventEnvelope<AggregateType> {
@@ -16,7 +15,8 @@ class EventEnvelope<AggregateType> {
     final String aggregateName
     final UUID aggregateId
     final Integer sequenceNumber
-    final def event
+    final String eventName
+    final Map<String, ?> eventAttributes
 
     UUID correlationId
     String user
@@ -41,18 +41,18 @@ class EventEnvelope<AggregateType> {
         this.aggregateName = aggregateName
         this.aggregateId = aggregateId
         this.sequenceNumber = sequenceNumber
-        this.event = event
+        this.eventName = event.eventName
+        this.eventAttributes = event.eventAttributes
         this.timestamp = timestamp
         this.correlationId = correlationId
         this.user = user
     }
 
-    String getEventName() {
-        return event?.eventName
-    }
-
-    Map<String, ?> getEventAttributes() {
-        return event?.eventAttributes
+    Map<String, ?> getEvent() {
+        return [
+            eventName: eventName,
+            eventAttributes: eventAttributes
+        ]
     }
 
     String getSerializedEvent() {
@@ -65,7 +65,7 @@ class EventEnvelope<AggregateType> {
 
     @Override
     String toString() {
-        "EventEnvelope[$applicationName.$boundedContextName.$aggregateName{$aggregateId}#$sequenceNumber @${serializedTimestamp} :: <$event>]".toString()
+        "EventEnvelope[$applicationName.$boundedContextName.$aggregateName{$aggregateId}#$sequenceNumber @${serializedTimestamp} :: <$eventName[$serializedEvent]>]".toString()
     }
 
     @Override
@@ -86,7 +86,7 @@ class EventEnvelope<AggregateType> {
 "boundedContextName":"$boundedContextName",\
 "aggregateName":"$aggregateName",\
 "aggregateId":"$aggregateId",\
-"eventName":"$event.eventName",\
+"eventName":"$eventName",\
 "attributes":$serializedEvent,\
 "timestamp":"$serializedTimestamp",\
 "correlationId":$serializedCorrelationId,\
@@ -108,7 +108,4 @@ class EventEnvelope<AggregateType> {
         NULL
     }
 
-    void applyEventTo(aggregate) {
-        aggregate.invokeMethod(event.eventName, event.serializableForm)
-    }
 }

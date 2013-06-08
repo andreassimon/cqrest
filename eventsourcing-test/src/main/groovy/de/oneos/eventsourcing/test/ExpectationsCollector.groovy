@@ -35,7 +35,8 @@ class ExpectationsCollector {
                 return new RecordedEvent(
                     aggregateId: it.aggregateId,
                     sequenceNumber: it.sequenceNumber,
-                    event: it.event
+                    eventName: it.eventName,
+                    eventAttributes: it.eventAttributes
                 )
             }
         }
@@ -68,7 +69,8 @@ class ExpectationsCollector {
         expectedEvents << new RecordedEvent(
             aggregateId: aggregate,
             sequenceNumber: eventSequence.next(aggregate),
-            event: expectedEvent
+            eventName: expectedEvent.eventName,
+            eventAttributes: expectedEvent.eventAttributes
         )
     }
 
