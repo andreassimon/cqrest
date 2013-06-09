@@ -2,10 +2,10 @@ buildscript {
     repositories {
         maven {
             url 'https://artifactory.quagilis.de/repo'
-//            credentials {
-//                username = "${artifactory_user}"
-//                password = "${artifactory_password}"
-//            }
+            credentials {
+                username = "${artifactory_user}"
+                password = "${artifactory_password}"
+            }
         }
 
     }
@@ -41,6 +41,10 @@ allprojects {
         mavenCentral()
         maven {
             url "https://artifactory.quagilis.de/repo/"
+            credentials {
+                username = "${artifactory_user}"
+                password = "${artifactory_password}"
+            }
         }
     }
 
@@ -59,27 +63,25 @@ allprojects {
         downloadSources = true
     }
 
-//    artifactory {
-//        contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
-//        publish {
-//            repository {
-//                repoKey = 'libs-snapshot-local'
-//                username = "${artifactory_user}"
-//                password = "${artifactory_password}"
-//                maven = true
-//
-//            }
-//        }
-//        resolve {
-//            repository {
-//                repoKey = 'libs-release'
-//                username = "${artifactory_user}"
-//                password = "${artifactory_password}"
-//                maven = true
-//
-//            }
-//        }
-//    }
+    artifactory {
+        contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
+        publish {
+            repository {
+                repoKey = 'libs-snapshot-local'
+                username = "${artifactory_user}"
+                password = "${artifactory_password}"
+                maven = true
+            }
+        }
+        resolve {
+            repository {
+                repoKey = 'libs-release'
+                username = "${artifactory_user}"
+                password = "${artifactory_password}"
+                maven = true
+            }
+        }
+    }
 }
 
 task wrapper(type: Wrapper) {
