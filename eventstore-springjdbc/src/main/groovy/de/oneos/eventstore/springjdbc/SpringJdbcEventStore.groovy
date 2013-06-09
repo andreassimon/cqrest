@@ -118,13 +118,19 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
     @Override
     void setEventProcessors(List<EventProcessor> eventProcessors) {
         assert null != eventProcessors
-        this.processors = eventProcessors
+        this.processors.clear()
+        eventProcessors.each { addEventProcessor(it) }
     }
 
     @Override
     void addEventProcessor(EventProcessor eventProcessor) {
         assert null != eventProcessor
         processors.add(eventProcessor)
+        try {
+            eventProcessor.wasRegisteredAt(this)
+        } catch(e) {
+            log.warn("Exception occurred during registration of $eventProcessor at $this", e)
+        }
     }
 
     @Override

@@ -2,7 +2,6 @@ package de.oneos.eventselection.amqp
 
 import com.rabbitmq.client.*
 import de.oneos.eventselection.*
-import groovy.json.*
 import org.apache.commons.logging.*
 
 import static de.oneos.eventselection.amqp.AMQPConstants.*
@@ -11,8 +10,6 @@ import de.oneos.eventstore.*
 
 class AMQPEventSupplier extends DefaultConsumer implements Consumer, EventSupplier {
     static Log log = LogFactory.getLog(AMQPEventSupplier)
-
-    JsonSlurper slurper = new JsonSlurper()
 
     Channel channel
     String queueName

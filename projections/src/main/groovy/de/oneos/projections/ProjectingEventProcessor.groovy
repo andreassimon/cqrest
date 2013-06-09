@@ -35,6 +35,11 @@ class ProjectingEventProcessor implements EventProcessor {
     }
 
     @Override
+    void wasRegisteredAt(EventStore eventStore) {
+        // TODO implement
+    }
+
+    @Override
     String toString() {
         "${this.class.simpleName}<readModels = $readmodels>"
     }

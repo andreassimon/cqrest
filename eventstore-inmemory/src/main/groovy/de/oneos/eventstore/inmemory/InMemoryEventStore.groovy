@@ -1,23 +1,34 @@
 package de.oneos.eventstore.inmemory
 
+import org.apache.commons.logging.*
+
 import de.oneos.eventstore.*
 import de.oneos.eventsourcing.Event
 
 
 class InMemoryEventStore implements EventStore {
+    static Log log = LogFactory.getLog(InMemoryEventStore)
+
+
     List<EventEnvelope> history = []
     Collection<EventProcessor> eventProcessors = []
 
     @Override
     void setEventProcessors(List<EventProcessor> eventProcessors) {
         assert null != eventProcessors
-        this.eventProcessors = eventProcessors
+        this.eventProcessors.clear()
+        eventProcessors.each { addEventProcessor(it) }
     }
 
     @Override
     void addEventProcessor(EventProcessor eventProcessor) {
         assert null != eventProcessor
         eventProcessors.add(eventProcessor)
+        try {
+            eventProcessor.wasRegisteredAt(this)
+        } catch(e) {
+            log.warn("Exception occurred during registration of $eventProcessor at $this", e)
+        }
     }
 
     @Override

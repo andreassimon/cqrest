@@ -27,6 +27,11 @@ class AMQPEventPublisher implements EventProcessor {
         }
     }
 
+    @Override
+    void wasRegisteredAt(EventStore eventStore) {
+        // TODO implement
+    }
+
     private static routingKey(EventEnvelope eventEnvelope) throws IllegalAmqpEventCoordinate {
         def eventCoordinates = ['applicationName', 'boundedContextName', 'aggregateName', 'eventName'].collect {
             eventEnvelope[it]

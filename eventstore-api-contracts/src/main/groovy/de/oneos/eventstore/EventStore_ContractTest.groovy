@@ -286,6 +286,13 @@ abstract class EventStore_ContractTest {
     }
 
     @Test
+    void should_notify_EventProcessors_after_registration() {
+        eventStore.eventProcessors = [eventProcessor]
+
+        verify(eventProcessor).wasRegisteredAt(eventStore)
+    }
+
+    @Test
     void should_pass_persisted_events_to_registered_EventProcessors() {
         eventStore.eventProcessors = [eventProcessor]
 
