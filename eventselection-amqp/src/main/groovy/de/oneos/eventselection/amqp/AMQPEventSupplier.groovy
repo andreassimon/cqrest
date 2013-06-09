@@ -13,7 +13,7 @@ class AMQPEventSupplier extends DefaultConsumer implements Consumer, EventSuppli
 
     Channel channel
     String queueName
-    List<EventProcessor> eventProcessors = []
+    Collection<EventProcessor> eventProcessors = []
 
     AMQPEventSupplier(Connection connection) {
         this(connection.createChannel())
@@ -40,6 +40,11 @@ class AMQPEventSupplier extends DefaultConsumer implements Consumer, EventSuppli
         this.queueName = declareOk.queue
         channel.basicConsume(queueName, NO_AUTO_ACK, this)
         log.debug "Declared queue '$queueName'"
+    }
+
+    void setEventProcessors(Collection<EventProcessor> eventProcessors) {
+        this.eventProcessors.clear()
+        eventProcessors.each { subscribeTo(new MapEventFilter([:]), it) }
     }
 
     @Override
