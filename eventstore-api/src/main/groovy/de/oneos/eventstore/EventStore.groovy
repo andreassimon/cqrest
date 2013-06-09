@@ -16,8 +16,6 @@ interface EventStore {
 
     void commit(UnitOfWork unitOfWork) throws IllegalArgumentException, EventCollisionOccurred
 
-    List<EventEnvelope> loadEventEnvelopes(UUID aggregateId)
-
     List<EventEnvelope> findAll(Map<String, ?> criteria)
 
 }

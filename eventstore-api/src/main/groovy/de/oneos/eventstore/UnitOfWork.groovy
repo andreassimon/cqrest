@@ -61,7 +61,7 @@ class UnitOfWork {
     }
 
     protected loadEventEnvelopes(UUID aggregateId) {
-        eventStore.loadEventEnvelopes(aggregateId)
+        eventStore.findAll(aggregateId: aggregateId)
     }
 
     void attach(Object[] aggregates) {

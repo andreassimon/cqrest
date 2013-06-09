@@ -195,11 +195,6 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
     }
 
     @Override
-    List<EventEnvelope> loadEventEnvelopes(UUID aggregateId) {
-        return findAll(aggregateId: aggregateId)
-    }
-
-    @Override
     List<EventEnvelope> findAll(Map<String, ?> criteria) {
         namedParameterJdbcTemplate.query(
             queryExpression(criteria),

@@ -67,7 +67,7 @@ abstract class EventStore_ContractTest {
         aggregate.emit(orderLineWasAdded())
         eventStore.commit(unitOfWork)
 
-        def envelopes = eventStore.loadEventEnvelopes(ORDER_ID)
+        def envelopes = eventStore.findAll(aggregateId: ORDER_ID)
 
         envelopes.each { EventEnvelope envelope ->
             assertThat envelope.correlationId, equalTo(correlationId)
@@ -82,7 +82,7 @@ abstract class EventStore_ContractTest {
         aggregate.emit(orderLineWasAdded())
         eventStore.commit(unitOfWork)
 
-        def envelopes = eventStore.loadEventEnvelopes(ORDER_ID)
+        def envelopes = eventStore.findAll(aggregateId: ORDER_ID)
 
         envelopes.each { EventEnvelope envelope ->
             assertThat envelope.user, equalTo(user)
@@ -103,7 +103,7 @@ abstract class EventStore_ContractTest {
     }
 
     protected history(EventStore eventStore, aggregateId = ORDER_ID) {
-        eventStore.loadEventEnvelopes(aggregateId).collect { it.event }
+        eventStore.findAll(aggregateId: aggregateId).collect { it.event }
     }
 
 
@@ -143,7 +143,7 @@ abstract class EventStore_ContractTest {
 
         eventStore.commit(unitOfWork)
 
-        assertThat eventStore.loadEventEnvelopes(ORDER_ID).collect { it.event }, equalTo([
+        assertThat eventStore.findAll(aggregateId: ORDER_ID).collect { it.event }, equalTo([
             distill(orderLineWasAdded())
         ])
     }

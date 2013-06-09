@@ -119,7 +119,7 @@ class UnitOfWorkTest {
 
     @Test(expected = AggregateNotFoundException)
     void should_throw_Exception_when_aggregate_cannot_be_found() {
-        when(eventStore.loadEventEnvelopes(AGGREGATE_ID)).then(answer { [] })
+        when(eventStore.findAll(aggregateId: AGGREGATE_ID)).then(answer { [] })
 
         unitOfWork.get(Aggregate, AGGREGATE_ID)
     }
@@ -131,7 +131,7 @@ class UnitOfWorkTest {
             eventAttributes: [:]
         ]
         // TODO Das Test-Setup ist zu kompliziert; das stinkt nach schlechtem Design
-        when(eventStore.loadEventEnvelopes(AGGREGATE_ID)).then(answer {
+        when(eventStore.findAll(aggregateId: AGGREGATE_ID)).then(answer {
             [new EventEnvelope(
                 APPLICATION_NAME,
                 BOUNDED_CONTEXT_NAME,
@@ -155,7 +155,7 @@ class UnitOfWorkTest {
 
     @Test
     void should_update_the_next_sequenceNumber_for_loaded_aggregates() {
-        when(eventStore.loadEventEnvelopes(AGGREGATE_ID)).then(answer {
+        when(eventStore.findAll(aggregateId: AGGREGATE_ID)).then(answer {
             (0..LAST_SEQUENCE_NUMBER).collect { newEventEnvelope(sequenceNumber: it) }
         })
         Aggregate aggregate = unitOfWork.get(Aggregate, AGGREGATE_ID)

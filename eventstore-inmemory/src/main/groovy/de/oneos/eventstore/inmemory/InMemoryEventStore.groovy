@@ -79,11 +79,6 @@ class InMemoryEventStore implements EventStore {
     }
 
     @Override
-    List<EventEnvelope> loadEventEnvelopes(UUID aggregateId) {
-        return findAll(aggregateId: aggregateId)
-    }
-
-    @Override
     List<EventEnvelope> findAll(Map<String, ?> criteria) {
         return history.findAll { eventEnvelope ->
             criteria.every { attribute, value ->
