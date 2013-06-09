@@ -16,7 +16,7 @@ class AMQPEventSupplier extends DefaultConsumer implements Consumer, EventSuppli
 
     Channel channel
     String queueName
-    List<EventPublisher> eventPublishers = []
+    List<EventProcessor> eventProcessors = []
 
     AMQPEventSupplier(Connection connection) {
         this(connection.createChannel())
@@ -46,9 +46,9 @@ class AMQPEventSupplier extends DefaultConsumer implements Consumer, EventSuppli
     }
 
     @Override
-    void subscribeTo(EventFilter eventFilter, EventPublisher eventPublisher) {
+    void subscribeTo(EventFilter eventFilter, EventProcessor eventProcessor) {
         channel.queueBind(this.queueName, EVENT_EXCHANGE_NAME, routingKey(eventFilter))
-        eventPublishers << eventPublisher
+        eventProcessors << eventProcessor
         log.debug "Bound queue '$queueName' to exchange '$EVENT_EXCHANGE_NAME' with routingKey '${routingKey(eventFilter)}'"
     }
 
@@ -56,9 +56,9 @@ class AMQPEventSupplier extends DefaultConsumer implements Consumer, EventSuppli
     void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) {
         def eventEnvelope = EventEnvelope.fromJSON(new String(body))
 
-        eventPublishers.each {
+        eventProcessors.each {
             try {
-                it.publish(eventEnvelope)
+                it.process(eventEnvelope)
                 log.debug "Delivered $eventEnvelope to $it"
             } catch(Exception e) {
                 log.warn "Exception was raised when processing event '${eventEnvelope.eventName}' ${eventEnvelope.eventAttributes}", e

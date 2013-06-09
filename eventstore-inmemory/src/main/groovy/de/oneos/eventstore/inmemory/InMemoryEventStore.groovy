@@ -3,23 +3,21 @@ package de.oneos.eventstore.inmemory
 import de.oneos.eventstore.*
 import de.oneos.eventsourcing.Event
 
-import static de.oneos.eventstore.EventStore.*
-
 
 class InMemoryEventStore implements EventStore {
     List<EventEnvelope> history = []
-    Collection<EventPublisher> eventPublishers = []
+    Collection<EventProcessor> eventProcessors = []
 
     @Override
-    void setPublishers(List<EventPublisher> eventPublishers) {
-        assert null != eventPublishers
-        this.eventPublishers = eventPublishers
+    void setEventProcessors(List<EventProcessor> eventProcessors) {
+        assert null != eventProcessors
+        this.eventProcessors = eventProcessors
     }
 
     @Override
-    void addPublisher(EventPublisher eventPublisher) {
-        assert null != eventPublisher
-        eventPublishers.add(eventPublisher)
+    void addEventProcessor(EventProcessor eventProcessor) {
+        assert null != eventProcessor
+        eventProcessors.add(eventProcessor)
     }
 
     @Override
@@ -49,9 +47,9 @@ class InMemoryEventStore implements EventStore {
 
     protected Closure saveEnvelope = { eventEnvelope ->
         history << eventEnvelope
-        eventPublishers.each { publisher ->
+        eventProcessors.each { processor ->
             try {
-                publisher.publish(eventEnvelope)
+                processor.process(eventEnvelope)
             } catch(all) { }
         }
     }

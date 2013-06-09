@@ -22,12 +22,12 @@ class AMQPEventSupplierTest {
     Channel channel = mock(Channel)
 
     EventFilter unconstrainedEventFilter = mock(EventFilter)
-    EventPublisher eventPublisher = mock(EventPublisher)
+    EventProcessor eventProcessor = mock(EventProcessor)
 
     AMQP.Queue.DeclareOk queueDeclareOk
     Connection connection
 
-    EventPublisher amqpEventPublisher
+    EventProcessor amqpEventProcessor
     EventSupplier amqpEventSupplier
 
     def generatedAggregateId = UUID.randomUUID()
@@ -60,7 +60,7 @@ class AMQPEventSupplierTest {
             fail('Couldn\'t connect to AMQP. Try running `bin/services start`.')
         }
 
-        amqpEventPublisher = new AMQPEventPublisher(connection)
+        amqpEventProcessor = new AMQPEventPublisher(connection)
     }
 
 
@@ -99,7 +99,7 @@ class AMQPEventSupplierTest {
     void should_create_a_binding_for_each_registered_event_filter() {
         amqpEventSupplier = new AMQPEventSupplier(channel)
 
-        amqpEventSupplier.subscribeTo(unconstrainedEventFilter, eventPublisher)
+        amqpEventSupplier.subscribeTo(unconstrainedEventFilter, eventProcessor)
 
         verify(channel).queueBind(amqpEventSupplier.queueName, AMQPConstants.EVENT_EXCHANGE_NAME, AMQPEventSupplier.routingKey(unconstrainedEventFilter))
     }
@@ -107,14 +107,14 @@ class AMQPEventSupplierTest {
     @Test
     void should_pass_events_to_the_EventProcessor() {
         amqpEventSupplier = new AMQPEventSupplier(connection)
-        amqpEventSupplier.subscribeTo(unconstrainedEventFilter, eventPublisher)
+        amqpEventSupplier.subscribeTo(unconstrainedEventFilter, eventProcessor)
 
-        amqpEventPublisher.publish(boxedBusinessEvent)
+        amqpEventProcessor.process(boxedBusinessEvent)
 
         // Because AMQP works inherently asynchronously we have to wait
         sleep(100)
 
-        verify(eventPublisher).publish(boxedBusinessEvent)
+        verify(eventProcessor).process(boxedBusinessEvent)
     }
 
     static class BusinessEventHappened extends BaseEvent {

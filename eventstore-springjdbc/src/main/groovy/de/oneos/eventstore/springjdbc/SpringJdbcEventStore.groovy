@@ -6,7 +6,6 @@ import groovy.json.*
 
 import org.apache.commons.logging.*
 
-import de.oneos.eventsourcing.*
 import de.oneos.eventstore.*
 
 import org.springframework.dao.*
@@ -15,7 +14,6 @@ import org.springframework.jdbc.core.namedparam.*
 import org.springframework.jdbc.datasource.*
 
 import org.springframework.transaction.support.*
-import sun.misc.REException
 
 
 class SpringJdbcEventStore implements EventStore {
@@ -63,7 +61,7 @@ INSERT INTO ${TABLE_NAME} (
     JdbcOperations jdbcTemplate
     NamedParameterJdbcTemplate namedParameterJdbcTemplate
     TransactionTemplate transactionTemplate
-    protected List<EventPublisher> publishers = []
+    protected List<EventProcessor> processors = []
 
     void setDataSource(DataSource dataSource) {
         jdbcTemplate = new JdbcTemplate(dataSource)
@@ -118,15 +116,15 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
     }
 
     @Override
-    void setPublishers(List<EventPublisher> eventPublishers) {
-        assert null != eventPublishers
-        this.publishers = eventPublishers
+    void setEventProcessors(List<EventProcessor> eventProcessors) {
+        assert null != eventProcessors
+        this.processors = eventProcessors
     }
 
     @Override
-    void addPublisher(EventPublisher eventPublisher) {
-        assert null != eventPublisher
-        publishers.add(eventPublisher)
+    void addEventProcessor(EventProcessor eventProcessor) {
+        assert null != eventProcessor
+        processors.add(eventProcessor)
     }
 
     @Override
@@ -153,16 +151,16 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
         doInTransaction {
             unitOfWork.eachEventEnvelope saveEventEnvelope
         }
-        unitOfWork.eachEventEnvelope { publish(it) }
+        unitOfWork.eachEventEnvelope { process(it) }
         unitOfWork.flush()
     }
 
-    protected publish(envelope) {
-        publishers.each { publisher ->
+    protected process(envelope) {
+        processors.each { processor ->
             try {
-                publisher.publish(envelope)
+                processor.process(envelope)
             } catch (Throwable e) {
-                log.warn("Exception during publishing $envelope to $publisher", e)
+                log.warn("Exception during processing $envelope by $processor", e)
             }
         }
     }

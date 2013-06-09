@@ -67,7 +67,7 @@ class ProjectingEventProcessorTest {
         projectingEventProcessor.readmodels = readModels
         projectingEventProcessor.add projection
 
-        projectingEventProcessor.publish(anEventEnvelope)
+        projectingEventProcessor.process(anEventEnvelope)
 
         projectingEventProcessor.projections.each { projection ->
             verify(projection).applyTo(eq(readModels), anyObject())
@@ -93,7 +93,7 @@ class ProjectingEventProcessorTest {
         when(projection.isApplicableTo(anEventEnvelope)).thenReturn(true)
         projectingEventProcessor.add projection
 
-        projectingEventProcessor.publish(anEventEnvelope)
+        projectingEventProcessor.process(anEventEnvelope)
 
         verify(projection).applyTo(org.mockito.Matchers.any(Readmodels), eq(anEventEnvelope))
     }
@@ -103,7 +103,7 @@ class ProjectingEventProcessorTest {
         when(projection.isApplicableTo(anEventEnvelope)).thenReturn(false)
         projectingEventProcessor.add projection
 
-        projectingEventProcessor.publish(anEventEnvelope)
+        projectingEventProcessor.process(anEventEnvelope)
 
         verify(projection, never()).applyTo(org.mockito.Matchers.any(Readmodels), eq(anEventEnvelope))
     }

@@ -45,15 +45,15 @@ class AMQPEventPublisherTest {
     @Test
     void should_send_a_serialized_event_to_the_message_broker() {
         def eventEnvelope = new EventEnvelope('Readmodels Library', 'AMQP Tests', 'An Aggregate', aggregateId, anEvent, NO_CORRELATION_ID, USER_UNKNOWN)
-        eventPublisher.publish(eventEnvelope)
+        eventPublisher.process(eventEnvelope)
 
         assertThat receivedMessage(), equalTo(eventEnvelope.toJSON())
     }
 
-    @Test(expected = EventPublishingException)
+    @Test(expected = EventProcessingException)
     void should_throw_Exception_when_event_coordinate_contains_a_dot() {
         def eventEnvelope = new EventEnvelope('Readmodels.Library', 'AMQP.Tests', 'An.Aggregate', aggregateId, anEvent, NO_CORRELATION_ID, USER_UNKNOWN)
-        eventPublisher.publish(eventEnvelope)
+        eventPublisher.process(eventEnvelope)
     }
 
     private String receivedMessage() {

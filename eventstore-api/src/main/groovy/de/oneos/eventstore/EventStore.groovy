@@ -6,9 +6,9 @@ interface EventStore {
     public static final UUID NO_CORRELATION_ID = null
     public static final String USER_UNKNOWN = null
 
-    void setPublishers(List<EventPublisher> eventPublishers)
+    void setEventProcessors(List<EventProcessor> eventProcessors)
 
-    void addPublisher(EventPublisher eventPublisher)
+    void addEventProcessor(EventProcessor eventProcessor)
 
     public <T> T inUnitOfWork(String application, String boundedContext, UUID correlationId, String user, Closure<T> closure)
 

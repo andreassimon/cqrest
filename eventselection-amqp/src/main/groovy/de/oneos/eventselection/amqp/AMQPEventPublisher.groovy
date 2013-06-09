@@ -6,7 +6,7 @@ import org.apache.commons.logging.*
 
 import static de.oneos.eventselection.amqp.AMQPConstants.*
 
-class AMQPEventPublisher implements EventPublisher {
+class AMQPEventPublisher implements EventProcessor {
     static Log log = LogFactory.getLog(AMQPEventPublisher)
 
     Channel channel
@@ -17,7 +17,7 @@ class AMQPEventPublisher implements EventPublisher {
     }
 
     @Override
-    void publish(EventEnvelope eventEnvelope) throws IllegalAmqpEventCoordinate {
+    void process(EventEnvelope eventEnvelope) throws IllegalAmqpEventCoordinate {
         def routingKey = routingKey(eventEnvelope)
         try {
             channel.basicPublish EVENT_EXCHANGE_NAME, routingKey, NO_PROPERTIES, eventEnvelope.toJSON().bytes

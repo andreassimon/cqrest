@@ -21,7 +21,7 @@ abstract class EventStore_ContractTest {
 
     abstract EventStore getEventStore()
 
-    EventPublisher eventPublisher, defectiveEventPublisher, flawlessEventPublisher
+    EventProcessor eventProcessor, defectiveEventProcessor, flawlessEventProcessor
     EventEnvelope expectedEventEnvelope = new EventEnvelope(
         APPLICATION_NAME,
         BOUNDED_CONTEXT_NAME,
@@ -36,13 +36,13 @@ abstract class EventStore_ContractTest {
     Closure<Object> eventFactory
 
     void setUp() {
-        eventPublisher = mock(EventPublisher)
+        eventProcessor = mock(EventProcessor)
 
-        defectiveEventPublisher = mock(EventPublisher, 'defectiveEventPublisher')
-        doThrow(new RuntimeException('Thrown by EventPublisher')).
-            when(defectiveEventPublisher).publish(any(EventEnvelope))
+        defectiveEventProcessor = mock(EventProcessor, 'defectiveEventProcessor')
+        doThrow(new RuntimeException('Thrown by EventProcessor')).
+            when(defectiveEventProcessor).process(any(EventEnvelope))
 
-        flawlessEventPublisher = mock(EventPublisher, 'flawlessEventPublisher')
+        flawlessEventProcessor = mock(EventProcessor, 'flawlessEventProcessor')
     }
 
 
@@ -286,12 +286,12 @@ abstract class EventStore_ContractTest {
     }
 
     @Test
-    void should_publish_persisted_events_to_registered_EventPublishers() {
-        eventStore.publishers = [eventPublisher]
+    void should_pass_persisted_events_to_registered_EventProcessors() {
+        eventStore.eventProcessors = [eventProcessor]
 
         eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
 
-        verify(eventPublisher).publish(expectedEventEnvelope)
+        verify(eventProcessor).process(expectedEventEnvelope)
     }
 
     protected publish(EventEnvelope eventEnvelope) {
@@ -304,25 +304,25 @@ abstract class EventStore_ContractTest {
     }
 
     @Test
-    void should_ignore_any_exceptions_thrown_by_EventPublisher() {
-        eventStore.publishers = [defectiveEventPublisher, flawlessEventPublisher]
+    void should_ignore_any_exceptions_thrown_by_EventProcessor() {
+        eventStore.eventProcessors = [defectiveEventProcessor, flawlessEventProcessor]
 
         eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
 
-        verify(flawlessEventPublisher).publish(expectedEventEnvelope)
+        verify(flawlessEventProcessor).process(expectedEventEnvelope)
     }
 
     @Test
     void should_not_publish_any_event_when_transaction_failed() {
-        eventStore.publishers = [eventPublisher]
+        eventStore.eventProcessors = [eventProcessor]
         eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
 
-        reset(eventPublisher)
+        reset(eventProcessor)
         expect(EventCollisionOccurred) {
             eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
         }
 
-        verify(eventPublisher, never()).publish(expectedEventEnvelope)
+        verify(eventProcessor, never()).process(expectedEventEnvelope)
     }
 
     void expect(Class<? extends Throwable> exceptionClass, Closure<Void> block) {

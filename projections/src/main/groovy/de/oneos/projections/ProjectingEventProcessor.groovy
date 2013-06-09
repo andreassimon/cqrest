@@ -7,7 +7,7 @@ import de.oneos.readmodels.*
 import de.oneos.eventstore.*
 
 
-class ProjectingEventProcessor implements EventPublisher {
+class ProjectingEventProcessor implements EventProcessor {
     static Log log = LogFactory.getLog(ProjectingEventProcessor)
 
     Readmodels readmodels
@@ -23,7 +23,7 @@ class ProjectingEventProcessor implements EventPublisher {
         projections.add(projection)
     }
 
-    void publish(EventEnvelope eventEnvelope) throws EventPublishingException {
+    void process(EventEnvelope eventEnvelope) throws EventProcessingException {
         int numberOfFunctionCalls = 0
         projections.findAll {
             it.isApplicableTo(eventEnvelope)

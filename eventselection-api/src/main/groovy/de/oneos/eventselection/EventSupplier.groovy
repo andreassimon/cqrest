@@ -1,8 +1,8 @@
 package de.oneos.eventselection
 
-import de.oneos.eventstore.EventPublisher
+import de.oneos.eventstore.EventProcessor
 
 
 interface EventSupplier {
-    void subscribeTo(EventFilter eventFilter, EventPublisher eventPublisher)
+    void subscribeTo(EventFilter eventFilter, EventProcessor eventProcessor)
 }
