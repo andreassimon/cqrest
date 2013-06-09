@@ -8,7 +8,6 @@ import org.junit.*
 
 import static org.hamcrest.Matchers.*
 import static org.junit.Assert.*
-import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
 
 class AMQPEventSupplierTest {
@@ -23,7 +22,7 @@ class AMQPEventSupplierTest {
     Channel channel = mock(Channel)
 
     EventFilter unconstrainedEventFilter = mock(EventFilter)
-    EventProcessor eventProcessor = mock(EventProcessor)
+    EventPublisher eventPublisher = mock(EventPublisher)
 
     AMQP.Queue.DeclareOk queueDeclareOk
     Connection connection
@@ -100,7 +99,7 @@ class AMQPEventSupplierTest {
     void should_create_a_binding_for_each_registered_event_filter() {
         amqpEventSupplier = new AMQPEventSupplier(channel)
 
-        amqpEventSupplier.subscribeTo(unconstrainedEventFilter, eventProcessor)
+        amqpEventSupplier.subscribeTo(unconstrainedEventFilter, eventPublisher)
 
         verify(channel).queueBind(amqpEventSupplier.queueName, AMQPConstants.EVENT_EXCHANGE_NAME, AMQPEventSupplier.routingKey(unconstrainedEventFilter))
     }
@@ -108,38 +107,14 @@ class AMQPEventSupplierTest {
     @Test
     void should_pass_events_to_the_EventProcessor() {
         amqpEventSupplier = new AMQPEventSupplier(connection)
-        amqpEventSupplier.subscribeTo(unconstrainedEventFilter, eventProcessor)
+        amqpEventSupplier.subscribeTo(unconstrainedEventFilter, eventPublisher)
 
         amqpEventPublisher.publish(boxedBusinessEvent)
 
         // Because AMQP works inherently asynchronously we have to wait
         sleep(100)
 
-        verify(eventProcessor).process(mapMatching(boxedBusinessEvent))
-    }
-
-    private mapMatching(EventEnvelope eventEnvelope) {
-        new Object() {
-            @Override
-            String toString() {
-                """{\
-applicationName == ${eventEnvelope.applicationName} && \
-boundedContextName == ${eventEnvelope.boundedContextName} && \
-aggregateName == ${eventEnvelope.aggregateName} && \
-aggregateId == ${eventEnvelope.aggregateId} && \
-eventName == ${eventEnvelope.eventName}\
-}"""
-            }
-
-            @Override
-            boolean equals(Object that) {
-                that.applicationName == eventEnvelope.applicationName &&
-                that.boundedContextName == eventEnvelope.boundedContextName &&
-                that.aggregateName == eventEnvelope.aggregateName &&
-                that.aggregateId == eventEnvelope.aggregateId.toString() &&
-                that.eventName == eventEnvelope.eventName
-            }
-        }
+        verify(eventPublisher).publish(boxedBusinessEvent)
     }
 
     static class BusinessEventHappened extends BaseEvent {

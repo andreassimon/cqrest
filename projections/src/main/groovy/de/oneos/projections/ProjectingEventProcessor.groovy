@@ -4,9 +4,10 @@ import org.apache.commons.logging.*
 
 import de.oneos.eventselection.*
 import de.oneos.readmodels.*
+import de.oneos.eventstore.*
 
 
-class ProjectingEventProcessor implements EventProcessor {
+class ProjectingEventProcessor implements EventPublisher {
     static Log log = LogFactory.getLog(ProjectingEventProcessor)
 
     Readmodels readmodels
@@ -22,15 +23,15 @@ class ProjectingEventProcessor implements EventProcessor {
         projections.add(projection)
     }
 
-    void process(event) {
+    void publish(EventEnvelope eventEnvelope) throws EventPublishingException {
         int numberOfFunctionCalls = 0
         projections.findAll {
-            it.isApplicableTo(event)
+            it.isApplicableTo(eventEnvelope)
         }.each {
-            it.applyTo(readmodels, event)
+            it.applyTo(readmodels, eventEnvelope)
             numberOfFunctionCalls++
         }
-        log.debug "${this.toString()} applied $numberOfFunctionCalls projections to $event"
+        log.debug "${this.toString()} applied $numberOfFunctionCalls projections to $eventEnvelope"
     }
 
     @Override

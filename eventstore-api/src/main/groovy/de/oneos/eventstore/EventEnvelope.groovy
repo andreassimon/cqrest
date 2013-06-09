@@ -1,13 +1,14 @@
 package de.oneos.eventstore
 
-import groovy.json.JsonBuilder
+import groovy.json.*
+import java.text.SimpleDateFormat
 
 
-class EventEnvelope<AggregateType> {
+class EventEnvelope {
     org.apache.commons.logging.Log log = org.apache.commons.logging.LogFactory.getLog(EventEnvelope)
 
     static final String NULL = 'null'
-    static final String TIMESTAMP_FORMAT = 'yyyy-MM-dd HH:mm:ss.SSS'
+    static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss.SSS')
 
     final Date timestamp
     final String applicationName
@@ -60,7 +61,7 @@ class EventEnvelope<AggregateType> {
     }
 
     String getSerializedTimestamp() {
-        timestamp.format(TIMESTAMP_FORMAT)
+        TIMESTAMP_FORMAT.format(timestamp)
     }
 
     @Override
@@ -88,10 +89,30 @@ class EventEnvelope<AggregateType> {
 "aggregateId":"$aggregateId",\
 "eventName":"$eventName",\
 "attributes":$serializedEvent,\
+"sequenceNumber":$sequenceNumber,\
 "timestamp":"$serializedTimestamp",\
 "correlationId":$serializedCorrelationId,\
 "user":$serializedUser\
 }"""
+    }
+
+    // TODO test
+    static EventEnvelope fromJSON(String json) {
+        Map<String, ?> attributes = new JsonSlurper().parseText(json)
+        return new EventEnvelope(
+            attributes['applicationName'],
+            attributes['boundedContextName'],
+            attributes['aggregateName'],
+            UUID.fromString(attributes['aggregateId']),
+            [
+                eventName: attributes['eventName'],
+                eventAttributes: attributes['attributes'],
+            ],
+            attributes['sequenceNumber'] as int,
+            TIMESTAMP_FORMAT.parse(attributes['timestamp']),
+            attributes['correlationId'],
+            attributes['user']
+        )
     }
 
     String getSerializedCorrelationId() {

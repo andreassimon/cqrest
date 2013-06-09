@@ -6,6 +6,8 @@ import groovy.json.*
 import org.apache.commons.logging.*
 
 import static de.oneos.eventselection.amqp.AMQPConstants.*
+import de.oneos.eventstore.*
+
 
 class AMQPEventSupplier extends DefaultConsumer implements Consumer, EventSupplier {
     static Log log = LogFactory.getLog(AMQPEventSupplier)
@@ -14,7 +16,7 @@ class AMQPEventSupplier extends DefaultConsumer implements Consumer, EventSuppli
 
     Channel channel
     String queueName
-    List<EventProcessor> eventProcessors = []
+    List<EventPublisher> eventPublishers = []
 
     AMQPEventSupplier(Connection connection) {
         this(connection.createChannel())
@@ -44,22 +46,22 @@ class AMQPEventSupplier extends DefaultConsumer implements Consumer, EventSuppli
     }
 
     @Override
-    void subscribeTo(EventFilter eventFilter, EventProcessor eventProcessor) {
+    void subscribeTo(EventFilter eventFilter, EventPublisher eventPublisher) {
         channel.queueBind(this.queueName, EVENT_EXCHANGE_NAME, routingKey(eventFilter))
-        eventProcessors << eventProcessor
+        eventPublishers << eventPublisher
         log.debug "Bound queue '$queueName' to exchange '$EVENT_EXCHANGE_NAME' with routingKey '${routingKey(eventFilter)}'"
     }
 
     @Override
     void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) {
-        Map deserializedEvent = slurper.parseText(new String(body))
+        def eventEnvelope = EventEnvelope.fromJSON(new String(body))
 
-        eventProcessors.each {
+        eventPublishers.each {
             try {
-                it.process(deserializedEvent)
-                log.debug "Delivered $deserializedEvent to $it"
+                it.publish(eventEnvelope)
+                log.debug "Delivered $eventEnvelope to $it"
             } catch(Exception e) {
-                log.warn "Exception was raised when processing event '${deserializedEvent.eventName}' ${deserializedEvent.attributes}", e
+                log.warn "Exception was raised when processing event '${eventEnvelope.eventName}' ${eventEnvelope.eventAttributes}", e
             }
         }
         channel.basicAck(envelope.deliveryTag, SINGLE_MESSAGE)

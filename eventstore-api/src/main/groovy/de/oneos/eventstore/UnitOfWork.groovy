@@ -30,6 +30,7 @@ class UnitOfWork {
     }
 
 
+    // TODO delete; probably misused for read models
     public List<EventEnvelope> findAll(Map<String, ?> criteria) {
         return eventStore.findAll(criteria)
     }
