@@ -21,7 +21,7 @@ class AMQPEventSupplierTest {
 
     Channel channel = mock(Channel)
 
-    EventFilter unconstrainedEventFilter = mock(EventFilter)
+    Map<String, ?> unconstrainedCriteria = [:]
     EventProcessor eventProcessor = mock(EventProcessor)
 
     AMQP.Queue.DeclareOk queueDeclareOk
@@ -50,7 +50,7 @@ class AMQPEventSupplierTest {
 
         when(channel.queueDeclare()).thenReturn(queueDeclareOk)
 
-        when(unconstrainedEventFilter.withConstrainedValues(anyObject(), anyObject())).thenReturn('*.*.*.*')
+        when(unconstrainedCriteria.withConstrainedValues(anyObject(), anyObject())).thenReturn('*.*.*.*')
 
         def connectionFactory = new ConnectionFactory()
         connectionFactory.clientProperties = AMQPConstants.DEFAULT_AMQP_CLIENT_PROPERTIES
@@ -74,40 +74,40 @@ class AMQPEventSupplierTest {
 
     @Test
     void should_join_constrained_event_coordinates() {
-        EventFilter eventFilter = new MapEventFilter(
+        Map<String, ?> criteria = [
             applicationName: APPLICATION_NAME,
             boundedContextName: BOUNDED_CONTEXT_NAME,
             aggregateName: AGGREGATE_NAME,
             eventName: EVENT_NAME
-        )
+        ]
 
-        assertThat AMQPEventSupplier.routingKey(eventFilter), equalTo(joinEventCoordinates(eventFilter, '.'))
+        assertThat AMQPEventSupplier.routingKey(criteria), equalTo(joinEventCoordinates(criteria, '.'))
     }
 
-    private joinEventCoordinates(EventFilter eventFilter, String separator) {
-        ['applicationName', 'boundedContextName', 'aggregateName', 'eventName'].collect { eventFilter[it] }.join(separator)
+    private joinEventCoordinates(Map<String, ?> criteria, String separator) {
+        ['applicationName', 'boundedContextName', 'aggregateName', 'eventName'].collect { criteria[it] }.join(separator)
     }
 
     @Test
     void should_replace_wildcard_coordinates_with_asterisk() {
-        EventFilter eventFilter = new MapEventFilter()
+        Map<String, ?> criteria = [:]
 
-        assertThat AMQPEventSupplier.routingKey(eventFilter), equalTo('*.*.*.*')
+        assertThat AMQPEventSupplier.routingKey(criteria), equalTo('*.*.*.*')
     }
 
     @Test
     void should_create_a_binding_for_each_registered_event_filter() {
         amqpEventSupplier = new AMQPEventSupplier(channel)
 
-        amqpEventSupplier.subscribeTo(unconstrainedEventFilter, eventProcessor)
+        amqpEventSupplier.subscribeTo(unconstrainedCriteria, eventProcessor)
 
-        verify(channel).queueBind(amqpEventSupplier.queueName, AMQPConstants.EVENT_EXCHANGE_NAME, AMQPEventSupplier.routingKey(unconstrainedEventFilter))
+        verify(channel).queueBind(amqpEventSupplier.queueName, AMQPConstants.EVENT_EXCHANGE_NAME, AMQPEventSupplier.routingKey(unconstrainedCriteria))
     }
 
     @Test
     void should_pass_events_to_the_EventProcessor() {
         amqpEventSupplier = new AMQPEventSupplier(connection)
-        amqpEventSupplier.subscribeTo(unconstrainedEventFilter, eventProcessor)
+        amqpEventSupplier.subscribeTo(unconstrainedCriteria, eventProcessor)
 
         amqpEventProcessor.process(boxedBusinessEvent)
 

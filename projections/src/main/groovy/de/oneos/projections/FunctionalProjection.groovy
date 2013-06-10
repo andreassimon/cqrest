@@ -6,7 +6,7 @@ import de.oneos.readmodels.*
 
 class FunctionalProjection implements Projection {
 
-    EventFilter eventFilter
+    Map<String, ?> criteria
     Closure function
 
     @Override

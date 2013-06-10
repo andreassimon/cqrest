@@ -19,7 +19,7 @@ class ProjectionBuilder {
         return instance.builtProjections
     }
 
-    void project(Map eventFilter, Closure function) {
-        builtProjections << new FunctionalProjection(eventFilter: new MapEventFilter(eventFilter), function: function)
+    void project(Map<String, ?> criteria, Closure function) {
+        builtProjections << new FunctionalProjection(criteria: criteria, function: function)
     }
 }

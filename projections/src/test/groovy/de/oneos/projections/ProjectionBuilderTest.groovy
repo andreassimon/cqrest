@@ -38,8 +38,8 @@ class ProjectionBuilderTest {
         List<Projection> actualProjections = ProjectionBuilder.buildFrom projections
 
         assertThat actualProjections, equalTo([
-            new FunctionalProjection(eventFilter: new MapEventFilter(eventFilterA), function: projectionFunctionA),
-            new FunctionalProjection(eventFilter: new MapEventFilter(eventFilterB), function: projectionFunctionB)
+            new FunctionalProjection(criteria: eventFilterA, function: projectionFunctionA),
+            new FunctionalProjection(criteria: eventFilterB, function: projectionFunctionB)
         ])
     }
 

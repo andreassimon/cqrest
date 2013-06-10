@@ -20,19 +20,19 @@ class ProjectingEventProcessorTest {
 
     ProjectingEventProcessor projectingEventProcessor
 
-    EventFilter eventFilterA = new MapEventFilter(
+    Map<String, ?> eventFilterA = [
         applicationName: APPLICATION,
         boundedContextName: BOUNDED_CONTEXT,
         aggregateName: AGGREGATE,
         eventName: 'EVENT A'
-    )
+    ]
 
-    EventFilter eventFilterB = new MapEventFilter(
+    Map<String, ?> eventFilterB = [
         applicationName: APPLICATION,
         boundedContextName: BOUNDED_CONTEXT,
         aggregateName: AGGREGATE,
         eventName: 'EVENT B'
-    )
+    ]
 
     Collection<Projection> someProjections = [
         new FunctionalProjection(function: {}, eventFilter: eventFilterA),

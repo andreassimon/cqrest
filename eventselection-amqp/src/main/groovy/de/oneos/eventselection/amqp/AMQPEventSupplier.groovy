@@ -24,8 +24,8 @@ class AMQPEventSupplier extends DefaultConsumer implements Consumer, EventSuppli
         setChannel(channel)
     }
 
-    static String routingKey(EventFilter eventFilter) {
-        eventFilter.withConstrainedValues(['applicationName', 'boundedContextName', 'aggregateName', 'eventName']) { constrainedValues ->
+    static String routingKey(Map<String, ?> criteria) {
+        criteria.withConstrainedValues(['applicationName', 'boundedContextName', 'aggregateName', 'eventName']) { constrainedValues ->
             constrainedValues.collect { it ?: '*' }.join('.')
         }
     }
@@ -44,14 +44,14 @@ class AMQPEventSupplier extends DefaultConsumer implements Consumer, EventSuppli
 
     void setEventProcessors(Collection<EventProcessor> eventProcessors) {
         this.eventProcessors.clear()
-        eventProcessors.each { subscribeTo(new MapEventFilter([:]), it) }
+        eventProcessors.each { subscribeTo([:], it) }
     }
 
     @Override
-    void subscribeTo(EventFilter eventFilter, EventProcessor eventProcessor) {
-        channel.queueBind(this.queueName, EVENT_EXCHANGE_NAME, routingKey(eventFilter))
+    void subscribeTo(Map<String, ?> criteria, EventProcessor eventProcessor) {
+        channel.queueBind(this.queueName, EVENT_EXCHANGE_NAME, routingKey(criteria))
         eventProcessors << eventProcessor
-        log.debug "Bound queue '$queueName' to exchange '$EVENT_EXCHANGE_NAME' with routingKey '${routingKey(eventFilter)}'"
+        log.debug "Bound queue '$queueName' to exchange '$EVENT_EXCHANGE_NAME' with routingKey '${routingKey(criteria)}'"
     }
 
     @Override
