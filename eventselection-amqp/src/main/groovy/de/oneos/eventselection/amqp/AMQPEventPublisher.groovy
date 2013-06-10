@@ -28,7 +28,7 @@ class AMQPEventPublisher implements EventProcessor {
     }
 
     @Override
-    void wasRegisteredAt(EventStore eventStore) {
+    void wasRegisteredAt(EventSupplier eventSupplier) {
         // TODO implement
     }
 

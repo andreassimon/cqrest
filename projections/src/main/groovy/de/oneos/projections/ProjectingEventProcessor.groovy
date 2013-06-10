@@ -34,7 +34,7 @@ class ProjectingEventProcessor implements EventProcessor {
     }
 
     @Override
-    void wasRegisteredAt(EventStore eventStore) {
+    void wasRegisteredAt(EventSupplier eventSupplier) {
         // TODO implement
         throw new RuntimeException("Not implemented")
     }
