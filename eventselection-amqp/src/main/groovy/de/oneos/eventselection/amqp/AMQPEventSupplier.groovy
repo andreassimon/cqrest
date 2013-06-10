@@ -51,6 +51,7 @@ class AMQPEventSupplier extends DefaultConsumer implements Consumer, EventSuppli
     void subscribeTo(Map<String, ?> criteria, EventProcessor eventProcessor) {
         channel.queueBind(this.queueName, EVENT_EXCHANGE_NAME, routingKey(criteria))
         eventProcessors << eventProcessor
+        eventProcessor.wasRegisteredAt(this)
         log.debug "Bound queue '$queueName' to exchange '$EVENT_EXCHANGE_NAME' with routingKey '${routingKey(criteria)}'"
     }
 
