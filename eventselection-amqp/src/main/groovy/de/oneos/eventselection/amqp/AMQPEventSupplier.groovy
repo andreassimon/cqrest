@@ -25,7 +25,7 @@ class AMQPEventSupplier extends DefaultConsumer implements Consumer, EventSuppli
     }
 
     static String routingKey(Map<String, ?> criteria) {
-        criteria.subMap('applicationName', 'boundedContextName', 'aggregateName', 'eventName').values().collect {
+        criteria.subMap(['applicationName', 'boundedContextName', 'aggregateName', 'eventName']).values().collect {
             it ?: '*'
         }.join('.')
     }

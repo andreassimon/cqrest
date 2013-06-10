@@ -49,8 +49,7 @@ allprojects {
     }
 
     dependencies {
-        groovy 'org.codehaus.groovy:groovy-all:2.1.+'
-
+        compile 'org.codehaus.groovy:groovy-all:2.0.+'
         compile 'commons-logging:commons-logging:1.1.+'
 
         testCompile 'junit:junit:4.11'
