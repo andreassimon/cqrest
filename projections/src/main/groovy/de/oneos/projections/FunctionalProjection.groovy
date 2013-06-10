@@ -23,7 +23,17 @@ class FunctionalProjection implements Projection {
     }
 
     Boolean isApplicableTo(event) {
-        eventFilter.matches(event)
+        if(criteria.eventName) {
+            switch(criteria.eventName) {
+                case String:
+                    return criteria.eventName == event.eventName
+                case Collection:
+                    return criteria.eventName.any { it == event.eventName }
+                default:
+                    return false
+            }
+        }
+        return true
     }
 
     Readmodels applyTo(Readmodels models, event) {
