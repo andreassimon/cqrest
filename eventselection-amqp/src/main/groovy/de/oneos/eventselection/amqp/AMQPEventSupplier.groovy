@@ -1,7 +1,7 @@
 package de.oneos.eventselection.amqp
 
 import com.rabbitmq.client.*
-import de.oneos.eventselection.*
+
 import org.apache.commons.logging.*
 
 import static de.oneos.eventselection.amqp.AMQPConstants.*

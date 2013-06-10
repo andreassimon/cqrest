@@ -3,9 +3,6 @@ package de.oneos.projections;
 import org.junit.Test
 import static org.mockito.Mockito.*
 
-import de.oneos.eventselection.*
-
-
 public class FunctionalProjectionTest {
 
     def anEvent = new Object() {
@@ -13,18 +10,18 @@ public class FunctionalProjectionTest {
         boolean equals(Object that) { this.toString() == that.toString() }
     }
 
-    EventFilter eventFilter = mock(EventFilter)
+    Map<String, ?> criteria = [:]
 
     FunctionalProjection functionalProjection
 
 
     @Test
     void isApplicableTo_utilizes_its_eventFilter_for_matching() {
-        functionalProjection = new FunctionalProjection(eventFilter: eventFilter)
+        functionalProjection = new FunctionalProjection(criteria: criteria)
 
         functionalProjection.isApplicableTo(anEvent)
 
-        verify(eventFilter).matches(anEvent)
+        verify(criteria).matches(anEvent)
     }
 
 }

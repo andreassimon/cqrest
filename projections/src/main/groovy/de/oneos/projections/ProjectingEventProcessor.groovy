@@ -2,7 +2,6 @@ package de.oneos.projections
 
 import org.apache.commons.logging.*
 
-import de.oneos.eventselection.*
 import de.oneos.readmodels.*
 import de.oneos.eventstore.*
 

@@ -1,6 +1,5 @@
 dependencies {
     compile project(':eventstore-api')
-    compile project(':eventselection-api')
     compile 'commons-logging:commons-logging:1.1.+'
     compile 'com.rabbitmq:amqp-client:3.0.+'
 }

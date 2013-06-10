@@ -1,7 +1,7 @@
 package de.oneos.eventselection.amqp
 
 import com.rabbitmq.client.*
-import de.oneos.eventselection.*
+
 import de.oneos.eventsourcing.*
 import de.oneos.eventstore.*
 import org.junit.*

@@ -3,9 +3,8 @@ package de.oneos.projections
 import org.junit.*
 import static org.mockito.Mockito.*
 
-import de.oneos.eventselection.*
 import de.oneos.readmodels.*
-import de.oneos.eventstore.EventEnvelope
+import de.oneos.eventstore.*
 
 
 class ProjectingEventProcessorTest {
@@ -20,14 +19,14 @@ class ProjectingEventProcessorTest {
 
     ProjectingEventProcessor projectingEventProcessor
 
-    Map<String, ?> eventFilterA = [
+    Map<String, ?> criteriaA = [
         applicationName: APPLICATION,
         boundedContextName: BOUNDED_CONTEXT,
         aggregateName: AGGREGATE,
         eventName: 'EVENT A'
     ]
 
-    Map<String, ?> eventFilterB = [
+    Map<String, ?> criteriaB = [
         applicationName: APPLICATION,
         boundedContextName: BOUNDED_CONTEXT,
         aggregateName: AGGREGATE,
@@ -35,8 +34,8 @@ class ProjectingEventProcessorTest {
     ]
 
     Collection<Projection> someProjections = [
-        new FunctionalProjection(function: {}, eventFilter: eventFilterA),
-        new FunctionalProjection(function: {}, eventFilter: eventFilterB)
+        new FunctionalProjection(function: {}, criteria: criteriaA),
+        new FunctionalProjection(function: {}, criteria: criteriaB)
     ]
 
     def projection

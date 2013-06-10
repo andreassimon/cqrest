@@ -1,7 +1,7 @@
 package de.oneos.eventstore
 
 
-interface EventStore {
+interface EventStore extends EventSupplier {
 
     public static final UUID NO_CORRELATION_ID = null
     public static final String USER_UNKNOWN = null
