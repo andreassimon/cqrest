@@ -247,7 +247,14 @@ ORDER BY aggregate_id, sequence_number;\
 
     @Override
     void withEventEnvelopes(Map<String, ?> criteria, Closure block) {
-        // TODO
-        throw new RuntimeException("Not implemented")
+        namedParameterJdbcTemplate.query(
+            queryExpression(criteria),
+            criteria,
+            [processRow: { ResultSet resultSet ->
+                block.call(
+                    eventEnvelopeMapper.mapRow(resultSet, resultSet.row)
+                )
+            }] as RowCallbackHandler
+        )
     }
 }

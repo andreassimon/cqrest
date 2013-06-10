@@ -132,24 +132,7 @@ abstract class EventStore_ContractTest {
     }
 
     @Test
-    void should_filter_matching_EventEnvelopes_from_history() {
-        def unitOfWork = createUnitOfWork()
-        unitOfWork.attach(
-            new Order(ORDER_ID).emit(orderLineWasAdded())
-        )
-        unitOfWork.attach(
-            new Order(ANOTHER_ORDER_ID).emit(orderLineWasAdded())
-        )
-
-        eventStore.commit(unitOfWork)
-
-        assertThat eventStore.findAll(aggregateId: ORDER_ID).collect { it.event }, equalTo([
-            distill(orderLineWasAdded())
-        ])
-    }
-
-    @Test
-    void should_find_EventEnvelopes_by_aggregate_id() {
+    void findAll__should_find_EventEnvelopes_by_aggregate_id() {
         def unitOfWork = createUnitOfWork()
         unitOfWork.attach(new Order(ORDER_ID)).emit(orderLineWasAdded())
         unitOfWork.attach(new Order(ANOTHER_ORDER_ID)).emit(orderLineWasAdded())
@@ -163,7 +146,7 @@ abstract class EventStore_ContractTest {
     }
 
     @Test
-    void should_find_EventEnvelopes_by_event_name() {
+    void findAll__should_find_EventEnvelopes_by_event_name() {
         def unitOfWork = createUnitOfWork()
         unitOfWork.attach(new Order(ORDER_ID)).emit(orderLineWasAdded())
         unitOfWork.attach(new Order(ANOTHER_ORDER_ID)).emit(orderLineWasAdded())
@@ -178,7 +161,25 @@ abstract class EventStore_ContractTest {
     }
 
     @Test
-    void should_find_EventEnvelopes_by_multiple_event_names() {
+    void withEventEnvelopes__should_call_the_block_with_EventEnvelopes_by_event_name() {
+        def unitOfWork = createUnitOfWork()
+        unitOfWork.attach(new Order(ORDER_ID)).emit(orderLineWasAdded())
+        unitOfWork.attach(new Order(ANOTHER_ORDER_ID)).emit(orderLineWasAdded())
+        eventStore.commit(unitOfWork)
+
+        def actual = []
+        eventStore.withEventEnvelopes(eventName:  orderLineWasAdded().eventName) { envelope ->
+            actual << envelope
+        }
+
+        assertThat actual, equalTo([
+            new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, Order.aggregateName,         ORDER_ID, orderLineWasAdded(), NO_CORRELATION_ID, USER_UNKNOWN),
+            new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, Order.aggregateName, ANOTHER_ORDER_ID, orderLineWasAdded(), NO_CORRELATION_ID, USER_UNKNOWN),
+        ])
+    }
+
+    @Test
+    void findAll__should_find_EventEnvelopes_by_multiple_event_names() {
         def unitOfWork = createUnitOfWork()
         unitOfWork.attach(new Order(ORDER_ID)).emit(orderLineWasAdded())
         unitOfWork.attach(new Order(ANOTHER_ORDER_ID)).emit(orderLineWasRemoved())
@@ -193,7 +194,25 @@ abstract class EventStore_ContractTest {
     }
 
     @Test
-    void should_order_events_by_sequence_number() {
+    void withEventEnvelopes__should_find_EventEnvelopes_by_multiple_event_names() {
+        def unitOfWork = createUnitOfWork()
+        unitOfWork.attach(new Order(ORDER_ID)).emit(orderLineWasAdded())
+        unitOfWork.attach(new Order(ANOTHER_ORDER_ID)).emit(orderLineWasRemoved())
+        eventStore.commit(unitOfWork)
+
+        def actual = []
+        eventStore.withEventEnvelopes(eventName: [orderLineWasAdded().eventName, orderLineWasRemoved().eventName]) { envelope ->
+            actual << envelope
+        }
+
+        assertThat actual, equalTo([
+            new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, Order.aggregateName,         ORDER_ID, orderLineWasAdded(),   NO_CORRELATION_ID, USER_UNKNOWN),
+            new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, Order.aggregateName, ANOTHER_ORDER_ID, orderLineWasRemoved(), NO_CORRELATION_ID, USER_UNKNOWN),
+        ])
+    }
+
+    @Test
+    void findAll__should_order_events_by_sequence_number() {
         def unitOfWork = createUnitOfWork()
         unitOfWork.attach(new Order(ORDER_ID)).
             emit(orderLineWasAdded()).
@@ -215,7 +234,7 @@ abstract class EventStore_ContractTest {
     }
 
     @Test
-    void should_find_EventEnvelopes_by_aggregate_name() {
+    void findAll__should_find_EventEnvelopes_by_aggregate_name() {
         UnitOfWork unitOfWork = createUnitOfWork()
         unitOfWork.attach(new Order(ORDER_ID)).emit(orderLineWasAdded())
         unitOfWork.attach(new Order(ANOTHER_ORDER_ID)).emit(orderLineWasAdded())

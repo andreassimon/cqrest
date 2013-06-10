@@ -104,8 +104,7 @@ class InMemoryEventStore implements EventStore {
 
     @Override
     void withEventEnvelopes(Map<String, ?> criteria, Closure block) {
-        // TODO
-        throw new RuntimeException("Not implemented")
+        findAll(criteria).each(block)
     }
 
 }
