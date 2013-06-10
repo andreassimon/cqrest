@@ -21,11 +21,6 @@ class InMemoryEventStore implements EventStore {
     }
 
     @Override
-    void addEventProcessor(EventProcessor eventProcessor) {
-        subscribeTo([:], eventProcessor)
-    }
-
-    @Override
     void subscribeTo(Map<String, ?> criteria, EventProcessor eventProcessor) {
         assert null != eventProcessor
         eventProcessors.add(eventProcessor)

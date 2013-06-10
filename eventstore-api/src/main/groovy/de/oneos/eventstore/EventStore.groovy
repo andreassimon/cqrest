@@ -8,9 +8,6 @@ interface EventStore extends EventSupplier {
 
     void setEventProcessors(List<EventProcessor> eventProcessors)
 
-    // TODO Replace with subscribeTo(...)
-    void addEventProcessor(EventProcessor eventProcessor)
-
     public <T> T inUnitOfWork(String application, String boundedContext, UUID correlationId, String user, Closure<T> closure)
 
     UnitOfWork createUnitOfWork(String application, String boundedContext, UUID correlationId, String user)

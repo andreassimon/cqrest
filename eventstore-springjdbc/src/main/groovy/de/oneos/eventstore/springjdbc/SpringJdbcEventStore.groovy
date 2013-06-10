@@ -123,11 +123,6 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
     }
 
     @Override
-    void addEventProcessor(EventProcessor eventProcessor) {
-        subscribeTo([:], eventProcessor)
-    }
-
-    @Override
     void subscribeTo(Map<String, ?> criteria, EventProcessor eventProcessor) {
         assert null != eventProcessor
         processors.add(eventProcessor)
