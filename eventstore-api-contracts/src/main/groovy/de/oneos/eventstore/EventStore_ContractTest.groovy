@@ -301,6 +301,15 @@ abstract class EventStore_ContractTest {
         verify(eventProcessor).process(expectedEventEnvelope)
     }
 
+    @Test
+    void should_pass_persisted_events_to_subscribed_EventProcessors() {
+        eventStore.subscribeTo([:], eventProcessor)
+
+        eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
+
+        verify(eventProcessor).process(expectedEventEnvelope)
+    }
+
     protected publish(EventEnvelope eventEnvelope) {
         assert Order.aggregateName == eventEnvelope.aggregateName
         Order aggregate = new Order(eventEnvelope.aggregateId)

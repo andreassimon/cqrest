@@ -119,17 +119,22 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
     void setEventProcessors(List<EventProcessor> eventProcessors) {
         assert null != eventProcessors
         this.processors.clear()
-        eventProcessors.each { addEventProcessor(it) }
+        eventProcessors.each { subscribeTo([:], it) }
     }
 
     @Override
     void addEventProcessor(EventProcessor eventProcessor) {
+        subscribeTo([:], eventProcessor)
+    }
+
+    @Override
+    void subscribeTo(Map<String, ?> criteria, EventProcessor eventProcessor) {
         assert null != eventProcessor
         processors.add(eventProcessor)
         try {
             eventProcessor.wasRegisteredAt(this)
         } catch(e) {
-            log.warn("Exception occurred during registration of $eventProcessor at $this", e)
+            log.warn("Exception occurred during subscription of $eventProcessor at $this", e)
         }
     }
 
@@ -243,12 +248,6 @@ ORDER BY aggregate_id, sequence_number;\
             eventName: eventName,
             eventAttributes: eventAttributes
         ]
-    }
-
-    @Override
-    void subscribeTo(Map<String, ?> criteria, EventProcessor eventProcessor) {
-        // TODO
-        throw new RuntimeException("Not implemented")
     }
 
     @Override

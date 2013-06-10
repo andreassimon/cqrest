@@ -17,11 +17,16 @@ class InMemoryEventStore implements EventStore {
     void setEventProcessors(List<EventProcessor> eventProcessors) {
         assert null != eventProcessors
         this.eventProcessors.clear()
-        eventProcessors.each { addEventProcessor(it) }
+        eventProcessors.each { subscribeTo([:], it) }
     }
 
     @Override
     void addEventProcessor(EventProcessor eventProcessor) {
+        subscribeTo([:], eventProcessor)
+    }
+
+    @Override
+    void subscribeTo(Map<String, ?> criteria, EventProcessor eventProcessor) {
         assert null != eventProcessor
         eventProcessors.add(eventProcessor)
         try {
@@ -101,12 +106,6 @@ class InMemoryEventStore implements EventStore {
 
     @Override
     String toString() { "InMemoryEventStore" }
-
-    @Override
-    void subscribeTo(Map<String, ?> criteria, EventProcessor eventProcessor) {
-        // TODO
-        throw new RuntimeException("Not implemented")
-    }
 
     @Override
     void withEventEnvelopes(Map<String, ?> criteria, Closure block) {
