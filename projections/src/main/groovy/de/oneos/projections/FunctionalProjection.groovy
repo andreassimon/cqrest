@@ -18,7 +18,7 @@ class FunctionalProjection implements Projection {
     boolean equals(Object that) {
         null != that &&
         this.getClass() == that.getClass() &&
-        this.eventFilter == that.eventFilter &&
+        this.criteria == that.criteria &&
         this.function == that.function
     }
 

@@ -55,7 +55,7 @@ class ProjectingEventProcessorTest {
         projectingEventProcessor.subscribeForEventsAt(eventSupplier)
 
         someProjections.each {
-           verify(eventSupplier).subscribeTo(it.eventFilter, projectingEventProcessor)
+           verify(eventSupplier).subscribeTo(it.criteria, projectingEventProcessor)
         }
     }
 

@@ -14,7 +14,7 @@ class ProjectingEventProcessor implements EventProcessor {
 
     def subscribeForEventsAt(EventSupplier eventSupplier) {
         projections.each {
-            eventSupplier.subscribeTo(it.eventFilter, this)
+            eventSupplier.subscribeTo(it.criteria, this)
         }
     }
 
