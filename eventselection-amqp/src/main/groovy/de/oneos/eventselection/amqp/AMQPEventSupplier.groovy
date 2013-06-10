@@ -25,9 +25,9 @@ class AMQPEventSupplier extends DefaultConsumer implements Consumer, EventSuppli
     }
 
     static String routingKey(Map<String, ?> criteria) {
-        criteria.withConstrainedValues(['applicationName', 'boundedContextName', 'aggregateName', 'eventName']) { constrainedValues ->
-            constrainedValues.collect { it ?: '*' }.join('.')
-        }
+        criteria.subMap('applicationName', 'boundedContextName', 'aggregateName', 'eventName').values().collect {
+            it ?: '*'
+        }.join('.')
     }
 
     void setChannel(Channel channel) {
@@ -52,6 +52,12 @@ class AMQPEventSupplier extends DefaultConsumer implements Consumer, EventSuppli
         channel.queueBind(this.queueName, EVENT_EXCHANGE_NAME, routingKey(criteria))
         eventProcessors << eventProcessor
         log.debug "Bound queue '$queueName' to exchange '$EVENT_EXCHANGE_NAME' with routingKey '${routingKey(criteria)}'"
+    }
+
+    @Override
+    void withEventEnvelopes(Map<String, ?> criteria, Closure block) {
+        // TODO
+        throw new RuntimeException("Not implemented")
     }
 
     @Override

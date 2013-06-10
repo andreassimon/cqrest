@@ -50,8 +50,6 @@ class AMQPEventSupplierTest {
 
         when(channel.queueDeclare()).thenReturn(queueDeclareOk)
 
-        when(unconstrainedCriteria.withConstrainedValues(anyObject(), anyObject())).thenReturn('*.*.*.*')
-
         def connectionFactory = new ConnectionFactory()
         connectionFactory.clientProperties = AMQPConstants.DEFAULT_AMQP_CLIENT_PROPERTIES
         try {
