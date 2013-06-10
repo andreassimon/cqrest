@@ -102,5 +102,17 @@ class InMemoryEventStore implements EventStore {
     @Override
     String toString() { "InMemoryEventStore" }
 
+    @Override
+    void subscribeTo(Map<String, ?> criteria, EventProcessor eventProcessor) {
+        // TODO
+        throw new RuntimeException("Not implemented")
+    }
+
+    @Override
+    void withEventEnvelopes(Map<String, ?> criteria, Closure block) {
+        // TODO
+        throw new RuntimeException("Not implemented")
+    }
+
 }
 

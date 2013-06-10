@@ -245,4 +245,15 @@ ORDER BY aggregate_id, sequence_number;\
         ]
     }
 
+    @Override
+    void subscribeTo(Map<String, ?> criteria, EventProcessor eventProcessor) {
+        // TODO
+        throw new RuntimeException("Not implemented")
+    }
+
+    @Override
+    void withEventEnvelopes(Map<String, ?> criteria, Closure block) {
+        // TODO
+        throw new RuntimeException("Not implemented")
+    }
 }
