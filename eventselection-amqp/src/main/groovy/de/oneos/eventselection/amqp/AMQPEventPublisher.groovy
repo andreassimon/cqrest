@@ -30,6 +30,7 @@ class AMQPEventPublisher implements EventProcessor {
     @Override
     void wasRegisteredAt(EventSupplier eventSupplier) {
         // TODO implement
+        throw new RuntimeException("AMQPEventPublisher.wasRegisteredAt(EventSupplier) is not implemented")
     }
 
     private static routingKey(EventEnvelope eventEnvelope) throws IllegalAmqpEventCoordinate {

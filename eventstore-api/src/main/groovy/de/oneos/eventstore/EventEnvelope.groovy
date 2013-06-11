@@ -99,6 +99,7 @@ class EventEnvelope {
     // TODO test
     static EventEnvelope fromJSON(String json) {
         Map<String, ?> attributes = new JsonSlurper().parseText(json)
+        Date timestamp = TIMESTAMP_FORMAT.parse(attributes['timestamp'])
         return new EventEnvelope(
             attributes['applicationName'],
             attributes['boundedContextName'],
@@ -109,8 +110,8 @@ class EventEnvelope {
                 eventAttributes: attributes['attributes'],
             ],
             attributes['sequenceNumber'] as int,
-            TIMESTAMP_FORMAT.parse(attributes['timestamp']),
-            attributes['correlationId'],
+            timestamp,
+            UUID.fromString(attributes['correlationId']),
             attributes['user']
         )
     }

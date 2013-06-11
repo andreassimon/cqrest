@@ -57,8 +57,8 @@ class AMQPEventSupplier extends DefaultConsumer implements Consumer, EventSuppli
 
     @Override
     void withEventEnvelopes(Map<String, ?> criteria, Closure block) {
-        // TODO
-        throw new RuntimeException("Not implemented")
+        // TODO implement
+        throw new RuntimeException("AMQPEventSupplier.withEventEnvelopes(Map, Closure) is not implemented")
     }
 
     @Override

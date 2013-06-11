@@ -1,7 +1,5 @@
 package de.oneos.eventstore
 
-import de.oneos.eventstore.EventProcessor
-
 
 interface EventSupplier {
 
