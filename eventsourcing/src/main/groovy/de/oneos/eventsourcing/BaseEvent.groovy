@@ -25,7 +25,7 @@ abstract class BaseEvent<AT> extends GroovyObjectSupport implements Event<AT> {
 
     Map<String, ?> serializedProperties() {
         Map<String, ?> serializedProps = [:]
-        def propertyNames = properties.keySet()
+        def propertyNames = this.metaClass.properties.collect { it.name }
         for(p in propertyNames) {
             if(!UNSERIALIZED_PROPERTIES().contains(p)) {
                 serializedProps[p] = this[p]

@@ -79,8 +79,8 @@ class AMQPEventTransportTest {
 
         def actual = []
         eventSupplier.withEventEnvelopes([eventName: theEventName]) { EventEnvelope eventEnvelope ->
-            lock.countDown()
             actual << eventEnvelope
+            lock.countDown()
         }
 
         lock.await()
