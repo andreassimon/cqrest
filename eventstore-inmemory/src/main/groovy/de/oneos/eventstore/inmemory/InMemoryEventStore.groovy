@@ -61,7 +61,9 @@ class InMemoryEventStore implements EventStore {
         eventProcessors.each { processor ->
             try {
                 processor.process(eventEnvelope)
-            } catch(all) { }
+            } catch(e) {
+                log.error("Couldn't process $eventEnvelope with $processor", e)
+            }
         }
     }
 
