@@ -1,45 +1,28 @@
 package de.oneos.eventselection.amqp
 
-import com.rabbitmq.client.*
-
+import groovy.json.*
 import org.apache.commons.logging.*
+
+import com.rabbitmq.client.*
 
 import static de.oneos.eventselection.amqp.AMQPConstants.*
 import de.oneos.eventstore.*
 
 
-class AMQPEventSupplier extends DefaultConsumer implements Consumer, EventSupplier {
+class AMQPEventSupplier implements EventSupplier {
     static Log log = LogFactory.getLog(AMQPEventSupplier)
 
     Channel channel
-    String queueName
     Collection<EventProcessor> eventProcessors = []
 
     AMQPEventSupplier(Connection connection) {
-        this(connection.createChannel())
-    }
-
-    AMQPEventSupplier(Channel channel) {
-        super(channel)
-        setChannel(channel)
+        this.channel = connection.createChannel()
     }
 
     static String routingKey(Map<String, ?> criteria) {
         criteria.subMap(['applicationName', 'boundedContextName', 'aggregateName', 'eventName']).values().collect {
             it ?: '*'
         }.join('.')
-    }
-
-    void setChannel(Channel channel) {
-        this.channel = channel
-        declareQueue(channel)
-    }
-
-    void declareQueue(Channel channel) {
-        def declareOk = channel.queueDeclare()
-        this.queueName = declareOk.queue
-        channel.basicConsume(queueName, NO_AUTO_ACK, this)
-        log.debug "Declared queue '$queueName'"
     }
 
     void setEventProcessors(Collection<EventProcessor> eventProcessors) {
@@ -49,30 +32,34 @@ class AMQPEventSupplier extends DefaultConsumer implements Consumer, EventSuppli
 
     @Override
     void subscribeTo(Map<String, ?> criteria, EventProcessor eventProcessor) {
-        channel.queueBind(this.queueName, EVENT_EXCHANGE_NAME, routingKey(criteria))
+        deliverEvents(criteria) { EventEnvelope eventEnvelope ->
+            eventProcessor.process(eventEnvelope)
+            log.debug "Delivered $eventEnvelope to $eventProcessor"
+        }
+
         eventProcessors << eventProcessor
         eventProcessor.wasRegisteredAt(this)
-        log.debug "Bound queue '$queueName' to exchange '$EVENT_EXCHANGE_NAME' with routingKey '${routingKey(criteria)}'"
+    }
+
+    protected void deliverEvents(Map<String, ? extends Object> criteria, Closure callback) {
+        String eventEnvelopeQueue = createEventEnvelopeQueue(callback)
+        channel.queueBind(eventEnvelopeQueue, EVENT_EXCHANGE_NAME, routingKey(criteria))
+        log.debug "Bound queue '${eventEnvelopeQueue}' to exchange '$EVENT_EXCHANGE_NAME' with routingKey '${routingKey(criteria)}'"
+    }
+
+    protected String createEventEnvelopeQueue(Closure callback) {
+        def declareOk = channel.queueDeclare()
+        String queueName = declareOk.queue
+        log.debug "Declared event envelope queue '${queueName}'"
+        channel.basicConsume(queueName, NO_AUTO_ACK, new EventEnvelopeConsumer(channel, callback))
+        return queueName
     }
 
     @Override
     void withEventEnvelopes(Map<String, ?> criteria, Closure block) {
-        // TODO implement
-        throw new RuntimeException("AMQPEventSupplier.withEventEnvelopes(Map, Closure) is not implemented")
+        String eventEnvelopeQueue = createEventEnvelopeQueue(block)
+        channel.basicPublish(EVENT_QUERY_EXCHANGE_NAME, EVENT_QUERY, replyTo(eventEnvelopeQueue), new JsonBuilder(criteria).toString().bytes)
+        log.debug "Queried for $criteria at '${eventEnvelopeQueue}'"
     }
 
-    @Override
-    void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) {
-        def eventEnvelope = EventEnvelope.fromJSON(new String(body))
-
-        eventProcessors.each {
-            try {
-                it.process(eventEnvelope)
-                log.debug "Delivered $eventEnvelope to $it"
-            } catch(Exception e) {
-                log.warn "Exception was raised when processing event '${eventEnvelope.eventName}' ${eventEnvelope.eventAttributes}", e
-            }
-        }
-        channel.basicAck(envelope.deliveryTag, SINGLE_MESSAGE)
-    }
 }

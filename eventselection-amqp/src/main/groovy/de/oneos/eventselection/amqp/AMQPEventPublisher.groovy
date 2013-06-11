@@ -14,6 +14,7 @@ class AMQPEventPublisher implements EventProcessor {
     AMQPEventPublisher(Connection connection) {
         channel = connection.createChannel()
         channel.exchangeDeclare(EVENT_EXCHANGE_NAME, TOPIC_EXCHANGE)
+        channel.exchangeDeclare(EVENT_QUERY_EXCHANGE_NAME, DIRECT_EXCHANGE)
     }
 
     @Override
@@ -29,8 +30,10 @@ class AMQPEventPublisher implements EventProcessor {
 
     @Override
     void wasRegisteredAt(EventSupplier eventSupplier) {
-        // TODO implement
-        throw new RuntimeException("AMQPEventPublisher.wasRegisteredAt(EventSupplier) is not implemented")
+        AMQP.Queue.DeclareOk declareOk = channel.queueDeclare()
+        channel.queueBind(declareOk.queue, EVENT_QUERY_EXCHANGE_NAME, EVENT_QUERY)
+        channel.basicConsume(declareOk.queue, new EventQueryConsumer(channel, eventSupplier))
+        log.debug("Bound event query queue '$declareOk.queue' to event supplier '$eventSupplier'")
     }
 
     private static routingKey(EventEnvelope eventEnvelope) throws IllegalAmqpEventCoordinate {

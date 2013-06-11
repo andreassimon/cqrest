@@ -1,6 +1,10 @@
 package de.oneos.eventselection.amqp
 
+import java.util.concurrent.CountDownLatch
+
 import org.junit.*
+import static org.junit.Assert.*
+import static org.hamcrest.Matchers.*
 import static org.mockito.Mockito.*
 
 import com.rabbitmq.client.*
@@ -19,11 +23,22 @@ class AMQPEventTransportTest {
 
     final thiz = this
 
+    StubEventSupplier eventStore
     EventProcessor eventPublisher
     EventProcessor eventProcessor
     AMQPEventSupplier eventSupplier
 
     EventEnvelope publishedEventEnvelope
+
+    final String theEventName = 'My event'
+
+    final List queryResults = [
+        new EventEnvelope(APPLICATION, BOUNDED_CONTEXT, AGGREGATE, AGGREGATE_ID, [ eventName: theEventName, eventAttributes: [attribute:   'one'] ], 0, new Date(2013 - 1900, 5, 11, 12, 00), CORRELATION_ID, USER),
+        new EventEnvelope(APPLICATION, BOUNDED_CONTEXT, AGGREGATE, AGGREGATE_ID, [ eventName: theEventName, eventAttributes: [attribute:   'two'] ], 1, new Date(2013 - 1900, 5, 11, 12, 01), CORRELATION_ID, USER),
+        new EventEnvelope(APPLICATION, BOUNDED_CONTEXT, AGGREGATE, AGGREGATE_ID, [ eventName: theEventName, eventAttributes: [attribute: 'three'] ], 2, new Date(2013 - 1900, 5, 11, 12, 02), CORRELATION_ID, USER),
+    ]
+
+    CountDownLatch lock
 
 
     @Before
@@ -56,6 +71,22 @@ class AMQPEventTransportTest {
         verify(eventProcessor).process(publishedEventEnvelope)
     }
 
+    @Test(timeout = 2000L)
+    void withEventEnvelopes__should_call_block_with_query_results() {
+        lock = new CountDownLatch(queryResults.size())
+        eventStore = new StubEventSupplier(queryResult: queryResults)
+        eventPublisher.wasRegisteredAt(eventStore)
+
+        def actual = []
+        eventSupplier.withEventEnvelopes([eventName: theEventName]) { EventEnvelope eventEnvelope ->
+            lock.countDown()
+            actual << eventEnvelope
+        }
+
+        lock.await()
+        assertThat actual, equalTo(queryResults)
+    }
+
     protected EventProcessor synchronize(EventProcessor targetEventProcessor) {
         return [
             wasRegisteredAt: {},
@@ -77,3 +108,18 @@ class AMQPEventTransportTest {
 
 }
 
+class StubEventSupplier implements EventSupplier {
+
+    List<EventEnvelope> queryResult
+
+    @Override
+    void subscribeTo(Map<String, ?> criteria, EventProcessor eventProcessor) {
+        throw new RuntimeException('StubEventSupplier.subscribeTo() is not implemented')
+    }
+
+    @Override
+    void withEventEnvelopes(Map<String, ?> criteria, Closure block) {
+        queryResult.each(block)
+    }
+
+}
