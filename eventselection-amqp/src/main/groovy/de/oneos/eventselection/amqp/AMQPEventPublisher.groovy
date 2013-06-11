@@ -13,7 +13,12 @@ class AMQPEventPublisher implements EventProcessor {
 
     AMQPEventPublisher(Connection connection) {
         channel = connection.createChannel()
-        channel.exchangeDeclare(EVENT_EXCHANGE_NAME, TOPIC_EXCHANGE)
+        try {
+            channel.exchangeDeclare(EVENT_EXCHANGE_NAME, TOPIC_EXCHANGE, DURABLE, NO_AUTO_DELETE, PUBLIC, [:])
+        } catch(IOException e) {
+            log.info(e.cause.message, e)
+            channel = connection.createChannel()
+        }
         channel.exchangeDeclare(EVENT_QUERY_EXCHANGE_NAME, DIRECT_EXCHANGE)
     }
 

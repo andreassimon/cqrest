@@ -3,13 +3,17 @@ package de.oneos.eventselection.amqp
 import com.rabbitmq.client.*
 
 class AMQPConstants {
-    public static final boolean NOT_DURABLE = false
+    public static final boolean DURABLE = true
+    public static final boolean NOT_DURABLE = !DURABLE
 
     public static final boolean EXCLUSIVE = true
-    public static final boolean NOT_EXCLUSIVE = false
+    public static final boolean NOT_EXCLUSIVE = !EXCLUSIVE
 
     public static final boolean AUTO_DELETE = true
-    public static final boolean NO_AUTO_DELETE = false
+    public static final boolean NO_AUTO_DELETE = !AUTO_DELETE
+
+    public static final boolean INTERNAL = true
+    public static final boolean PUBLIC = !INTERNAL
 
     /**
      * Used for channel.queueDelete attributes ifUnused, and ifEmpty

@@ -36,6 +36,7 @@ class EventEnvelope {
         String user
     ) {
         assert aggregateName != null
+        assert null != timestamp
 
         this.applicationName = application
         this.boundedContextName = boundedContext
@@ -99,7 +100,6 @@ class EventEnvelope {
     // TODO test
     static EventEnvelope fromJSON(String json) {
         Map<String, ?> attributes = new JsonSlurper().parseText(json)
-        Date timestamp = TIMESTAMP_FORMAT.parse(attributes['timestamp'])
         return new EventEnvelope(
             attributes['applicationName'],
             attributes['boundedContextName'],
@@ -110,10 +110,24 @@ class EventEnvelope {
                 eventAttributes: attributes['attributes'],
             ],
             attributes['sequenceNumber'] as int,
-            timestamp,
-            UUID.fromString(attributes['correlationId']),
+            parseTimestamp(attributes),
+            correlationId(attributes),
             attributes['user']
         )
+    }
+
+    protected static Date parseTimestamp(Map<String, ?> attributes) {
+        if(!attributes.containsKey('timestamp')) {
+            throw new IllegalArgumentException("Event attributes '$attributes' must contain a timestamp!")
+        }
+        return TIMESTAMP_FORMAT.parse(attributes['timestamp'] as String)
+    }
+
+    protected static UUID correlationId(Map<String, ?> attributes) {
+        if(attributes['correlationId']) {
+            return UUID.fromString(attributes['correlationId'] as String)
+        }
+        return null
     }
 
     String getSerializedCorrelationId() {

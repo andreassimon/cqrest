@@ -91,10 +91,10 @@ class AMQPEventTransportTest {
         return [
             wasRegisteredAt: {},
             process: { EventEnvelope eventEnvelope ->
+                targetEventProcessor.process(eventEnvelope)
                 synchronized(thiz) {
                     thiz.notifyAll();
                 }
-                targetEventProcessor.process(eventEnvelope)
             }
         ] as EventProcessor
     }
