@@ -32,13 +32,13 @@ class EventTypesDiffer extends EventDiff {
         if(right == null) {
             return '<null>'
         }
-        return right.event.eventName
+        return right.eventName
     }
 
     protected getLeftEventName() {
         if (left == null) {
             return '<null>'
         }
-        return left.event.eventName
+        return left.eventName
     }
 }

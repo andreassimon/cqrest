@@ -11,13 +11,13 @@ class EventAttributesDiffer extends EventDiff {
     EventAttributesDiffer(RecordedEvent left, RecordedEvent right) {
         assert left != null
         assert right != null
-        assert left.event.eventName == right.event.eventName
+        assert left.eventName == right.eventName
 
         aggregateId = left.aggregateId
-        eventName = left.event.eventName
+        eventName = left.eventName
 
-        def leftAttributes = left.event.eventAttributes.sort { a, b -> a.key.toLowerCase() <=> b.key.toLowerCase() }
-        def rightAttributes = right.event.eventAttributes.sort { a, b -> a.key.toLowerCase() <=> b.key.toLowerCase() }
+        def leftAttributes = left.eventAttributes.sort { a, b -> a.key.toLowerCase() <=> b.key.toLowerCase() }
+        def rightAttributes = right.eventAttributes.sort { a, b -> a.key.toLowerCase() <=> b.key.toLowerCase() }
 
         def unitedAttributes = (leftAttributes + rightAttributes).collect { it.key }.unique()
 

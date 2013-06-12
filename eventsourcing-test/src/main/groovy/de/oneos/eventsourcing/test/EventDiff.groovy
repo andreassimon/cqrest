@@ -12,7 +12,7 @@ abstract class EventDiff {
         if(left.aggregateId != right.aggregateId) {
             return new AggregateIdsDiffer(left, right)
         }
-        if(left.event.eventName != right.event.eventName) {
+        if(left.eventName != right.eventName) {
             return new EventTypesDiffer(left, right)
         }
         if(left.sequenceNumber != right.sequenceNumber) {

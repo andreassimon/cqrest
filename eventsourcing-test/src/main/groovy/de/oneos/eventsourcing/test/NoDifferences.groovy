@@ -13,7 +13,7 @@ class NoDifferences extends EventDiff {
 
     @Override
     String toString() {
-        format('%s    %s    =%n', de.oneos.eventsourcing.test.Util.abbreviate(left.aggregateId), left.event.eventName)
+        format('%s    %s    =%n', de.oneos.eventsourcing.test.Util.abbreviate(left.aggregateId), left.eventName)
     }
 
 }
