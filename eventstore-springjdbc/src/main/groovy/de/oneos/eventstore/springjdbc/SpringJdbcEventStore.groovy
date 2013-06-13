@@ -19,6 +19,9 @@ import org.springframework.transaction.support.*
 class SpringJdbcEventStore implements EventStore {
     static Log log = LogFactory.getLog(SpringJdbcEventStore)
 
+    public static final boolean CREATE_TABLE = true
+    public static final boolean DONT_CREATE_TABLE = !CREATE_TABLE
+
 
     static String TABLE_NAME = 'events'
     static String INSERT_EVENT = """\
@@ -62,6 +65,13 @@ INSERT INTO ${TABLE_NAME} (
     NamedParameterJdbcTemplate namedParameterJdbcTemplate
     TransactionTemplate transactionTemplate
     protected List<EventConsumer> processors = []
+
+    SpringJdbcEventStore(DataSource dataSource, boolean createTable) {
+        setDataSource(dataSource)
+        if(createTable) {
+            this.createTable()
+        }
+    }
 
     void setDataSource(DataSource dataSource) {
         jdbcTemplate = new JdbcTemplate(dataSource)
