@@ -21,7 +21,7 @@ abstract class EventStore_ContractTest {
 
     abstract EventStore getEventStore()
 
-    EventProcessor eventProcessor, defectiveEventProcessor, flawlessEventProcessor
+    EventConsumer eventConsumer, defectiveEventConsumer, flawlessEventConsumer
     EventEnvelope expectedEventEnvelope = new EventEnvelope(
         APPLICATION_NAME,
         BOUNDED_CONTEXT_NAME,
@@ -36,13 +36,13 @@ abstract class EventStore_ContractTest {
     Closure<Object> eventFactory
 
     void setUp() {
-        eventProcessor = mock(EventProcessor)
+        eventConsumer = mock(EventConsumer)
 
-        defectiveEventProcessor = mock(EventProcessor, 'defectiveEventProcessor')
-        doThrow(new RuntimeException('Thrown by EventProcessor')).
-            when(defectiveEventProcessor).process(any(EventEnvelope))
+        defectiveEventConsumer = mock(EventConsumer, 'defectiveEventConsumer')
+        doThrow(new RuntimeException('Thrown by EventConsumer')).
+            when(defectiveEventConsumer).process(any(EventEnvelope))
 
-        flawlessEventProcessor = mock(EventProcessor, 'flawlessEventProcessor')
+        flawlessEventConsumer = mock(EventConsumer, 'flawlessEventConsumer')
     }
 
 
@@ -305,28 +305,28 @@ abstract class EventStore_ContractTest {
     }
 
     @Test
-    void should_notify_EventProcessors_after_registration() {
-        eventStore.eventProcessors = [eventProcessor]
+    void should_notify_EventConsumers_after_registration() {
+        eventStore.eventConsumers = [eventConsumer]
 
-        verify(eventProcessor).wasRegisteredAt(eventStore)
+        verify(eventConsumer).wasRegisteredAt(eventStore)
     }
 
     @Test
-    void should_pass_persisted_events_to_registered_EventProcessors() {
-        eventStore.eventProcessors = [eventProcessor]
+    void should_pass_persisted_events_to_registered_EventConsumers() {
+        eventStore.eventConsumers = [eventConsumer]
 
         eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
 
-        verify(eventProcessor).process(expectedEventEnvelope)
+        verify(eventConsumer).process(expectedEventEnvelope)
     }
 
     @Test
-    void should_pass_persisted_events_to_subscribed_EventProcessors() {
-        eventStore.subscribeTo([:], eventProcessor)
+    void should_pass_persisted_events_to_subscribed_EventConsumers() {
+        eventStore.subscribeTo([:], eventConsumer)
 
         eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
 
-        verify(eventProcessor).process(expectedEventEnvelope)
+        verify(eventConsumer).process(expectedEventEnvelope)
     }
 
     protected publish(EventEnvelope eventEnvelope) {
@@ -339,25 +339,25 @@ abstract class EventStore_ContractTest {
     }
 
     @Test
-    void should_ignore_any_exceptions_thrown_by_EventProcessor() {
-        eventStore.eventProcessors = [defectiveEventProcessor, flawlessEventProcessor]
+    void should_ignore_any_exceptions_thrown_by_EventConsumer() {
+        eventStore.eventConsumers = [defectiveEventConsumer, flawlessEventConsumer]
 
         eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
 
-        verify(flawlessEventProcessor).process(expectedEventEnvelope)
+        verify(flawlessEventConsumer).process(expectedEventEnvelope)
     }
 
     @Test
     void should_not_publish_any_event_when_transaction_failed() {
-        eventStore.eventProcessors = [eventProcessor]
+        eventStore.eventConsumers = [eventConsumer]
         eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
 
-        reset(eventProcessor)
+        reset(eventConsumer)
         expect(EventCollisionOccurred) {
             eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
         }
 
-        verify(eventProcessor, never()).process(expectedEventEnvelope)
+        verify(eventConsumer, never()).process(expectedEventEnvelope)
     }
 
     void expect(Class<? extends Throwable> exceptionClass, Closure<Void> block) {

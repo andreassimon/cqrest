@@ -24,8 +24,8 @@ class AMQPEventTransportTest {
     final thiz = this
 
     StubEventSupplier eventStore
-    EventProcessor eventPublisher
-    EventProcessor eventProcessor
+    EventConsumer eventPublisher
+    EventConsumer eventConsumer
     AMQPEventSupplier eventSupplier
 
     EventEnvelope publishedEventEnvelope
@@ -49,26 +49,26 @@ class AMQPEventTransportTest {
 
         eventPublisher = new AMQPEventPublisher(connection)
 
-        eventProcessor = mock(EventProcessor)
+        eventConsumer = mock(EventConsumer)
         eventSupplier = new AMQPEventSupplier(connection)
 
         publishedEventEnvelope = new EventEnvelope(APPLICATION, BOUNDED_CONTEXT, AGGREGATE, AGGREGATE_ID, [ eventName: 'My event', eventAttributes: [attribute: 'value'] ], 0, new Date(2013 - 1900, 5, 11, 12, 00), CORRELATION_ID, USER)
     }
 
     @Test
-    void should_notify_registration_to_EventProcessor() {
-        eventSupplier.eventProcessors = [eventProcessor]
+    void should_notify_registration_to_EventConsumer() {
+        eventSupplier.eventConsumers = [eventConsumer]
 
-        verify(eventProcessor).wasRegisteredAt(eventSupplier)
+        verify(eventConsumer).wasRegisteredAt(eventSupplier)
     }
 
     @Test(timeout = 2000L)
-    void should_deliver_published_EventEnvelopes_to_registered_EventProcessors() {
-        eventSupplier.eventProcessors = [synchronize(eventProcessor)]
+    void should_deliver_published_EventEnvelopes_to_registered_EventConsumer() {
+        eventSupplier.eventConsumers = [synchronize(eventConsumer)]
 
         publish(publishedEventEnvelope)
 
-        verify(eventProcessor).process(publishedEventEnvelope)
+        verify(eventConsumer).process(publishedEventEnvelope)
     }
 
     @Test(timeout = 2000L)
@@ -87,16 +87,16 @@ class AMQPEventTransportTest {
         assertThat actual, equalTo(queryResults)
     }
 
-    protected EventProcessor synchronize(EventProcessor targetEventProcessor) {
+    protected EventConsumer synchronize(EventConsumer targetEventConsumer) {
         return [
             wasRegisteredAt: {},
             process: { EventEnvelope eventEnvelope ->
-                targetEventProcessor.process(eventEnvelope)
+                targetEventConsumer.process(eventEnvelope)
                 synchronized(thiz) {
                     thiz.notifyAll();
                 }
             }
-        ] as EventProcessor
+        ] as EventConsumer
     }
 
     protected void publish(EventEnvelope eventEnvelope) {
@@ -113,7 +113,7 @@ class StubEventSupplier implements EventSupplier {
     List<EventEnvelope> queryResult
 
     @Override
-    void subscribeTo(Map<String, ?> criteria, EventProcessor eventProcessor) {
+    void subscribeTo(Map<String, ?> criteria, EventConsumer eventConsumer) {
         throw new RuntimeException('StubEventSupplier.subscribeTo() is not implemented')
     }
 

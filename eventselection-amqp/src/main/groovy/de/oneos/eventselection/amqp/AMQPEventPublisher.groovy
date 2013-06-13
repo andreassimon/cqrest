@@ -6,7 +6,7 @@ import org.apache.commons.logging.*
 
 import static de.oneos.eventselection.amqp.AMQPConstants.*
 
-class AMQPEventPublisher implements EventProcessor {
+class AMQPEventPublisher implements EventConsumer {
     static Log log = LogFactory.getLog(AMQPEventPublisher)
 
     Channel channel

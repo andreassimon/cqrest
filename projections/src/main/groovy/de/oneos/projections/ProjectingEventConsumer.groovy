@@ -6,8 +6,8 @@ import de.oneos.readmodels.*
 import de.oneos.eventstore.*
 
 
-class ProjectingEventProcessor implements EventProcessor {
-    static Log log = LogFactory.getLog(ProjectingEventProcessor)
+class ProjectingEventConsumer implements EventConsumer {
+    static Log log = LogFactory.getLog(ProjectingEventConsumer)
 
     Readmodels readmodels
     List<Projection> projections = []

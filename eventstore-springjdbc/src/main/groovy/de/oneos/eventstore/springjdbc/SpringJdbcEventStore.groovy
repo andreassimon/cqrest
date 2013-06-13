@@ -61,7 +61,7 @@ INSERT INTO ${TABLE_NAME} (
     JdbcOperations jdbcTemplate
     NamedParameterJdbcTemplate namedParameterJdbcTemplate
     TransactionTemplate transactionTemplate
-    protected List<EventProcessor> processors = []
+    protected List<EventConsumer> processors = []
 
     void setDataSource(DataSource dataSource) {
         jdbcTemplate = new JdbcTemplate(dataSource)
@@ -116,20 +116,20 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
     }
 
     @Override
-    void setEventProcessors(List<EventProcessor> eventProcessors) {
-        assert null != eventProcessors
+    void setEventConsumers(List<EventConsumer> eventConsumers) {
+        assert null != eventConsumers
         this.processors.clear()
-        eventProcessors.each { subscribeTo([:], it) }
+        eventConsumers.each { subscribeTo([:], it) }
     }
 
     @Override
-    void subscribeTo(Map<String, ?> criteria, EventProcessor eventProcessor) {
-        assert null != eventProcessor
-        processors.add(eventProcessor)
+    void subscribeTo(Map<String, ?> criteria, EventConsumer eventConsumer) {
+        assert null != eventConsumer
+        processors.add(eventConsumer)
         try {
-            eventProcessor.wasRegisteredAt(this)
+            eventConsumer.wasRegisteredAt(this)
         } catch(e) {
-            log.warn("Exception occurred during subscription of $eventProcessor at $this", e)
+            log.warn("Exception occurred during subscription of $eventConsumer at $this", e)
         }
     }
 

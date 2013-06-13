@@ -7,7 +7,7 @@ import de.oneos.readmodels.*
 import de.oneos.eventstore.*
 
 
-class ProjectingEventProcessorTest {
+class ProjectingEventConsumerTest {
     public static final String APPLICATION = 'APPLICATION NAME'
     public static final String BOUNDED_CONTEXT = 'BOUNDED CONTEXT NAME'
     public static final String AGGREGATE = 'AGGREGATE NAME'
@@ -17,7 +17,7 @@ class ProjectingEventProcessorTest {
 
     EventSupplier eventSupplier = mock(EventSupplier)
 
-    ProjectingEventProcessor projectingEventProcessor
+    ProjectingEventConsumer projectingEventConsumer
 
     Map<String, ?> criteriaA = [
         applicationName: APPLICATION,
@@ -44,18 +44,18 @@ class ProjectingEventProcessorTest {
     @Before
     void setUp() {
         projection = mock(Projection)
-        projectingEventProcessor = new ProjectingEventProcessor()
+        projectingEventConsumer = new ProjectingEventConsumer()
     }
 
 
     @Test
     void should_register_all_projections_at_the_given_EventSupplier() {
-        someProjections.each { projectingEventProcessor.add it }
+        someProjections.each { projectingEventConsumer.add it }
 
-        projectingEventProcessor.subscribeForEventsAt(eventSupplier)
+        projectingEventConsumer.subscribeForEventsAt(eventSupplier)
 
         someProjections.each {
-           verify(eventSupplier).subscribeTo(it.criteria, projectingEventProcessor)
+           verify(eventSupplier).subscribeTo(it.criteria, projectingEventConsumer)
         }
     }
 
@@ -63,12 +63,12 @@ class ProjectingEventProcessorTest {
     @Test
     void should_pass_the_read_models_to_projections() {
         when(projection.isApplicableTo(anEventEnvelope)).thenReturn(true)
-        projectingEventProcessor.readmodels = readModels
-        projectingEventProcessor.add projection
+        projectingEventConsumer.readmodels = readModels
+        projectingEventConsumer.add projection
 
-        projectingEventProcessor.process(anEventEnvelope)
+        projectingEventConsumer.process(anEventEnvelope)
 
-        projectingEventProcessor.projections.each { projection ->
+        projectingEventConsumer.projections.each { projection ->
             verify(projection).applyTo(eq(readModels), anyObject())
         }
     }
@@ -90,9 +90,9 @@ class ProjectingEventProcessorTest {
     @Test
     void should_forward_events_to_any_matching_projection() {
         when(projection.isApplicableTo(anEventEnvelope)).thenReturn(true)
-        projectingEventProcessor.add projection
+        projectingEventConsumer.add projection
 
-        projectingEventProcessor.process(anEventEnvelope)
+        projectingEventConsumer.process(anEventEnvelope)
 
         verify(projection).applyTo(org.mockito.Matchers.any(Readmodels), eq(anEventEnvelope))
     }
@@ -100,9 +100,9 @@ class ProjectingEventProcessorTest {
     @Test
     void should_drop_events_that_do_not_match_any_filter() {
         when(projection.isApplicableTo(anEventEnvelope)).thenReturn(false)
-        projectingEventProcessor.add projection
+        projectingEventConsumer.add projection
 
-        projectingEventProcessor.process(anEventEnvelope)
+        projectingEventConsumer.process(anEventEnvelope)
 
         verify(projection, never()).applyTo(org.mockito.Matchers.any(Readmodels), eq(anEventEnvelope))
     }

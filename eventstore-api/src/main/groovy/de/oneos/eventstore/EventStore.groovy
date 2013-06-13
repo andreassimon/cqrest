@@ -6,7 +6,7 @@ interface EventStore extends EventSupplier {
     public static final UUID NO_CORRELATION_ID = null
     public static final String USER_UNKNOWN = null
 
-    void setEventProcessors(List<EventProcessor> eventProcessors)
+    void setEventConsumers(List<EventConsumer> eventConsumers)
 
     public <T> T inUnitOfWork(String application, String boundedContext, UUID correlationId, String user, Closure<T> closure)
 

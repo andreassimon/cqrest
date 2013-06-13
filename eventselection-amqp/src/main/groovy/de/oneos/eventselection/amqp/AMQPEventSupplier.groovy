@@ -13,7 +13,7 @@ class AMQPEventSupplier implements EventSupplier {
     static Log log = LogFactory.getLog(AMQPEventSupplier)
 
     Channel channel
-    Collection<EventProcessor> eventProcessors = []
+    Collection<EventConsumer> eventConsumers = []
 
     AMQPEventSupplier(Connection connection) {
         this.channel = connection.createChannel()
@@ -25,20 +25,20 @@ class AMQPEventSupplier implements EventSupplier {
         }.join('.')
     }
 
-    void setEventProcessors(Collection<EventProcessor> eventProcessors) {
-        this.eventProcessors.clear()
-        eventProcessors.each { subscribeTo([:], it) }
+    void setEventConsumers(Collection<EventConsumer> eventConsumers) {
+        this.eventConsumers.clear()
+        eventConsumers.each { subscribeTo([:], it) }
     }
 
     @Override
-    void subscribeTo(Map<String, ?> criteria, EventProcessor eventProcessor) {
+    void subscribeTo(Map<String, ?> criteria, EventConsumer eventConsumer) {
         deliverEvents(criteria) { EventEnvelope eventEnvelope ->
-            eventProcessor.process(eventEnvelope)
-            log.debug "Delivered $eventEnvelope to $eventProcessor"
+            eventConsumer.process(eventEnvelope)
+            log.debug "Delivered $eventEnvelope to $eventConsumer"
         }
 
-        eventProcessors << eventProcessor
-        eventProcessor.wasRegisteredAt(this)
+        eventConsumers << eventConsumer
+        eventConsumer.wasRegisteredAt(this)
     }
 
     protected void deliverEvents(Map<String, ? extends Object> criteria, Closure callback) {

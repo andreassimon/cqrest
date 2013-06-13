@@ -1,7 +1,7 @@
 package de.oneos.eventstore
 
 
-interface EventProcessor {
+interface EventConsumer {
 
     void process(EventEnvelope eventEnvelope) throws EventProcessingException
 
@@ -10,5 +10,8 @@ interface EventProcessor {
      * @param eventStore
      */
     void wasRegisteredAt(EventSupplier eventSupplier)
+
+    // TODO Add to interface
+//    Map<String, ?> getEventCriteria() {
 
 }

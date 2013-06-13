@@ -11,23 +11,23 @@ class InMemoryEventStore implements EventStore {
 
 
     List<EventEnvelope> history = []
-    Collection<EventProcessor> eventProcessors = []
+    Collection<EventConsumer> eventConsumers = []
 
     @Override
-    void setEventProcessors(List<EventProcessor> eventProcessors) {
-        assert null != eventProcessors
-        this.eventProcessors.clear()
-        eventProcessors.each { subscribeTo([:], it) }
+    void setEventConsumers(List<EventConsumer> eventConsumers) {
+        assert null != eventConsumers
+        this.eventConsumers.clear()
+        eventConsumers.each { subscribeTo([:], it) }
     }
 
     @Override
-    void subscribeTo(Map<String, ?> criteria, EventProcessor eventProcessor) {
-        assert null != eventProcessor
-        eventProcessors.add(eventProcessor)
+    void subscribeTo(Map<String, ?> criteria, EventConsumer eventConsumer) {
+        assert null != eventConsumer
+        eventConsumers.add(eventConsumer)
         try {
-            eventProcessor.wasRegisteredAt(this)
+            eventConsumer.wasRegisteredAt(this)
         } catch(e) {
-            log.warn("Exception occurred during registration of $eventProcessor at $this", e)
+            log.warn("Exception occurred during registration of $eventConsumer at $this", e)
         }
     }
 
@@ -58,7 +58,7 @@ class InMemoryEventStore implements EventStore {
 
     protected Closure saveEnvelope = { eventEnvelope ->
         history << eventEnvelope
-        eventProcessors.each { processor ->
+        eventConsumers.each { processor ->
             try {
                 processor.process(eventEnvelope)
             } catch(e) {

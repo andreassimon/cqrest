@@ -22,12 +22,12 @@ class AMQPEventSupplierTest {
     Channel channel = mock(Channel)
 
     Map<String, ?> unconstrainedCriteria = [:]
-    EventProcessor eventProcessor = mock(EventProcessor)
+    EventConsumer eventConsumer = mock(EventConsumer)
 
     AMQP.Queue.DeclareOk queueDeclareOk
     Connection connection
 
-    EventProcessor amqpEventPublisher
+    EventConsumer amqpEventPublisher
     EventSupplier amqpEventSupplier
 
     def generatedAggregateId = UUID.randomUUID()
@@ -86,16 +86,16 @@ class AMQPEventSupplierTest {
     }
 
     @Test
-    void should_pass_events_to_the_EventProcessor() {
+    void should_pass_events_to_the_EventConsumer() {
         amqpEventSupplier = new AMQPEventSupplier(connection)
-        amqpEventSupplier.subscribeTo(unconstrainedCriteria, eventProcessor)
+        amqpEventSupplier.subscribeTo(unconstrainedCriteria, eventConsumer)
 
         amqpEventPublisher.process(boxedBusinessEvent)
 
         // Because AMQP works inherently asynchronously we have to wait
         sleep(100)
 
-        verify(eventProcessor).process(boxedBusinessEvent)
+        verify(eventConsumer).process(boxedBusinessEvent)
     }
 
     static class BusinessEventHappened extends BaseEvent {
