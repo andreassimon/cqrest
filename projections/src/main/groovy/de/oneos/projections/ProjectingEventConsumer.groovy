@@ -40,6 +40,11 @@ class ProjectingEventConsumer implements EventConsumer {
     }
 
     @Override
+    Map<String, ?> getEventCriteria() {
+        projections.collect { it.criteria }.inject([:]) { a, b -> a + b }
+    }
+
+    @Override
     String toString() {
         "${this.class.simpleName}<readModels = $readmodels>"
     }

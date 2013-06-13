@@ -64,9 +64,17 @@ class AMQPEventTransportTest {
 
     @Test(timeout = 2000L)
     void should_deliver_published_EventEnvelopes_to_registered_EventConsumer() {
-        eventSupplier.eventConsumers = [synchronize(eventConsumer)]
+        lock = new CountDownLatch(1)
+        eventSupplier.eventConsumers = [[
+            wasRegisteredAt: {},
+            process: { EventEnvelope eventEnvelope ->
+                eventConsumer.process(eventEnvelope)
+                lock.countDown()
+            }
+        ] as EventConsumer]
 
         publish(publishedEventEnvelope)
+        lock.await()
 
         verify(eventConsumer).process(publishedEventEnvelope)
     }
@@ -87,23 +95,8 @@ class AMQPEventTransportTest {
         assertThat actual, equalTo(queryResults)
     }
 
-    protected EventConsumer synchronize(EventConsumer targetEventConsumer) {
-        return [
-            wasRegisteredAt: {},
-            process: { EventEnvelope eventEnvelope ->
-                targetEventConsumer.process(eventEnvelope)
-                synchronized(thiz) {
-                    thiz.notifyAll();
-                }
-            }
-        ] as EventConsumer
-    }
-
     protected void publish(EventEnvelope eventEnvelope) {
         eventPublisher.process(eventEnvelope)
-        synchronized(thiz) {
-            thiz.wait(3000);
-        }
     }
 
 }

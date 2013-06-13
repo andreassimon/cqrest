@@ -116,9 +116,12 @@ class EventEnvelope {
         )
     }
 
-    protected static Date parseTimestamp(Map<String, ?> attributes) {
+    protected static synchronized Date parseTimestamp(Map<String, ?> attributes) {
         if(!attributes.containsKey('timestamp')) {
             throw new IllegalArgumentException("Event attributes '$attributes' must contain a timestamp!")
+        }
+        if(attributes['timestamp'].empty) {
+            throw new IllegalArgumentException("Event timestamp must not be empty!")
         }
         return TIMESTAMP_FORMAT.parse(attributes['timestamp'] as String)
     }

@@ -11,7 +11,6 @@ interface EventConsumer {
      */
     void wasRegisteredAt(EventSupplier eventSupplier)
 
-    // TODO Add to interface
-//    Map<String, ?> getEventCriteria() {
+    Map<String, ?> getEventCriteria()
 
 }
