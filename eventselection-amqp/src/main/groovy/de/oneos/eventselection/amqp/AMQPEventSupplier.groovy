@@ -27,7 +27,12 @@ class AMQPEventSupplier implements EventSupplier {
 
     void setEventConsumers(Collection<EventConsumer> eventConsumers) {
         this.eventConsumers.clear()
-        eventConsumers.each { subscribeTo([:], it) }
+        eventConsumers.each { subscribeTo(it) }
+    }
+
+    @Override
+    void subscribeTo(EventConsumer eventConsumer) {
+        subscribeTo(eventConsumer.eventCriteria, eventConsumer)
     }
 
     @Override

@@ -66,6 +66,7 @@ class AMQPEventTransportTest {
     void should_deliver_published_EventEnvelopes_to_registered_EventConsumer() {
         lock = new CountDownLatch(1)
         eventSupplier.eventConsumers = [[
+            getEventCriteria: { [:] },
             wasRegisteredAt: {},
             process: { EventEnvelope eventEnvelope ->
                 eventConsumer.process(eventEnvelope)
@@ -104,6 +105,11 @@ class AMQPEventTransportTest {
 class StubEventSupplier implements EventSupplier {
 
     List<EventEnvelope> queryResult
+
+    @Override
+    void subscribeTo(EventConsumer eventConsumer) {
+        throw new RuntimeException('StubEventSupplier.subscribeTo() is not implemented')
+    }
 
     @Override
     void subscribeTo(Map<String, ?> criteria, EventConsumer eventConsumer) {
