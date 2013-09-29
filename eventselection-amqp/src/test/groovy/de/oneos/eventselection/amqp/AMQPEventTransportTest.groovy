@@ -107,6 +107,12 @@ class StubEventSupplier implements EventSupplier {
     List<EventEnvelope> queryResult
 
     @Override
+    EventSupplier rightShift(EventConsumer eventConsumer) {
+        subscribeTo(eventConsumer)
+        return this
+    }
+
+    @Override
     void subscribeTo(EventConsumer eventConsumer) {
         throw new RuntimeException('StubEventSupplier.subscribeTo() is not implemented')
     }
