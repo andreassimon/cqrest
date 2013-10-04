@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.*
 import de.oneos.readmodels.*
 
 
+@Deprecated
 class SpringJdbcReadmodels implements Readmodels {
     static Log log = LogFactory.getLog(SpringJdbcReadmodels)
 

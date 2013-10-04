@@ -3,6 +3,7 @@ package de.oneos.projections
 import de.oneos.readmodels.*
 
 
+@Deprecated
 class StubbedReadmodels implements Readmodels {
 
     @Override

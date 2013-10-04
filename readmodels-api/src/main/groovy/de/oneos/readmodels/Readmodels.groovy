@@ -1,5 +1,6 @@
 package de.oneos.readmodels
 
+@Deprecated
 interface Readmodels {
 
     void add(newModelInstance)
