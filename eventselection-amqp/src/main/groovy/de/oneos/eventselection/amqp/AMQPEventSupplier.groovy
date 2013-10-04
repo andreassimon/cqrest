@@ -50,7 +50,12 @@ class AMQPEventSupplier implements EventSupplier {
         }
 
         eventConsumers << eventConsumer
-        eventConsumer.wasRegisteredAt(this)
+        try {
+            eventConsumer.wasRegisteredAt(this)
+        } catch(e) {
+            eventConsumers.remove(eventConsumer)
+            log.warn "'$e.message' during subscription of $eventConsumer", e
+        }
     }
 
 
