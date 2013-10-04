@@ -4,6 +4,7 @@ import groovy.json.*
 import org.apache.commons.logging.*
 
 import com.rabbitmq.client.*
+import rx.Subscription
 
 import static de.oneos.eventselection.amqp.AMQPConstants.*
 import de.oneos.eventstore.*
@@ -50,6 +51,22 @@ class AMQPEventSupplier implements EventSupplier {
 
         eventConsumers << eventConsumer
         eventConsumer.wasRegisteredAt(this)
+    }
+
+    rx.Observable<EventEnvelope> observe(Map<String, ?> criteria) {
+        return rx.Observable.create({ rx.Observer<EventEnvelope> observer ->
+            deliverEvents criteria, observer.&onNext
+
+            withEventEnvelopes criteria, observer.&onNext
+
+            return new Subscription() {
+                @Override
+                void unsubscribe() {
+                    // Do nothing
+//                    throw new RuntimeException("unsubscribe() is not implemented!")
+                }
+            }
+        })
     }
 
     protected void deliverEvents(Map<String, ? extends Object> criteria, Closure callback) {
