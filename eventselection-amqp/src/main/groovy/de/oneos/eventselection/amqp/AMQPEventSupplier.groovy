@@ -53,6 +53,9 @@ class AMQPEventSupplier implements EventSupplier {
         eventConsumer.wasRegisteredAt(this)
     }
 
+
+    @SuppressWarnings("GroovyAssignabilityCheck")
+    // TODO Pull up
     rx.Observable<EventEnvelope> observe(Map<String, ?> criteria) {
         return rx.Observable.create({ rx.Observer<EventEnvelope> observer ->
             deliverEvents criteria, observer.&onNext
@@ -62,8 +65,7 @@ class AMQPEventSupplier implements EventSupplier {
             return new Subscription() {
                 @Override
                 void unsubscribe() {
-                    // Do nothing
-//                    throw new RuntimeException("unsubscribe() is not implemented!")
+                    // TODO implement
                 }
             }
         })
