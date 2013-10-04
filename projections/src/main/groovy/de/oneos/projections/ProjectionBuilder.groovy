@@ -3,6 +3,7 @@ package de.oneos.projections
 import de.oneos.eventselection.*
 
 
+@Deprecated
 class ProjectionBuilder {
     List builtProjections
 

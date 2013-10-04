@@ -6,6 +6,7 @@ import de.oneos.readmodels.*
 import de.oneos.eventstore.*
 
 
+@Deprecated
 class ProjectingEventConsumer implements EventConsumer {
     static Log log = LogFactory.getLog(ProjectingEventConsumer)
 

@@ -4,6 +4,7 @@ import de.oneos.eventselection.*
 import de.oneos.readmodels.*
 
 
+@Deprecated
 class FunctionalProjection implements Projection {
 
     Map<String, ?> criteria
