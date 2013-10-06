@@ -27,6 +27,10 @@ class Depository<T> {
         return cache[k]
     }
 
+    Collection<T> getAllBodies() {
+        return getAll()*.body
+    }
+
     Collection<Resource<T>> getAll() {
         return cache.values()
     }
