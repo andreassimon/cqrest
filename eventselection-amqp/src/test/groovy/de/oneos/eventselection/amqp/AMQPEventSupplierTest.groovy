@@ -1,6 +1,7 @@
 package de.oneos.eventselection.amqp
 
 import com.rabbitmq.client.*
+import de.oneos.AMQP
 
 import de.oneos.eventsourcing.*
 import de.oneos.eventstore.*
@@ -51,7 +52,7 @@ class AMQPEventSupplierTest {
         when(channel.queueDeclare()).thenReturn(queueDeclareOk)
 
         def connectionFactory = new ConnectionFactory()
-        connectionFactory.clientProperties = AMQPConstants.DEFAULT_AMQP_CLIENT_PROPERTIES
+        connectionFactory.clientProperties = AMQP.DEFAULT_AMQP_CLIENT_PROPERTIES
         try {
             connection = connectionFactory.newConnection()
         } catch (ConnectException) {

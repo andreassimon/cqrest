@@ -1,17 +1,19 @@
 package de.oneos.eventsourcing
 
-import groovy.transform.Canonical
 import org.apache.commons.logging.*
 
 import java.util.concurrent.*
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS
 
+// TODO Holding references to Correlations for e.g. messaging purposes might cause a memory leak,
+//      Should be tested
 class Correlation {
     static Log log = LogFactory.getLog(Correlation)
+
     UUID id
 
-    List<CorrelatedEvent> triggeredEvents = new CopyOnWriteArrayList<>()
+    final List<CorrelatedEvent> triggeredEvents = new CopyOnWriteArrayList<>()
     CountDownLatch latch
 
     Correlation(UUID id) {
@@ -19,7 +21,8 @@ class Correlation {
     }
 
     void consumeTriggeredEvent(String eventType) {
-        synchronized(latch) {
+        synchronized(triggeredEvents) {
+            log.debug "$this: Consuming '$eventType'"
             triggeredEvents << CorrelatedEvent.create(eventType)
             latch.countDown()
         }
@@ -34,14 +37,14 @@ class Correlation {
             return onTimeout()
         }
     }
-}
 
-@Canonical
-class CorrelatedEvent {
-
-    final String eventType
-
-    static CorrelatedEvent create(String eventType) {
-        return new CorrelatedEvent(eventType)
+    String getRoutingKey() {
+        id.toString()
     }
+
+    @Override
+    String toString() {
+        "Correlation{$id}"
+    }
+
 }

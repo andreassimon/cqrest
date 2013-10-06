@@ -6,7 +6,7 @@ import org.apache.commons.logging.*
 import com.rabbitmq.client.*
 import rx.Subscription
 
-import static de.oneos.eventselection.amqp.AMQPConstants.*
+import static de.oneos.AMQP.*
 import de.oneos.eventstore.*
 
 
@@ -77,22 +77,14 @@ class AMQPEventSupplier implements EventSupplier {
     }
 
     protected void deliverEvents(Map<String, ? extends Object> criteria, Closure callback) {
-        String eventEnvelopeQueue = createEventEnvelopeQueue(callback)
+        String eventEnvelopeQueue = consumeQueue(channel, new EventEnvelopeConsumer(channel, callback))
         channel.queueBind(eventEnvelopeQueue, EVENT_EXCHANGE_NAME, routingKey(criteria))
         log.debug "Bound queue '${eventEnvelopeQueue}' to exchange '$EVENT_EXCHANGE_NAME' with routingKey '${routingKey(criteria)}'"
     }
 
-    protected String createEventEnvelopeQueue(Closure callback) {
-        def declareOk = channel.queueDeclare()
-        String queueName = declareOk.queue
-        log.debug "Declared event envelope queue '${queueName}'"
-        channel.basicConsume(queueName, NO_AUTO_ACK, new EventEnvelopeConsumer(channel, callback))
-        return queueName
-    }
-
     @Override
     void withEventEnvelopes(Map<String, ?> criteria, Closure block) {
-        String eventEnvelopeQueue = createEventEnvelopeQueue(block)
+        String eventEnvelopeQueue = consumeQueue(channel, new EventEnvelopeConsumer(channel, block))
         channel.basicPublish(EVENT_QUERY_EXCHANGE_NAME, EVENT_QUERY, replyTo(eventEnvelopeQueue), new JsonBuilder(criteria).toString().bytes)
         log.debug "Queried for $criteria at '${eventEnvelopeQueue}'"
     }

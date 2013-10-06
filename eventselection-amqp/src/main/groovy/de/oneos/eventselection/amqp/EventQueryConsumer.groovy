@@ -5,7 +5,7 @@ import org.apache.commons.logging.*
 import com.rabbitmq.client.*
 
 import de.oneos.eventstore.*
-import static de.oneos.eventselection.amqp.AMQPConstants.*
+import static de.oneos.AMQP.*
 
 
 class EventQueryConsumer extends DefaultConsumer implements Consumer {

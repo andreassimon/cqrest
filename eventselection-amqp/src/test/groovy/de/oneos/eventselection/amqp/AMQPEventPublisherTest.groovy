@@ -1,6 +1,7 @@
 package de.oneos.eventselection.amqp
 
 import com.rabbitmq.client.*
+import de.oneos.AMQP
 import de.oneos.eventsourcing.*
 import de.oneos.eventstore.*
 import org.junit.*
@@ -35,10 +36,10 @@ class AMQPEventPublisherTest {
 
         consumerChannel = connection.createChannel()
         def declareOk = consumerChannel.queueDeclare()
-        consumerChannel.queueBind(declareOk.queue, AMQPConstants.EVENT_EXCHANGE_NAME, "*.*.*.${anEvent.eventName}")
+        consumerChannel.queueBind(declareOk.queue, AMQP.EVENT_EXCHANGE_NAME, "*.*.*.${anEvent.eventName}")
 
         consumer = new QueueingConsumer(consumerChannel);
-        consumerChannel.basicConsume(declareOk.queue, de.oneos.eventselection.amqp.AMQPConstants.AUTO_ACK, consumer);
+        consumerChannel.basicConsume(declareOk.queue, AMQP.AUTO_ACK, consumer);
     }
 
 

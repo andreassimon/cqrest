@@ -1,6 +1,7 @@
 package de.oneos.projections
 
 class Resource<T> {
+    UUID correlationId
     UUID aggregateId
     int version
     Date lastModified
@@ -9,6 +10,7 @@ class Resource<T> {
 
     public <R> Resource<R> transform(Closure<R> function) {
         return new Resource<R>(
+            correlationId: correlationId,
             aggregateId: aggregateId,
             version: version,
             lastModified: lastModified,

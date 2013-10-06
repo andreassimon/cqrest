@@ -1,8 +1,12 @@
-package de.oneos.eventselection.amqp
+package de.oneos
 
 import com.rabbitmq.client.*
+import org.apache.commons.logging.*
 
-class AMQPConstants {
+
+class AMQP {
+    static Log log = LogFactory.getLog(AMQP)
+
     public static final boolean DURABLE = true
     public static final boolean NOT_DURABLE = !DURABLE
 
@@ -50,12 +54,21 @@ class AMQPConstants {
     public static final String EVENT_EXCHANGE_NAME = "EventExchange"
     public static final String EVENT_QUERY_EXCHANGE_NAME = "EventQueryExchange"
     public static final String EVENT_QUERY = "event-query"
+    public static final String CORRELATED_EVENT_EXCHANGE = "CorrelatedEventExchange"
 
 
-    public static final BasicProperties NO_PROPERTIES = null
+    public static final com.rabbitmq.client.AMQP.BasicProperties NO_PROPERTIES = null
 
-    public static BasicProperties replyTo(String queueName) {
-        new AMQP.BasicProperties().builder().replyTo(queueName).build()
+    public static com.rabbitmq.client.AMQP.BasicProperties replyTo(String queueName) {
+        new com.rabbitmq.client.AMQP.BasicProperties().builder().replyTo(queueName).build()
+    }
+
+    public static String consumeQueue(final Channel channel, final Consumer consumer) {
+        def declareOk = channel.queueDeclare()
+        String queueName = declareOk.queue
+        log.debug "Declared queue '${queueName}'"
+        channel.basicConsume(queueName, NO_AUTO_ACK, consumer)
+        return queueName
     }
 
 }

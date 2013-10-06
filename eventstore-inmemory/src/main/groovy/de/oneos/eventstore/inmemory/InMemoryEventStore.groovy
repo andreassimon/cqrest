@@ -1,5 +1,7 @@
 package de.oneos.eventstore.inmemory
 
+import de.oneos.eventsourcing.Correlation
+import de.oneos.eventsourcing.EventBus
 import org.apache.commons.logging.*
 
 import de.oneos.eventstore.*
@@ -43,11 +45,13 @@ class InMemoryEventStore implements EventStore {
     }
 
     @Override
-    public <T> T inUnitOfWork(String application, String boundedContext, UUID correlationId, String user, Closure<T> closure) {
+    public Correlation inUnitOfWork(String application, String boundedContext, UUID correlationId, String user, Closure closure) {
+        Correlation correlation = new Correlation(correlationId)
+        EventBus.subscribeCorrelation(correlation)
         def unitOfWork = createUnitOfWork(application, boundedContext, correlationId, user)
-        T result = unitOfWork.with(closure)
+        unitOfWork.with(closure)
         commit(unitOfWork)
-        return result
+        return correlation
     }
 
     @Override

@@ -4,7 +4,7 @@ import com.rabbitmq.client.*
 import de.oneos.eventstore.*
 import org.apache.commons.logging.*
 
-import static de.oneos.eventselection.amqp.AMQPConstants.*
+import static de.oneos.AMQP.*
 
 class AMQPEventPublisher implements EventConsumer {
     static Log log = LogFactory.getLog(AMQPEventPublisher)
@@ -27,7 +27,9 @@ class AMQPEventPublisher implements EventConsumer {
         def routingKey = routingKey(eventEnvelope)
         try {
             channel.basicPublish EVENT_EXCHANGE_NAME, routingKey, NO_PROPERTIES, eventEnvelope.toJSON().bytes
-            log.debug "Published ${eventEnvelope.toJSON()} to '$EVENT_EXCHANGE_NAME' with routingKey '${routingKey}'"
+            if(log.isDebugEnabled()) {
+                log.debug "Published ${eventEnvelope.toJSON()} to '$EVENT_EXCHANGE_NAME' with routingKey '${routingKey}'"
+            }
         } catch(Exception e) {
             log.warn "Exception during publishing $eventEnvelope to $EVENT_EXCHANGE_NAME", e
         }

@@ -1,5 +1,7 @@
 package de.oneos.eventstore
 
+import de.oneos.eventsourcing.Correlation
+
 
 interface EventStore extends EventSupplier {
 
@@ -8,7 +10,7 @@ interface EventStore extends EventSupplier {
 
     void setEventConsumers(List<EventConsumer> eventConsumers)
 
-    public <T> T inUnitOfWork(String application, String boundedContext, UUID correlationId, String user, Closure<T> closure)
+    public Correlation inUnitOfWork(String application, String boundedContext, UUID correlationId, String user, Closure closure)
 
     UnitOfWork createUnitOfWork(String application, String boundedContext, UUID correlationId, String user)
 

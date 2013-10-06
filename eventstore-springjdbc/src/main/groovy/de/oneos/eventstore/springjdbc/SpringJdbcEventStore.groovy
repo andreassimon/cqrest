@@ -1,5 +1,8 @@
 package de.oneos.eventstore.springjdbc
 
+import de.oneos.eventsourcing.Correlation
+import de.oneos.eventsourcing.EventBus
+
 import java.sql.*
 import javax.sql.*
 import groovy.json.*
@@ -155,17 +158,18 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
     }
 
     @Override
-    public <T> T inUnitOfWork(String application, String boundedContext, UUID correlationId, String user, Closure<T> closure) {
+    public Correlation inUnitOfWork(String application, String boundedContext, UUID correlationId, String user, Closure closure) {
+        Correlation correlation = new Correlation(correlationId)
+        EventBus.subscribeCorrelation(correlation)
         UnitOfWork unitOfWork = createUnitOfWork(application, boundedContext, correlationId, user)
         closure.delegate = unitOfWork
-        T result
         if(closure.maximumNumberOfParameters == 0) {
-            result = closure.call()
+            closure.call()
         } else {
-            result = closure.call(unitOfWork)
+            closure.call(unitOfWork)
         }
         commit(unitOfWork)
-        return result
+        return correlation
     }
 
     @Override
