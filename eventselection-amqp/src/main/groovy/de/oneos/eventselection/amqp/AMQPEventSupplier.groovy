@@ -10,7 +10,7 @@ import static de.oneos.AMQP.*
 import de.oneos.eventstore.*
 
 
-class AMQPEventSupplier implements EventSupplier {
+class AMQPEventSupplier extends ObservableEventSupplier implements EventSupplier {
     static Log log = LogFactory.getLog(AMQPEventSupplier)
 
     Channel channel
@@ -59,23 +59,7 @@ class AMQPEventSupplier implements EventSupplier {
     }
 
 
-    @SuppressWarnings("GroovyAssignabilityCheck")
-    // TODO Pull up
-    rx.Observable<EventEnvelope> observe(Map<String, ?> criteria) {
-        return rx.Observable.create({ rx.Observer<EventEnvelope> observer ->
-            deliverEvents criteria, observer.&onNext
-
-            withEventEnvelopes criteria, observer.&onNext
-
-            return new Subscription() {
-                @Override
-                void unsubscribe() {
-                    // TODO implement
-                }
-            }
-        })
-    }
-
+    @Override
     protected void deliverEvents(Map<String, ? extends Object> criteria, Closure callback) {
         String eventEnvelopeQueue = consumeQueue(channel, new EventEnvelopeConsumer(channel, callback))
         channel.queueBind(eventEnvelopeQueue, EVENT_EXCHANGE_NAME, routingKey(criteria))

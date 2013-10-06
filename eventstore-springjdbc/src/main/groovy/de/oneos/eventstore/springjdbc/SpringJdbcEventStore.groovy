@@ -1,7 +1,6 @@
 package de.oneos.eventstore.springjdbc
 
-import de.oneos.eventsourcing.Correlation
-import de.oneos.eventsourcing.EventBus
+import de.oneos.eventsourcing.*
 
 import java.sql.*
 import javax.sql.*
@@ -19,7 +18,7 @@ import org.springframework.jdbc.datasource.*
 import org.springframework.transaction.support.*
 
 
-class SpringJdbcEventStore implements EventStore {
+class SpringJdbcEventStore extends ObservableEventSupplier implements EventStore {
     static Log log = LogFactory.getLog(SpringJdbcEventStore)
 
     public static final boolean CREATE_TABLE = true

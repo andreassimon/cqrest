@@ -8,7 +8,7 @@ import de.oneos.eventstore.*
 import de.oneos.eventsourcing.Event
 
 
-class InMemoryEventStore implements EventStore {
+class InMemoryEventStore extends ObservableEventSupplier implements EventStore {
     static Log log = LogFactory.getLog(InMemoryEventStore)
 
 
@@ -125,4 +125,3 @@ class InMemoryEventStore implements EventStore {
     }
 
 }
-

@@ -1,0 +1,28 @@
+package de.oneos.eventstore
+
+
+class ClosureEventConsumer implements EventConsumer {
+
+    private Map<String, ?> eventCriteria
+    private Closure callback
+
+    ClosureEventConsumer(Map<String, ?> eventCriteria, Closure callback) {
+        this.callback = callback
+        this.eventCriteria = eventCriteria
+    }
+
+    @Override
+    void process(EventEnvelope eventEnvelope) throws EventProcessingException {
+        callback(eventEnvelope)
+    }
+
+    @Override
+    void wasRegisteredAt(EventSupplier eventSupplier) {
+        // Ignore
+    }
+
+    @Override
+    Map<String, ?> getEventCriteria() {
+        return eventCriteria
+    }
+}
