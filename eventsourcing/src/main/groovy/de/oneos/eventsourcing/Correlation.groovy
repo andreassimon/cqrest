@@ -24,12 +24,14 @@ class Correlation {
         synchronized(triggeredEvents) {
             log.debug "$this: Consuming '$eventType'"
             triggeredEvents << CorrelatedEvent.create(eventType)
-            latch.countDown()
+            latch?.countDown()
         }
     }
 
     def waitFor(List<String> events, Closure onSuccess, Closure onTimeout = {}) {
-        latch = new CountDownLatch(events.size())
+        synchronized(triggeredEvents) {
+            latch = new CountDownLatch((events - triggeredEvents).size())
+        }
 
         if(latch.await(100, MILLISECONDS)) {
             return onSuccess()
