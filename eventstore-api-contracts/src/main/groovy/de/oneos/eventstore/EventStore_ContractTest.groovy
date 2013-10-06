@@ -298,10 +298,14 @@ abstract class EventStore_ContractTest {
     }
 
     @Test
-    void should_return_the_result_of_the_closure() {
-        assertThat eventStore.inUnitOfWork(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN) {
-            return 'EXPECTED RESULT'
-        }, equalTo('EXPECTED RESULT')
+    void should_return_the_Correlation() {
+        assertThat \
+            eventStore.inUnitOfWork(
+                APPLICATION_NAME,
+                BOUNDED_CONTEXT_NAME,
+                NO_CORRELATION_ID,
+                USER_UNKNOWN, {}),
+            instanceOf(Correlation)
     }
 
     @Test
