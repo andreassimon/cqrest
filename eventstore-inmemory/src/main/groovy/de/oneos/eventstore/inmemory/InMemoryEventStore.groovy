@@ -82,11 +82,11 @@ class InMemoryEventStore extends ObservableEventSupplier implements EventStore {
         }
     }
 
-    void addEventEnvelope(UUID aggregateId, String application, String boundedContext, Event event, int sequenceNumber, String user) {
+    void addEventEnvelope(UUID aggregateId, String application, String boundedContext, final String aggregateType, Event event, int sequenceNumber) {
         EventEnvelope newEnvelope = new EventEnvelope(
             application,
             boundedContext,
-            'UNKNOWN',
+            aggregateType,
             aggregateId, event, sequenceNumber,
             NO_CORRELATION_ID,
             USER_UNKNOWN

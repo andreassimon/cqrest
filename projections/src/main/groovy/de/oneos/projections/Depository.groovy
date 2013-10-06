@@ -15,6 +15,10 @@ class Depository<T> {
         }
     }
 
+    boolean contains(UUID k) {
+        return cache.containsKey(k)
+    }
+
     Resource<T> get(UUID k) {
         return getAt(k)
     }

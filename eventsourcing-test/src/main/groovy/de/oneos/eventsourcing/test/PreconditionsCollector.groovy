@@ -2,7 +2,7 @@ package de.oneos.eventsourcing.test
 
 import de.oneos.eventstore.inmemory.InMemoryEventStore
 import de.oneos.eventsourcing.Event
-import de.oneos.eventstore.EventStore
+
 
 class PreconditionsCollector {
     InMemoryEventStore eventStore
@@ -30,7 +30,11 @@ class PreconditionsCollector {
     }
 
     void event(UUID aggregateId, Event givenEvent) {
-        eventStore.addEventEnvelope(aggregateId, this.application, this.boundedContext, givenEvent, eventSequence.next(aggregateId), EventStore.USER_UNKNOWN)
+        event('UNKNOWN', aggregateId, givenEvent)
+    }
+
+    void event(String aggregateType, UUID aggregateId, Event givenEvent) {
+        eventStore.addEventEnvelope(aggregateId, this.application, this.boundedContext, aggregateType, givenEvent, eventSequence.next(aggregateId))
     }
 
 }
