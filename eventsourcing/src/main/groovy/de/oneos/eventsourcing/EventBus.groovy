@@ -25,9 +25,10 @@ class EventBus {
     }
 
     static Correlation subscribeCorrelation(Correlation correlation) {
-        assert _connection != null
-
-        new CorrelatedEventConsumer(_connection.createChannel(), correlation)
+        // TODO Extract AMQP communication as a Strategy for testing purposes
+        if(_connection != null) {
+            new CorrelatedEventConsumer(_connection.createChannel(), correlation)
+        }
         return correlation
     }
 
