@@ -7,7 +7,7 @@ class Depository<T> {
     static Log log = LogFactory.getLog(Depository)
 
 
-    Collection<T> cache = new ArrayList<>()
+    Collection<T> cache = new HashSet<>()
 
     void put(T t) {
         log.debug "Added $t"
