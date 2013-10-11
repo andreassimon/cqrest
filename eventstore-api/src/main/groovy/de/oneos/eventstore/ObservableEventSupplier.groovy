@@ -1,12 +1,14 @@
 package de.oneos.eventstore
 
+import rx.lang.groovy.GroovyOnSubscribeFuncWrapper
+
 
 abstract class ObservableEventSupplier implements EventSupplier{
 
     @Override
     @SuppressWarnings("GroovyAssignabilityCheck")
     rx.Observable<EventEnvelope> observe(Map<String, ?> criteria) {
-        return rx.Observable.create({ rx.Observer<EventEnvelope> observer ->
+        return rx.Observable.create(new GroovyOnSubscribeFuncWrapper<EventEnvelope>({ rx.Observer<EventEnvelope> observer ->
             deliverEvents criteria, observer.&onNext
 
             withEventEnvelopes criteria, observer.&onNext
@@ -17,7 +19,7 @@ abstract class ObservableEventSupplier implements EventSupplier{
                     // TODO implement
                 }
             }
-        })
+        }))
     }
 
     protected void deliverEvents(Map<String, ? extends Object> criteria, Closure callback) {
