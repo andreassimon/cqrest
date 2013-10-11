@@ -43,4 +43,9 @@ class ResourceDepository<T> {
     Collection<Resource<T>> getAll() {
         return cache.values()
     }
+
+    T getBody(UUID k) {
+        return get(k)?.body
+    }
+
 }
