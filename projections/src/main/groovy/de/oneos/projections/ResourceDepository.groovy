@@ -3,14 +3,23 @@ package de.oneos.projections
 import org.apache.commons.logging.*
 
 class ResourceDepository<T> {
+    public static final String UNDEFINED = null
     static Log log = LogFactory.getLog(ResourceDepository)
 
 
-    Map<UUID, Resource<T>> cache = [:]
+    final Map<UUID, Resource<T>> cache = [:]
+    protected String name
+
+
+    ResourceDepository() { this(UNDEFINED) }
+
+    ResourceDepository(String name) {
+        this.name = name
+    }
 
     void put(Resource<T> r) {
         if(r.aggregateId != null) {
-            log.debug "Resource ${r.body.getClass().simpleName}#{$r.aggregateId} is updated"
+            log.debug "Resource ${name ?: r.body.getClass().simpleName}#{$r.aggregateId} is updated"
             cache[r.aggregateId] = r
         }
     }
