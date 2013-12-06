@@ -7,19 +7,21 @@ abstract class ObservableEventSupplier implements EventSupplier{
 
     @Override
     @SuppressWarnings("GroovyAssignabilityCheck")
-    rx.Observable<EventEnvelope> observe(Map<String, ?> criteria) {
-        return rx.Observable.create(new GroovyOnSubscribeFuncWrapper<EventEnvelope>({ rx.Observer<EventEnvelope> observer ->
-            deliverEvents criteria, observer.&onNext
+    de.oneos.projections.Observable<EventEnvelope> observe(Map<String, ?> criteria) {
+        return new de.oneos.projections.Observable<EventEnvelope>(
+            rx.Observable.create(new GroovyOnSubscribeFuncWrapper<EventEnvelope>({ rx.Observer<EventEnvelope> observer ->
+                deliverEvents criteria, observer.&onNext
 
-            withEventEnvelopes criteria, observer.&onNext
+                withEventEnvelopes criteria, observer.&onNext
 
-            return new rx.Subscription() {
-                @Override
-                void unsubscribe() {
-                    // TODO implement
+                return new rx.Subscription() {
+                    @Override
+                    void unsubscribe() {
+                        // TODO implement
+                    }
                 }
-            }
-        }))
+            }))
+        )
     }
 
     protected void deliverEvents(Map<String, ? extends Object> criteria, Closure callback) {

@@ -7,6 +7,6 @@ interface EventSupplier {
     void subscribeTo(EventConsumer eventConsumer)
     void subscribeTo(Map<String, ?> criteria, EventConsumer eventConsumer)
     void withEventEnvelopes(Map<String, ?> criteria, Closure block)
-    rx.Observable<EventEnvelope> observe(Map<String, ?> criteria)
+    de.oneos.projections.Observable<EventEnvelope> observe(Map<String, ?> criteria)
 
 }
