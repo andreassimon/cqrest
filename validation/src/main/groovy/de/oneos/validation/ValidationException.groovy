@@ -1,4 +1,4 @@
-package de.oneos.eventstore
+package de.oneos.validation
 
 
 class ValidationException extends RuntimeException {
