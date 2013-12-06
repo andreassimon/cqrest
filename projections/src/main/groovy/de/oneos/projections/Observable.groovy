@@ -1,7 +1,7 @@
 package de.oneos.projections
 
 import rx.lang.groovy.*
-import rx.observables.GroupedObservable
+import rx.observables.*
 import rx.util.functions.*
 
 // Wrapper for RxJava's Observable
@@ -32,4 +32,18 @@ class Observable<T> {
     def subscribe(Closure onNext, Action1 onError, Action0 onComplete) {
         return wrappee.subscribe(new GroovyActionWrapper<>(onNext), onError, onComplete)
     }
+
+    def deposit(Depository<T> depository) {
+        return subscribe(depository.&put, Rx.logReactiveError(depository.log), Rx.logSequenceFinished(depository.log))
+    }
+
+    def deposit(ResourceDepository<T> depository) {
+        return subscribe(depository.&put, Rx.logReactiveError(depository.log), Rx.logSequenceFinished(depository.log))
+    }
+
+    // TODO Wrap ConnectableObservable
+    ConnectableObservable<T> publish() {
+        return wrappee.publish()
+    }
+
 }
