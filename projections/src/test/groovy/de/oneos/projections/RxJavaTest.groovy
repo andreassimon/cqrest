@@ -49,8 +49,8 @@ class RxJavaTest {
 //            printError,
 //            { println("Sequence complete"); }
 //        )
-
-        sleep 30000
+//
+//        sleep 30000
     }
 
     def customObservableNonBlocking() {
