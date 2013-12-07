@@ -6,7 +6,9 @@ import rx.lang.groovy.*
 import rx.observables.*
 import rx.util.functions.*
 
-// Wrapper for RxJava's Observable
+/**
+ *  Wrapper for RxJava's Observable
+ */
 class Observable<T> {
 
     rx.Observable<T> wrappee
@@ -23,7 +25,7 @@ class Observable<T> {
         return new Observable<R>(wrappee.map(new GroovyFunctionWrapper<>(func)))
     }
 
-    public Observable<Resource> transformBodies(Closure<Resource> func) {
+    public <R> Observable<Resource<R>> transformBodies(Closure<R> func) {
         map({ Resource resource ->
             resource.transform(func)
         })
@@ -69,9 +71,8 @@ class Observable<T> {
               })
     }
 
-    // TODO Wrap ConnectableObservable
     ConnectableObservable<T> publish() {
-        return wrappee.publish()
+        return new ConnectableObservable<T>(wrappee.publish())
     }
 
 }
