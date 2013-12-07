@@ -23,8 +23,18 @@ class Observable<T> {
         return new Observable<R>(wrappee.map(new GroovyFunctionWrapper<>(func)))
     }
 
+    public Observable<Resource> transformBodies(Closure<Resource> func) {
+        map({ Resource resource ->
+            resource.transform(func)
+        })
+    }
+
     Observable<T> filter(Closure predicate) {
         return new Observable<T>(wrappee.filter(new GroovyFunctionWrapper<>(predicate)))
+    }
+
+    Observable<T> filterBodies(Closure<Boolean> predicate) {
+        filter { Resource it -> predicate.call(it.body) }
     }
 
     public <R> Observable<R> flatMap(Closure<R> func) {
