@@ -1,11 +1,9 @@
 package de.oneos.eventstore.inmemory
 
-import de.oneos.eventsourcing.Correlation
-import de.oneos.eventsourcing.EventBus
 import org.apache.commons.logging.*
 
+import de.oneos.eventsourcing.*
 import de.oneos.eventstore.*
-import de.oneos.eventsourcing.Event
 
 
 class InMemoryEventStore extends ObservableEventSupplier implements EventStore {

@@ -4,7 +4,7 @@ import org.apache.commons.logging.*
 import com.rabbitmq.client.*
 
 import static de.oneos.AMQP.*
-import de.oneos.eventstore.*
+import de.oneos.eventsourcing.*
 
 
 class EventEnvelopeConsumer extends DefaultConsumer implements Consumer {

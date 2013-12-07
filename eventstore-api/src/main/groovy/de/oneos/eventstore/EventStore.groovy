@@ -1,6 +1,6 @@
 package de.oneos.eventstore
 
-import de.oneos.eventsourcing.Correlation
+import de.oneos.eventsourcing.*
 
 
 interface EventStore extends EventSupplier {

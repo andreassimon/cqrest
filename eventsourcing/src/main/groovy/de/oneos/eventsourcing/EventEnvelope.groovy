@@ -1,4 +1,4 @@
-package de.oneos.eventstore
+package de.oneos.eventsourcing
 
 import groovy.json.*
 import java.text.SimpleDateFormat

@@ -4,9 +4,9 @@ import groovy.json.*
 import org.apache.commons.logging.*
 
 import com.rabbitmq.client.*
-import rx.Subscription
 
 import static de.oneos.AMQP.*
+import de.oneos.eventsourcing.*
 import de.oneos.eventstore.*
 
 

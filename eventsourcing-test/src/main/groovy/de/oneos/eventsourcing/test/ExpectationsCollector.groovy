@@ -1,7 +1,6 @@
 package de.oneos.eventsourcing.test
 
 import de.oneos.eventsourcing.*
-import de.oneos.eventstore.*
 import de.oneos.eventstore.inmemory.*
 
 class ExpectationsCollector {

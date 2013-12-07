@@ -9,6 +9,7 @@ import static org.mockito.Mockito.*
 
 import com.rabbitmq.client.*
 
+import de.oneos.eventsourcing.*
 import de.oneos.eventstore.*
 
 
