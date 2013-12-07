@@ -17,4 +17,20 @@ class Resource<T> {
             body: function(body)
         )
     }
+
+    public <R> Resource<R> updateVersion(int sequenceNumber) {
+        version = [version, sequenceNumber].max()
+        return this
+    }
+
+    public <R> Resource<R> updateLastModified(Date timestamp) {
+        lastModified = [lastModified, timestamp].max()
+        return this
+    }
+
+    public <R> Resource<R> updateCorrelationId(UUID correlationId) {
+        this.correlationId = correlationId
+        return this
+    }
+
 }

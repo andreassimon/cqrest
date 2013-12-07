@@ -1,5 +1,7 @@
 package de.oneos.projections
 
+import de.oneos.eventsourcing.*
+
 import rx.lang.groovy.*
 import rx.observables.*
 import rx.util.functions.*
@@ -39,6 +41,22 @@ class Observable<T> {
 
     def deposit(ResourceDepository<T> depository) {
         return subscribe(depository.&put, Rx.logReactiveError(depository.log), Rx.logSequenceFinished(depository.log))
+    }
+
+    public <A> Observable<Resource<A>> foldAggregateResource(Class<A> aggregateModel) {
+        assert aggregateModel
+        return groupBy({ it.aggregateId })
+              .flatMap({ GroupedObservable<UUID, EventEnvelope> aggregateStream ->
+                  aggregateStream
+                      .scan(new Resource<>(aggregateId: aggregateStream.key, body: aggregateModel.newInstance()), new GroovyFunctionWrapper<>({ Resource resource, EventEnvelope event ->
+                          resource.transform { body ->
+                              body.invokeMethod(event.eventName, event.eventAttributes)
+                              return body
+                          }.updateCorrelationId(event.correlationId).
+                            updateLastModified(event.timestamp).
+                            updateVersion(event.sequenceNumber)
+                      }))
+              })
     }
 
     // TODO Wrap ConnectableObservable
