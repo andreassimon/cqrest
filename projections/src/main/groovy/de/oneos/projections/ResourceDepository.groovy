@@ -4,7 +4,7 @@ import org.apache.commons.logging.*
 
 class ResourceDepository<T> {
     public static final String UNDEFINED = null
-    static Log log = LogFactory.getLog(ResourceDepository)
+    public static Log log = LogFactory.getLog(this)
 
 
     final Map<UUID, Resource<T>> cache = [:]
