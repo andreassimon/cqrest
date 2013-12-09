@@ -71,6 +71,15 @@ class Observable<T> {
               })
     }
 
+    public Observable<Resource> foldResource(Class resourceBody, Closure func) {
+        flatMap({ GroupedObservable<UUID, Map> group ->
+            group.scan(new Resource<Collection<Map>>(
+                aggregateId: group.key,
+                body: resourceBody.newInstance()
+            ), new GroovyFunctionWrapper<>(func))
+        }) as Observable<Resource>
+    }
+
     ConnectableObservable<T> publish() {
         return new ConnectableObservable<T>(wrappee.publish())
     }
