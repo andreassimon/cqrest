@@ -11,6 +11,7 @@ class ResourceDepository<T> {
     protected String name
 
 
+    @Deprecated
     ResourceDepository() { this(UNDEFINED) }
 
     ResourceDepository(String name) {

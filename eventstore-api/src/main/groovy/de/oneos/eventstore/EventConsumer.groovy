@@ -5,6 +5,7 @@ import de.oneos.eventsourcing.*
 
 interface EventConsumer {
 
+    // TODO Remove from interface
     void process(EventEnvelope eventEnvelope) throws EventProcessingException
 
     /**
