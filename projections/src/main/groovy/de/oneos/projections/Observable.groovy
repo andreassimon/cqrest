@@ -57,27 +57,37 @@ class Observable<T> {
 
     public <A> Observable<Resource<A>> foldAggregateResource(Class<A> aggregateModel) {
         assert aggregateModel
-        return groupBy({ it.aggregateId })
-              .flatMap({ GroupedObservable<UUID, EventEnvelope> aggregateStream ->
-                  aggregateStream
-                      .scan(new Resource<>(aggregateId: aggregateStream.key, body: aggregateModel.newInstance()), new GroovyFunctionWrapper<>({ Resource resource, EventEnvelope event ->
-                          resource.transform { body ->
-                              body.invokeMethod(event.eventName, event.eventAttributes)
-                              return body
-                          }.updateCorrelationId(event.correlationId).
-                            updateLastModified(event.timestamp).
-                            updateVersion(event.sequenceNumber)
-                      }))
-              })
+
+        Closure<Resource<A>> foldFunc = { Resource resource, EventEnvelope event ->
+            resource.transform { body ->
+                body.invokeMethod(event.eventName, event.eventAttributes)
+                return body
+            }.updateCorrelationId(event.correlationId).
+              updateLastModified(event.timestamp).
+              updateVersion(event.sequenceNumber)
+        }
+
+        foldAggregateResource(aggregateModel, foldFunc)
     }
 
-    public Observable<Resource> foldResource(Class resourceBody, Closure func) {
+    public <B> Observable<Resource<B>> foldAggregateResource(Class<B> resourceBody, Closure<Resource<B>> foldFunc) {
+        assert resourceBody
+        assert foldFunc
+
+        groupBy({ it.aggregateId })
+        .foldResource(resourceBody, foldFunc)
+    }
+
+    public <B> Observable<Resource<B>> foldResource(Class<B> resourceBody, Closure<Resource<B>> foldFunc) {
+        assert resourceBody
+        assert foldFunc
+
         flatMap({ GroupedObservable<UUID, Map> group ->
             group.scan(new Resource<Collection<Map>>(
                 aggregateId: group.key,
                 body: resourceBody.newInstance()
-            ), new GroovyFunctionWrapper<>(func))
-        }) as Observable<Resource>
+            ), new GroovyFunctionWrapper<>(foldFunc))
+        }) as Observable<Resource<B>>
     }
 
     ConnectableObservable<T> publish() {
