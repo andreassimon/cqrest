@@ -4,7 +4,7 @@ import org.apache.commons.logging.*
 
 
 class Depository<T> {
-    static Log log = LogFactory.getLog(Depository)
+    public static Log log = LogFactory.getLog(this)
 
 
     Collection<T> cache = new HashSet<>()
