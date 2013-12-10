@@ -7,6 +7,7 @@ interface EventConsumer {
 
     /**
      * This might be useful for initial filling of read models upon creation/registration.
+     * This is also sufficient when using a reactive approach
      * @param eventStore
      */
     void wasRegisteredAt(EventSupplier eventSupplier)
