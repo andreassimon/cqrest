@@ -1,15 +1,19 @@
 package de.oneos.eventselection.amqp
 
+import org.junit.*
+import static org.junit.Assert.*
+import static org.hamcrest.Matchers.*
+import static org.mockito.Mockito.*
+
 import com.rabbitmq.client.*
+
 import de.oneos.AMQP
 
-import de.oneos.eventsourcing.*
-import de.oneos.eventstore.*
-import org.junit.*
+import de.oneos.eventsourcing.BaseEvent
+import de.oneos.eventsourcing.EventConsumer
+import de.oneos.eventsourcing.EventEnvelope
+import de.oneos.eventsourcing.EventSupplier
 
-import static org.hamcrest.Matchers.*
-import static org.junit.Assert.*
-import static org.mockito.Mockito.*
 
 class AMQPEventSupplierTest {
 

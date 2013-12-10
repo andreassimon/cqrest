@@ -6,11 +6,13 @@ import org.apache.commons.logging.*
 import com.rabbitmq.client.*
 
 import static de.oneos.AMQP.*
-import de.oneos.eventsourcing.*
-import de.oneos.eventstore.*
+
+import de.oneos.eventsourcing.EventConsumer
+import de.oneos.eventsourcing.EventEnvelope
+import de.oneos.eventsourcing.EventSupplier
 
 
-class AMQPEventSupplier extends ObservableEventSupplier implements EventSupplier {
+class AMQPEventSupplier implements EventSupplier {
     static Log log = LogFactory.getLog(AMQPEventSupplier)
 
     Channel channel

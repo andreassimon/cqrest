@@ -9,8 +9,8 @@ import static org.mockito.Mockito.*
 
 import com.rabbitmq.client.*
 
-import de.oneos.eventsourcing.*
-import de.oneos.eventstore.*
+import de.oneos.eventsourcing.EventConsumer
+import de.oneos.eventsourcing.EventEnvelope
 
 
 class AMQPEventTransportTest {

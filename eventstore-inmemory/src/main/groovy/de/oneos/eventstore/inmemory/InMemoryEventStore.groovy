@@ -6,7 +6,7 @@ import de.oneos.eventsourcing.*
 import de.oneos.eventstore.*
 
 
-class InMemoryEventStore extends ObservableEventSupplier implements EventStore {
+class InMemoryEventStore implements EventStore {
     static Log log = LogFactory.getLog(InMemoryEventStore)
 
 

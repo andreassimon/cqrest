@@ -1,14 +1,19 @@
 package de.oneos.eventselection.amqp
 
-import com.rabbitmq.client.*
-import de.oneos.AMQP
-import de.oneos.eventsourcing.*
-import de.oneos.eventstore.*
 import org.junit.*
-
-import static java.util.UUID.*
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
+
+import static java.util.UUID.*
+
+import com.rabbitmq.client.*
+import de.oneos.AMQP
+
+import de.oneos.eventsourcing.BaseEvent
+import de.oneos.eventsourcing.Event
+import de.oneos.eventsourcing.EventEnvelope
+import de.oneos.eventsourcing.EventProcessingException
+
 
 class AMQPEventPublisherTest {
     static final UUID NO_CORRELATION_ID = null

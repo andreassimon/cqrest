@@ -3,10 +3,13 @@ package de.oneos.eventselection.amqp
 import org.apache.commons.logging.*
 import com.rabbitmq.client.*
 
-import de.oneos.eventsourcing.*
-import de.oneos.eventstore.*
+
+import de.oneos.eventsourcing.EventConsumer
+import de.oneos.eventsourcing.EventEnvelope
+import de.oneos.eventsourcing.EventSupplier
 
 import static de.oneos.AMQP.*
+
 
 class AMQPEventPublisher implements EventConsumer {
     static Log log = LogFactory.getLog(AMQPEventPublisher)

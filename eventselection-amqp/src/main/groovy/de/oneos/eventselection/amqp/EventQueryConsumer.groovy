@@ -4,8 +4,9 @@ import groovy.json.*
 import org.apache.commons.logging.*
 import com.rabbitmq.client.*
 
-import de.oneos.eventsourcing.*
-import de.oneos.eventstore.*
+import de.oneos.eventsourcing.EventEnvelope
+import de.oneos.eventsourcing.EventSupplier
+
 import static de.oneos.AMQP.*
 
 

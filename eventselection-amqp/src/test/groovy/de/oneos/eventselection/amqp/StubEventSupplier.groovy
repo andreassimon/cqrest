@@ -1,10 +1,8 @@
 package de.oneos.eventselection.amqp
 
 import de.oneos.eventsourcing.*
-import de.oneos.eventstore.*
-import de.oneos.eventstore.ObservableEventSupplier
 
-class StubEventSupplier extends ObservableEventSupplier implements EventSupplier {
+class StubEventSupplier implements EventSupplier {
 
     List<EventEnvelope> queryResult
 

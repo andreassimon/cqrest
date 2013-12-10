@@ -1,7 +1,4 @@
-package de.oneos.eventstore
-
-import de.oneos.eventsourcing.*
-
+package de.oneos.eventsourcing
 
 interface EventConsumer {
 

@@ -18,7 +18,7 @@ import org.springframework.jdbc.datasource.*
 import org.springframework.transaction.support.*
 
 
-class SpringJdbcEventStore extends ObservableEventSupplier implements EventStore {
+class SpringJdbcEventStore implements EventStore {
     static Log log = LogFactory.getLog(SpringJdbcEventStore)
 
     public static final boolean CREATE_TABLE = true

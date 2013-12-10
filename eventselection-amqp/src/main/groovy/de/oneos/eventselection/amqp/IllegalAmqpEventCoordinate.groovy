@@ -1,6 +1,7 @@
 package de.oneos.eventselection.amqp
 
-import de.oneos.eventstore.*
+import de.oneos.eventsourcing.EventProcessingException
+
 
 class IllegalAmqpEventCoordinate extends EventProcessingException {
     IllegalAmqpEventCoordinate(List<String> eventCoordinates) {
