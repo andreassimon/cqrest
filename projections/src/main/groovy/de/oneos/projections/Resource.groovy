@@ -1,5 +1,8 @@
 package de.oneos.projections
 
+import de.oneos.eventsourcing.EventEnvelope
+
+
 class Resource<T> {
     UUID correlationId
     UUID aggregateId
@@ -7,6 +10,17 @@ class Resource<T> {
     Date lastModified
 
     T body
+
+    public Resource<T> apply(EventEnvelope event) {
+        body.invokeMethod(event.eventName, event.eventAttributes)
+        return new Resource<T>(
+          correlationId: event.correlationId,
+          aggregateId: aggregateId,
+          version: event.sequenceNumber,
+          lastModified: event.timestamp,
+          body: body
+        )
+    }
 
     public <R> Resource<R> transform(Closure<R> function) {
         return new Resource<R>(
@@ -16,21 +30,6 @@ class Resource<T> {
             lastModified: lastModified,
             body: function(body)
         )
-    }
-
-    public <R> Resource<R> updateVersion(int sequenceNumber) {
-        version = [version, sequenceNumber].max()
-        return this
-    }
-
-    public <R> Resource<R> updateLastModified(Date timestamp) {
-        lastModified = [lastModified, timestamp].max()
-        return this
-    }
-
-    public <R> Resource<R> updateCorrelationId(UUID correlationId) {
-        this.correlationId = correlationId
-        return this
     }
 
 }

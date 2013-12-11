@@ -58,16 +58,9 @@ class Observable<T> {
     public <A> Observable<Resource<A>> foldAggregateResource(Class<A> aggregateModel) {
         assert aggregateModel
 
-        Closure<Resource<A>> foldFunc = { Resource resource, EventEnvelope event ->
-            resource.transform { body ->
-                body.invokeMethod(event.eventName, event.eventAttributes)
-                return body
-            }.updateCorrelationId(event.correlationId).
-              updateLastModified(event.timestamp).
-              updateVersion(event.sequenceNumber)
+        foldAggregateResource(aggregateModel) { Resource resource, EventEnvelope event ->
+            resource.apply(event)
         }
-
-        foldAggregateResource(aggregateModel, foldFunc)
     }
 
     public <B> Observable<Resource<B>> foldAggregateResource(Class<B> resourceBody, Closure<Resource<B>> foldFunc) {
@@ -83,7 +76,7 @@ class Observable<T> {
         assert foldFunc
 
         flatMap({ GroupedObservable<UUID, Map> group ->
-            group.scan(new Resource<Collection<Map>>(
+            group.scan(new Resource<B>(
                 aggregateId: group.key,
                 body: resourceBody.newInstance()
             ), new GroovyFunctionWrapper<>(foldFunc))
