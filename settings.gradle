@@ -7,7 +7,5 @@ include(
     'eventstore-springjdbc',
     'eventselection-amqp',
     'projections',
-    'readmodels-api',
-    'readmodels-springjdbc',
     'eventsourcing-test'
 )
