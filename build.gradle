@@ -84,7 +84,7 @@ allprojects {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.6'
+    gradleVersion = '1.7'
 }
 
 /* vim: set ft=groovy: */
