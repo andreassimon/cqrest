@@ -7,7 +7,6 @@ import static org.junit.Assert.*
 import static java.util.UUID.*
 
 import com.rabbitmq.client.*
-import de.oneos.AMQP
 
 import de.oneos.eventsourcing.BaseEvent
 import de.oneos.eventsourcing.Event

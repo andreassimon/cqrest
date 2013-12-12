@@ -8,7 +8,7 @@ import de.oneos.eventsourcing.EventConsumer
 import de.oneos.eventsourcing.EventEnvelope
 import de.oneos.eventsourcing.EventSupplier
 
-import static de.oneos.AMQP.*
+import static AMQP.*
 
 
 class AMQPEventPublisher implements EventConsumer {

@@ -7,8 +7,6 @@ import static org.mockito.Mockito.*
 
 import com.rabbitmq.client.*
 
-import de.oneos.AMQP
-
 import de.oneos.eventsourcing.BaseEvent
 import de.oneos.eventsourcing.EventConsumer
 import de.oneos.eventsourcing.EventEnvelope

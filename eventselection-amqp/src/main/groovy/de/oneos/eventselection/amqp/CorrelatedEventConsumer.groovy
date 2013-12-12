@@ -1,11 +1,12 @@
-package de.oneos.eventsourcing
+package de.oneos.eventselection.amqp
 
 import com.rabbitmq.client.*
+import de.oneos.eventsourcing.Correlation
 import org.apache.commons.logging.*
 
-import static de.oneos.AMQP.CORRELATED_EVENT_EXCHANGE
-import static de.oneos.AMQP.SINGLE_MESSAGE
-import static de.oneos.AMQP.consumeQueue
+import static AMQP.CORRELATED_EVENT_EXCHANGE
+import static AMQP.SINGLE_MESSAGE
+import static AMQP.consumeQueue
 
 
 class CorrelatedEventConsumer extends DefaultConsumer implements Consumer {

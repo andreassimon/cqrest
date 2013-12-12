@@ -1,4 +1,4 @@
-package de.oneos
+package de.oneos.eventselection.amqp
 
 import com.rabbitmq.client.*
 import org.apache.commons.logging.*

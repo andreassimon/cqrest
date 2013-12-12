@@ -7,7 +7,7 @@ import com.rabbitmq.client.*
 import de.oneos.eventsourcing.EventEnvelope
 import de.oneos.eventsourcing.EventSupplier
 
-import static de.oneos.AMQP.*
+import static AMQP.*
 
 
 class EventQueryConsumer extends DefaultConsumer implements Consumer {

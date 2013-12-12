@@ -3,7 +3,7 @@ package de.oneos.eventselection.amqp
 import org.apache.commons.logging.*
 import com.rabbitmq.client.*
 
-import static de.oneos.AMQP.*
+import static AMQP.*
 import de.oneos.eventsourcing.*
 
 
