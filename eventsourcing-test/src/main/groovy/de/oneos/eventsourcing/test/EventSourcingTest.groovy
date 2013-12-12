@@ -2,6 +2,8 @@ package de.oneos.eventsourcing.test
 
 import org.junit.*
 
+import de.oneos.eventsourcing.EventBus
+
 import de.oneos.eventstore.inmemory.*
 import static de.oneos.eventstore.EventStore.*
 
@@ -23,6 +25,7 @@ abstract class EventSourcingTest {
 
     @Before
     void setUp() {
+        EventBus.INSTANCE = new InMemoryEventBus()
         eventStore = new InMemoryEventStore()
         preconditionsCollector = new PreconditionsCollector(eventStore, application, boundedContext)
     }

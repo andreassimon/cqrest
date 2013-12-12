@@ -14,7 +14,15 @@ abstract class EventBus {
     }
 
 
+    protected static void assertEventBusIsInitialized() {
+        if(null == INSTANCE) {
+            log.error "EventBus is not initialized. Please set an instance of EventBus."
+            throw new IllegalStateException('EventBus is not initialized. Please set an instance of EventBus.')
+        }
+    }
+
     static Correlation subscribeCorrelation(Correlation correlation) {
+        assertEventBusIsInitialized()
         INSTANCE.doSubscribeCorrelation(correlation)
     }
 
@@ -22,6 +30,7 @@ abstract class EventBus {
 
 
     static void emit(UUID correlation, String eventType) {
+        assertEventBusIsInitialized()
         INSTANCE.doEmit(correlation, eventType)
     }
 
