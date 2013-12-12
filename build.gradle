@@ -22,7 +22,7 @@ allprojects {
 
 
     group   = 'de.oneos'
-    version = '0.1.0'
+    version = '0.1.1-SNAPSHOT'
 
     defaultTasks 'clean', 'install'
 
@@ -66,7 +66,7 @@ allprojects {
         contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
         publish {
             repository {
-                repoKey = 'libs-release-local'
+                repoKey = 'libs-snapshot-local'
                 username = "${artifactory_user}"
                 password = "${artifactory_password}"
                 maven = true
