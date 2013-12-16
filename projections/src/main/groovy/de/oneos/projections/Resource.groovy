@@ -1,9 +1,14 @@
 package de.oneos.projections
 
+import org.apache.commons.logging.Log
+import org.apache.commons.logging.LogFactory
+
 import de.oneos.eventsourcing.EventEnvelope
 
 
 class Resource<T> {
+    public static Log log = LogFactory.getLog(this)
+
     UUID correlationId
     UUID aggregateId
     int version
@@ -12,7 +17,12 @@ class Resource<T> {
     T body
 
     public Resource<T> apply(EventEnvelope event) {
-        body.invokeMethod(event.eventName, event.eventAttributes)
+        if(!body.respondsTo(event.eventName, [Map] as Class[])) {
+            log.warn("$body cannot handle event `$event.eventName`")
+        } else {
+            body.invokeMethod(event.eventName, event.eventAttributes)
+        }
+
         return new Resource<T>(
           correlationId: event.correlationId,
           aggregateId: aggregateId,
