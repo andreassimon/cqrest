@@ -29,7 +29,7 @@ class ResourceDepository<T> {
         return cache.containsKey(k)
     }
 
-    Resource<T> get(UUID k) {
+    final Resource<T> get(UUID k) {
         return getAt(k)
     }
 

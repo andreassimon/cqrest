@@ -241,6 +241,7 @@ ORDER BY aggregate_id, sequence_number;\
     }
 
     protected final static Map<String, String> COLUMN_NAME = [
+        boundedContextName: 'bounded_context_name',
         aggregateName: 'aggregate_name',
         aggregateId: 'aggregate_id',
         eventName:   'event_name'
