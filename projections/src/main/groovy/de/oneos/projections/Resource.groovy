@@ -18,7 +18,7 @@ class Resource<T> {
 
     public Resource<T> apply(EventEnvelope event) {
         if(!body.respondsTo(event.eventName, [Map] as Class[])) {
-            log.warn("$body cannot handle event `$event.eventName`")
+            log.warn("${body.getClass().getCanonicalName()} cannot handle event `$event.eventName`")
         } else {
             body.invokeMethod(event.eventName, event.eventAttributes)
         }
