@@ -14,10 +14,10 @@ abstract class EventBus {
     }
 
 
-    protected static void assertEventBusIsInitialized() {
+    protected static void assertEventBusIsInitialized() throws EventBusNotInitialized {
         if(null == INSTANCE) {
             log.error "EventBus is not initialized. Please set an instance of EventBus."
-            throw new IllegalStateException('EventBus is not initialized. Please set an instance of EventBus.')
+            throw new EventBusNotInitialized()
         }
     }
 
