@@ -23,6 +23,7 @@ class AggregateTransformation implements ASTTransformation {
         classes.findAll { ClassNode clazz ->
             clazz.getAnnotations(new ClassNode(Aggregate))
         }.each { ClassNode aggregate ->
+            aggregate.addField(aggregateName(aggregate))
             if(aggregate.getField('_log') == null) {
                 aggregate.addField(_log(aggregate))
             }
@@ -84,6 +85,12 @@ class AggregateTransformation implements ASTTransformation {
     FieldNode _newEvents(ClassNode parentClass) {
         return new FieldNode(
             '_newEvents', FieldNode.ACC_PROTECTED, new ClassNode(List), parentClass, new ListExpression([])
+        )
+    }
+
+    FieldNode aggregateName(ClassNode parentClass) {
+        return new FieldNode(
+          'aggregateName', FieldNode.ACC_STATIC, new ClassNode(String), parentClass, new ConstantExpression(parentClass.getName())
         )
     }
 

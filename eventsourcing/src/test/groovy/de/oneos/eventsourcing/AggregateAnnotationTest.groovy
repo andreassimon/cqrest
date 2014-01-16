@@ -22,8 +22,6 @@ import de.oneos.eventsourcing.orders.*
 @Aggregate
 class Order {
 
-    static aggregateName = 'AGGREGATE'
-
     final UUID id
     def orderLines = []
 
@@ -95,6 +93,10 @@ class Order {
         order.flushEvents()
 
         assertThat order.newEvents, empty()
+    }
+
+    void test__a_static_attribute_aggregateName_is_derived_from_the_class_name() {
+        assert orderClazz.aggregateName == 'Order'
     }
 
 }
