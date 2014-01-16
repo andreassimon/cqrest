@@ -1,7 +1,7 @@
 dependencies {
     compile project(':eventsourcing')
     compile 'commons-logging:commons-logging:1.1.+'
-    compile('com.netflix.rxjava:rxjava-groovy:0.15.+') {
+    compile('com.netflix.rxjava:rxjava-groovy:0.16.+') {
         exclude group: 'org.codehaus.groovy', module: 'groovy-all'
     }
 }
