@@ -2,35 +2,73 @@ package de.oneos.eventsourcing
 
 import static java.util.UUID.randomUUID
 
-import org.junit.*
 import static org.junit.Assert.*
 import static org.hamcrest.Matchers.*
-import de.oneos.eventsourcing.orders.Order
 import de.oneos.eventsourcing.orders.Order_line_was_added
 import de.oneos.eventsourcing.orders.Order_was_created
 
 
-@Ignore
-class AggregateAnnotationTest {
+class AggregateAnnotationTest extends GroovyTestCase {
 
     UUID generatedOrderId = randomUUID()
     UUID article1 = randomUUID()
     UUID article2 = randomUUID()
 
-    @Test
-    void instance_method__emit__should_return_constant_string() {
-        def order = new Order(randomUUID())
+        def orderSource = '''
+import de.oneos.eventsourcing.Aggregate
+import de.oneos.eventsourcing.BaseEvent
+import de.oneos.eventsourcing.orders.*
 
-        assertThat order.emit( new Order_line_was_added(article1) ), equalTo('emit called')
+@Aggregate
+class Order {
+
+    static aggregateName = 'AGGREGATE'
+
+    final UUID id
+    def orderLines = []
+
+    static Order create(UUID id) {
+        assert id != null
+        Order newOrder = new Order(id)
+        newOrder.emit(
+            new Order_was_created()
+        )
+        return newOrder
     }
 
-    @Test
-    void instance_method__emit__should_collect_emitted_events() {
-//        def order = Order.create(generatedOrderId)
-        def order = new Order(randomUUID())
+    Order(UUID id) {
+        this.id = id
+    }
 
-        order.emit( new Order_line_was_added(article1) )
-//        order.addArticles([article1, article2])
+    def "Order was created"(Map attributes) { }
+
+    def "Order line was added"(Map orderLine) {
+        orderLines << UUID.fromString(orderLine['article'])
+    }
+}
+'''
+    Class orderClazz
+
+    void setUp() {
+        super.setUp()
+
+        GroovyClassLoader invoker = new GroovyClassLoader()
+        orderClazz = invoker.parseClass(orderSource)
+    }
+
+    void test__instance_method__emit__should_return_the_instance_for_chaining() {
+        def order = orderClazz.create(generatedOrderId)
+
+        final actual = order.emit(new Order_line_was_added(article1))
+
+        assertThat actual, equalTo(order)
+    }
+
+    void test__instance_method__emit__should_collect_emitted_events() {
+        def order = orderClazz.create(generatedOrderId)
+
+        order.emit(new Order_line_was_added(article1))
+        order.emit(new Order_line_was_added(article2))
 
         assertThat order.newEvents, equalTo([
             new Order_was_created(),
@@ -39,20 +77,20 @@ class AggregateAnnotationTest {
         ])
     }
 
-    @Test
-    void instance_method__emit__should_apply_the_event_to_the_emitting_instance_immediately() {
-        def order = new Order(randomUUID())
+    void test__instance_method__emit__should_apply_the_event_to_the_emitting_instance_immediately() {
+        def order = orderClazz.create(generatedOrderId)
 
-        order.emit( new Order_line_was_added(article1) )
-//        order.addArticles([article1, article2])
+        order.emit(new Order_line_was_added(article1))
+        order.emit(new Order_line_was_added(article2))
 
         assertThat order.orderLines, equalTo([article1, article2])
     }
 
-    @Test
-    void instance_method__flushEvents__should_clear_the_event_list() {
-        def order = new Order(randomUUID())
-        order.addArticles([article1, article2])
+    void test__instance_method__flushEvents__should_clear_the_event_list() {
+        def order = orderClazz.create(generatedOrderId)
+        order.emit(new Order_line_was_added(article1))
+        order.emit(new Order_line_was_added(article2))
+        assertThat order.newEvents, not(empty())
 
         order.flushEvents()
 
@@ -60,7 +98,3 @@ class AggregateAnnotationTest {
     }
 
 }
-
-
-
-
