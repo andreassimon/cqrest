@@ -43,10 +43,6 @@ abstract class EventStore_ContractTest {
             when(defectiveEventConsumer).process(any(EventEnvelope))
 
         flawlessEventConsumer = mock(EventConsumer, 'flawlessEventConsumer')
-
-        EventBus.INSTANCE = [
-          doSubscribeCorrelation: { it }
-        ] as EventBus
     }
 
 

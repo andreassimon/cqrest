@@ -41,8 +41,8 @@ INSERT INTO ${TABLE_NAME} (
 ) VALUES (?,?,?,?,?,?,?,?,?,?);\
 """.toString()
 
-    protected eventEnvelopeMapper = [
-        mapRow: { ResultSet rs, int rowNum ->
+    protected eventEnvelopeMapper =
+        { ResultSet rs, int rowNum ->
             new EventEnvelope(
                 rs.getString('application_name'),
                 rs.getString('bounded_context_name'),
@@ -57,8 +57,7 @@ INSERT INTO ${TABLE_NAME} (
                 (UUID)rs.getObject('correlation_id'),
                 rs.getString('user')
             )
-        }
-    ] as RowMapper<EventEnvelope>
+        } as RowMapper<EventEnvelope>
 
 
     JsonSlurper json = new JsonSlurper()
@@ -67,9 +66,15 @@ INSERT INTO ${TABLE_NAME} (
     NamedParameterJdbcTemplate namedParameterJdbcTemplate
     TransactionTemplate transactionTemplate
     protected List<EventConsumer> processors = []
+    protected EventBus eventBus
 
     SpringJdbcEventStore(DataSource dataSource, boolean createTable) {
+        this(dataSource, new StubEventBus(), createTable)
+    }
+
+    SpringJdbcEventStore(DataSource dataSource, EventBus eventBus, boolean createTable) {
         setDataSource(dataSource)
+        this.eventBus = eventBus
         if(createTable) {
             this.createTable()
         }
@@ -159,7 +164,7 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
     @Override
     public Correlation inUnitOfWork(String application, String boundedContext, UUID correlationId, String user, Closure closure) {
         Correlation correlation = new Correlation(correlationId)
-        EventBus.subscribeCorrelation(correlation)
+        eventBus.subscribeCorrelation(correlation)
         UnitOfWork unitOfWork = createUnitOfWork(application, boundedContext, correlationId, user)
         closure.delegate = unitOfWork
         if(closure.maximumNumberOfParameters == 0) {
@@ -196,9 +201,7 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
     }
 
     protected doInTransaction(Closure<Void> callback) {
-        transactionTemplate.execute(
-            [doInTransaction: callback] as TransactionCallback
-        )
+        transactionTemplate.execute(callback as TransactionCallback)
     }
 
     protected Closure<Void> saveEventEnvelope = { EventEnvelope eventEnvelope ->
@@ -275,11 +278,11 @@ ORDER BY aggregate_id, sequence_number;\
         namedParameterJdbcTemplate.query(
             queryExpression(criteria),
             criteria,
-            [processRow: { ResultSet resultSet ->
+            { ResultSet resultSet ->
                 block.call(
                     eventEnvelopeMapper.mapRow(resultSet, resultSet.row)
                 )
-            }] as RowCallbackHandler
+            } as RowCallbackHandler
         )
     }
 }

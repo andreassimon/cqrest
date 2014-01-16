@@ -8,7 +8,7 @@ import org.apache.commons.logging.*
 import static AMQP.*
 
 
-class AMQPEventBus extends EventBus {
+class AMQPEventBus implements EventBus {
     public static Log log = LogFactory.getLog(this)
 
     protected Connection _connection
@@ -29,8 +29,7 @@ class AMQPEventBus extends EventBus {
 
 
     @Override
-    Correlation doSubscribeCorrelation(Correlation correlation) {
-        // TODO Extract AMQP communication as a Strategy for testing purposes
+    Correlation subscribeCorrelation(Correlation correlation) {
         if(_connection != null) {
             new CorrelatedEventConsumer(_connection.createChannel(), correlation)
         }
@@ -38,7 +37,7 @@ class AMQPEventBus extends EventBus {
     }
 
     @Override
-    void doEmit(UUID correlation, String eventType) {
+    void emit(UUID correlation, String eventType) {
         assert correlation != null
         assert eventType != null
 

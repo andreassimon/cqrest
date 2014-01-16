@@ -25,8 +25,8 @@ abstract class EventSourcingTest {
 
     @Before
     void setUp() {
-        EventBus.INSTANCE = new InMemoryEventBus()
         eventStore = new InMemoryEventStore()
+        eventStore.eventBus = new InMemoryEventBus()
         preconditionsCollector = new PreconditionsCollector(eventStore, application, boundedContext)
     }
 

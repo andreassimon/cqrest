@@ -12,6 +12,8 @@ class InMemoryEventStore implements EventStore {
 
     List<EventEnvelope> history = []
     Collection<EventConsumer> eventConsumers = []
+    EventBus eventBus = new StubEventBus()
+
 
     @Override
     void setEventConsumers(List<EventConsumer> eventConsumers) {
@@ -45,7 +47,7 @@ class InMemoryEventStore implements EventStore {
     @Override
     public Correlation inUnitOfWork(String application, String boundedContext, UUID correlationId, String user, Closure closure) {
         Correlation correlation = new Correlation(correlationId)
-        EventBus.subscribeCorrelation(correlation)
+        eventBus.subscribeCorrelation(correlation)
         def unitOfWork = createUnitOfWork(application, boundedContext, correlationId, user)
         unitOfWork.with(closure)
         commit(unitOfWork)

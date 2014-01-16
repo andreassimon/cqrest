@@ -4,18 +4,18 @@ import de.oneos.eventsourcing.Correlation
 import de.oneos.eventsourcing.EventBus
 
 
-class InMemoryEventBus extends EventBus {
+class InMemoryEventBus implements EventBus {
 
     Collection<Correlation> subscribedCorrelations = []
 
     @Override
-    Correlation doSubscribeCorrelation(Correlation correlation) {
+    Correlation subscribeCorrelation(Correlation correlation) {
         subscribedCorrelations << correlation
         return correlation
     }
 
     @Override
-    void doEmit(UUID correlation, String eventType) {
+    void emit(UUID correlation, String eventType) {
         throw new RuntimeException('Not implemented')
     }
 
