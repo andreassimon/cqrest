@@ -23,7 +23,9 @@ class AggregateTransformation implements ASTTransformation {
         classes.findAll { ClassNode clazz ->
             clazz.getAnnotations(new ClassNode(Aggregate))
         }.each { ClassNode aggregate ->
-            aggregate.addField(aggregateName(aggregate))
+            if(aggregate.getField('aggregateName') == null) {
+                aggregate.addField(aggregateName(aggregate))
+            }
             if(aggregate.getField('_log') == null) {
                 aggregate.addField(_log(aggregate))
             }

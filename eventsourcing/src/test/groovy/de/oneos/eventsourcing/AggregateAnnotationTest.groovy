@@ -15,11 +15,9 @@ class AggregateAnnotationTest extends GroovyTestCase {
     UUID article2 = randomUUID()
 
         def orderSource = '''
-import de.oneos.eventsourcing.Aggregate
-import de.oneos.eventsourcing.BaseEvent
 import de.oneos.eventsourcing.orders.*
 
-@Aggregate
+@de.oneos.eventsourcing.Aggregate
 class Order {
 
     final UUID id
@@ -45,12 +43,14 @@ class Order {
     }
 }
 '''
+
+    GroovyClassLoader invoker = new GroovyClassLoader()
     Class orderClazz
+
 
     void setUp() {
         super.setUp()
 
-        GroovyClassLoader invoker = new GroovyClassLoader()
         orderClazz = invoker.parseClass(orderSource)
     }
 
@@ -97,6 +97,25 @@ class Order {
 
     void test__a_static_attribute_aggregateName_is_derived_from_the_class_name() {
         assert orderClazz.aggregateName == 'Order'
+    }
+
+    void test__keeps_an_existing_aggregateName_field_as_is() {
+        orderClazz = invoker.parseClass('''
+@de.oneos.eventsourcing.Aggregate
+class Order {
+
+    static aggregateName = 'Auftrag'
+
+    final UUID id
+
+    Order(UUID id) {
+        this.id = id
+    }
+
+}
+''')
+
+        assert orderClazz.aggregateName == 'Auftrag'
     }
 
 }
