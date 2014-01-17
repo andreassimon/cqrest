@@ -61,7 +61,6 @@ class AMQPEventSupplier implements EventSupplier {
     }
 
 
-    @Override
     protected void deliverEvents(Map<String, ? extends Object> criteria, Closure callback) {
         String eventEnvelopeQueue = consumeQueue(channel, new EventEnvelopeConsumer(channel, callback))
         channel.queueBind(eventEnvelopeQueue, EVENT_EXCHANGE_NAME, routingKey(criteria))

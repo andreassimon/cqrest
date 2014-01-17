@@ -6,7 +6,7 @@ import rx.Subscription
 import rx.lang.groovy.GroovyOnSubscribeFuncWrapper
 
 
-class ObservableEventSupplier implements EventSupplier{
+class ObservableEventSupplier implements EventSupplier {
 
     @Delegate
     EventSupplier wrappee
@@ -15,14 +15,13 @@ class ObservableEventSupplier implements EventSupplier{
         this.wrappee = wrappee
     }
 
-    @Override
     @SuppressWarnings("GroovyAssignabilityCheck")
     Observable<EventEnvelope> observe(Map<String, ?> criteria) {
         return new Observable<EventEnvelope>(
             rx.Observable.create(new GroovyOnSubscribeFuncWrapper<EventEnvelope>({ rx.Observer<EventEnvelope> observer ->
-                deliverEvents criteria, observer.&onNext
+                wrappee.subscribeTo(new ClosureEventConsumer(criteria, observer.&onNext))
 
-                withEventEnvelopes criteria, observer.&onNext
+                wrappee.withEventEnvelopes criteria, observer.&onNext
 
                 return new Subscription() {
                     @Override
@@ -32,10 +31,6 @@ class ObservableEventSupplier implements EventSupplier{
                 }
             }))
         )
-    }
-
-    protected void deliverEvents(Map<String, ? extends Object> criteria, Closure callback) {
-        subscribeTo(new ClosureEventConsumer(criteria, callback))
     }
 
 }
