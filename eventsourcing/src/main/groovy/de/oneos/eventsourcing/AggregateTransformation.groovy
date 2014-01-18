@@ -26,6 +26,9 @@ class AggregateTransformation implements ASTTransformation {
             if(aggregate.getField('aggregateName') == null) {
                 aggregate.addField(aggregateName(aggregate))
             }
+            if(aggregate.getMethods('getAggregateName').empty) {
+                aggregate.addMethod(aggregateNameGetter(aggregate))
+            }
             if(aggregate.getField('_log') == null) {
                 aggregate.addField(_log(aggregate))
             }
@@ -57,6 +60,17 @@ class AggregateTransformation implements ASTTransformation {
         return new MethodNode(
             'getNewEvents', MethodNode.ACC_PUBLIC, _newEvents(clazz).type, noParameters(), noExceptions(),
             returnResult( field(_newEvents(clazz)) )
+        )
+    }
+
+    protected MethodNode aggregateNameGetter(ClassNode clazz) {
+        return new MethodNode(
+            'getAggregateName',
+            MethodNode.ACC_STATIC,
+            aggregateName(clazz).type,
+            noParameters(),
+            noExceptions(),
+            returnResult( field(aggregateName(clazz)) )
         )
     }
 
@@ -92,7 +106,7 @@ class AggregateTransformation implements ASTTransformation {
 
     FieldNode aggregateName(ClassNode parentClass) {
         return new FieldNode(
-          'aggregateName', FieldNode.ACC_STATIC, new ClassNode(String), parentClass, new ConstantExpression(parentClass.getName())
+            'aggregateName', FieldNode.ACC_STATIC, new ClassNode(Object), parentClass, new ConstantExpression(parentClass.getNameWithoutPackage())
         )
     }
 

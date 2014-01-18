@@ -15,7 +15,8 @@ class AggregateAnnotationTest extends GroovyTestCase {
     UUID article2 = randomUUID()
 
         def orderSource = '''
-import de.oneos.eventsourcing.orders.*
+package de.oneos.eventsourcing.orders
+
 
 @de.oneos.eventsourcing.Aggregate
 class Order {
@@ -97,6 +98,8 @@ class Order {
 
     void test__a_static_attribute_aggregateName_is_derived_from_the_class_name() {
         assert orderClazz.aggregateName == 'Order'
+        assert orderClazz.getAggregateName() == 'Order'
+        DefaultAggregateFactory.assertAggregateNameIsDefined(orderClazz)
     }
 
     void test__keeps_an_existing_aggregateName_field_as_is() {
@@ -116,6 +119,7 @@ class Order {
 ''')
 
         assert orderClazz.aggregateName == 'Auftrag'
+        assert orderClazz.getAggregateName() == 'Auftrag'
     }
 
 }

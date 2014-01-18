@@ -20,14 +20,19 @@ class DefaultAggregateFactory implements AggregateFactory {
         return instance
     }
 
-    protected static assertAggregateNameIsDefined(Class rawAggregateClass) {
+    public static void assertAggregateNameIsDefined(Class rawAggregateClass) {
         if (!hasMethod(rawAggregateClass, 'getAggregateName')) {
             throw new MissingAggregateName(rawAggregateClass)
         }
     }
 
-    protected static hasMethod(Class rawAggregateClass, String methodName) {
-        rawAggregateClass.metaClass.methods.find { methodName == it.name }
+    public static boolean hasMethod(Class rawAggregateClass, String methodName) {
+        try {
+            return rawAggregateClass.getDeclaredMethod(methodName) ||
+            rawAggregateClass.metaClass.methods.find { methodName == it.name }
+        } catch(NoSuchMethodException e) {
+            return false
+        }
     }
 
 }

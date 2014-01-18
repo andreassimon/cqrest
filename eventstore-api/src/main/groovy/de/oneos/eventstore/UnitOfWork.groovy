@@ -60,8 +60,9 @@ class UnitOfWork {
         aggregates.each { attach(it) }
     }
 
-    // allows fluent code, e.g.
-    //   def newAggregate = attach(new Aggregate(...))
+    /**
+     * @return the parameter, allows fluent code, e.g. <code>attach(new Aggregate(...)).doSomething()</code>
+     */
     public <A> A attach(A aggregate) {
         assert aggregate.aggregateName != null
 
