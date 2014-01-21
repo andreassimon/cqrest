@@ -2,7 +2,7 @@ package de.oneos.projections
 
 import org.apache.commons.logging.*
 
-class ResourceDepository<T> {
+class ResourceDepository<T> implements Observer<Resource<T>> {
     public static final String UNDEFINED = null
     public static Log log = LogFactory.getLog(this)
 
@@ -47,6 +47,21 @@ class ResourceDepository<T> {
 
     T getBody(UUID k) {
         return get(k)?.body
+    }
+
+    @Override
+    void onCompleted() {
+        log.info "Event sequence on $this is completed"
+    }
+
+    @Override
+    void onError(Throwable e) {
+        log.error "${e.getClass().getCanonicalName()}: $e.message", e
+    }
+
+    @Override
+    void onNext(Resource<T> args) {
+        put(args)
     }
 
 }

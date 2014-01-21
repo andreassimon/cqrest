@@ -43,6 +43,10 @@ class Observable<T> {
         return new Observable<R>(wrappee.flatMap(new GroovyFunctionWrapper(func)))
     }
 
+    def subscribe(Observer observer) {
+        return wrappee.subscribe(observer)
+    }
+
     def subscribe(Closure onNext, Action1 onError, Action0 onComplete) {
         return wrappee.subscribe(new GroovyActionWrapper<>(onNext), onError, onComplete)
     }
