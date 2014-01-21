@@ -116,14 +116,18 @@ class EventEnvelope {
         )
     }
 
-    protected static synchronized Date parseTimestamp(Map<String, ?> attributes) {
+    protected static synchronized Date parseTimestamp(Map<String, ?> attributes) throws IllegalArgumentException, RuntimeException {
         if(!attributes.containsKey('timestamp')) {
             throw new IllegalArgumentException("Event attributes '$attributes' must contain a timestamp!")
         }
         if(attributes['timestamp'].empty) {
             throw new IllegalArgumentException("Event timestamp must not be empty!")
         }
-        return TIMESTAMP_FORMAT.parse(attributes['timestamp'] as String)
+        try {
+            return TIMESTAMP_FORMAT.parse(attributes['timestamp'] as String)
+        } catch(NumberFormatException e) {
+            throw new RuntimeException("Timestamp `${attributes['timestamp']}` could not be parsed", e)
+        }
     }
 
     protected static UUID correlationId(Map<String, ?> attributes) {

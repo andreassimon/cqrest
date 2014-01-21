@@ -8,7 +8,7 @@ import de.oneos.eventsourcing.*
 
 
 class EventEnvelopeConsumer extends DefaultConsumer implements Consumer {
-    static Log log = LogFactory.getLog(EventEnvelopeConsumer)
+    public static Log log = LogFactory.getLog(EventEnvelopeConsumer)
 
     Closure block
 
@@ -19,14 +19,22 @@ class EventEnvelopeConsumer extends DefaultConsumer implements Consumer {
 
     @Override
     void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) {
-        def eventEnvelope = EventEnvelope.fromJSON(new String(body))
-
+        def eventEnvelope
         try {
+            eventEnvelope = EventEnvelope.fromJSON(new String(body))
             block.call(eventEnvelope)
         } catch(Exception e) {
-            log.warn "Exception was raised when processing event envelope '${eventEnvelope.eventName}' ${eventEnvelope.eventAttributes}", e
+            if(eventEnvelope) {
+                log.warn "${e.getClass().getCanonicalName()} was raised when processing event envelope '${eventEnvelope.eventName}' ${eventEnvelope.eventAttributes}", e
+            } else {
+                log.warn "${e.getClass().getCanonicalName()} was raised when parsing event envelope", e
+            }
         }
-        super.channel.basicAck(envelope.deliveryTag, SINGLE_MESSAGE)
+        try {
+            getChannel().basicAck(envelope.deliveryTag, SINGLE_MESSAGE)
+        } catch(AlreadyClosedException e) {
+            log.info "Consumer ${toString()} for channel ${getChannel()} threw ${e.getClass().canonicalName}: ${e.message}"
+        }
     }
 
 }
