@@ -44,7 +44,7 @@ class Observable<T> {
     }
 
     def subscribe(Observer observer) {
-        return wrappee.subscribe(observer)
+        return wrappee.subscribe(new ObserverAdapter(observer))
     }
 
     def subscribe(Closure onNext, Action1 onError, Action0 onComplete) {
