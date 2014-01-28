@@ -29,6 +29,16 @@ class DefaultAggregateFactoryTest {
         )
     }
 
+    @Test
+    void should_build_instances_of_aggregate_subclasses() {
+        assert AggregateSubclazz.getAggregateName() == 'AGGREGATE'
+        aggregateFactory.newInstance(
+          AggregateSubclazz.class,
+          AGGREGATE_ID,
+          aggregateHistory
+        )
+    }
+
     static class RawAggregateClass_without_aggregateName {
         // static final aggregateName = 'AGGREGATE'
     }
@@ -71,6 +81,7 @@ class DefaultAggregateFactoryTest {
 
 
 
+    @de.oneos.eventsourcing.Aggregate
     static class Aggregate {
         static aggregateName = 'AGGREGATE'
 
@@ -84,6 +95,14 @@ class DefaultAggregateFactoryTest {
         def "Business event happened"(Map event) {
             numberOfAppliedEvents++
         }
+    }
+
+    static class AggregateSubclazz extends Aggregate {
+
+        AggregateSubclazz(UUID id) {
+            super(id)
+        }
+
     }
 
     static class Business_event_happened extends BaseEvent<Aggregate> { }

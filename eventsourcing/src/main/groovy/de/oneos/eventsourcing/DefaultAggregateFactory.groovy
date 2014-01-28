@@ -26,10 +26,10 @@ class DefaultAggregateFactory implements AggregateFactory {
         }
     }
 
-    public static boolean hasMethod(Class rawAggregateClass, String methodName) {
+    public static boolean hasMethod(Class clazz, String methodName) {
         try {
-            return rawAggregateClass.getDeclaredMethod(methodName) ||
-            rawAggregateClass.metaClass.methods.find { methodName == it.name }
+            return clazz.declaredMethods.any { methodName == it.name } ||
+                   (null != clazz.getSuperclass() && hasMethod(clazz.getSuperclass(), methodName))
         } catch(NoSuchMethodException e) {
             return false
         }

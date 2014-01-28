@@ -122,4 +122,56 @@ class Order {
         assert orderClazz.getAggregateName() == 'Auftrag'
     }
 
+    void test__keeps_an_existing_String_aggregateName_field_as_is() {
+        orderClazz = invoker.parseClass('''
+@de.oneos.eventsourcing.Aggregate
+class Order {
+
+    static String aggregateName = 'Auftrag'
+
+    final UUID id
+
+    Order(UUID id) {
+        this.id = id
+    }
+
+}
+''')
+
+        assert orderClazz.aggregateName == 'Auftrag'
+        assert orderClazz.getAggregateName() == 'Auftrag'
+    }
+
+    void test__adopts_the_aggregateName_from_superclasses() {
+        orderClazz = invoker.parseClass('''
+@de.oneos.eventsourcing.Aggregate
+class Order {
+
+    static String aggregateName = 'Auftrag'
+
+    final UUID id
+
+    Order(UUID id) {
+        this.id = id
+    }
+
+}
+''')
+
+        def orderSubclazz = invoker.parseClass('''
+@de.oneos.eventsourcing.Aggregate
+class OrderSubclazz extends Order{
+
+    final UUID id
+
+    OrderSubclazz(UUID id) {
+        this.id = id
+    }
+
+}
+''')
+        assert orderSubclazz.aggregateName == 'Auftrag'
+        assert orderSubclazz.getAggregateName() == 'Auftrag'
+    }
+
 }

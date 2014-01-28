@@ -16,6 +16,9 @@ import org.apache.commons.logging.*
 @GroovyASTTransformation(phase=CompilePhase.SEMANTIC_ANALYSIS)
 class AggregateTransformation implements ASTTransformation {
 
+    public static final String AGGREGATE_NAME = 'aggregateName'
+
+
     @Override
     void visit(ASTNode[] nodes, SourceUnit sourceUnit) {
         List<ClassNode> classes = sourceUnit.getAST()?.getClasses()
@@ -23,7 +26,7 @@ class AggregateTransformation implements ASTTransformation {
         classes.findAll { ClassNode clazz ->
             clazz.getAnnotations(new ClassNode(Aggregate))
         }.each { ClassNode aggregate ->
-            if(aggregate.getField('aggregateName') == null) {
+            if(aggregate.getField(AGGREGATE_NAME) == null) {
                 aggregate.addField(aggregateName(aggregate))
             }
             if(aggregate.getMethods('getAggregateName').empty) {
@@ -67,10 +70,10 @@ class AggregateTransformation implements ASTTransformation {
         return new MethodNode(
             'getAggregateName',
             MethodNode.ACC_STATIC,
-            aggregateName(clazz).type,
+            clazz.getField(AGGREGATE_NAME).type,
             noParameters(),
             noExceptions(),
-            returnResult( field(aggregateName(clazz)) )
+            returnResult( field(clazz.getField(AGGREGATE_NAME)) )
         )
     }
 
@@ -106,7 +109,7 @@ class AggregateTransformation implements ASTTransformation {
 
     FieldNode aggregateName(ClassNode parentClass) {
         return new FieldNode(
-            'aggregateName', FieldNode.ACC_STATIC, new ClassNode(Object), parentClass, new ConstantExpression(parentClass.getNameWithoutPackage())
+            AGGREGATE_NAME, FieldNode.ACC_STATIC, new ClassNode(Object), parentClass, new ConstantExpression(parentClass.getNameWithoutPackage())
         )
     }
 
