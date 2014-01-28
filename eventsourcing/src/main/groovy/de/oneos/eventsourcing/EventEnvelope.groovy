@@ -1,11 +1,15 @@
 package de.oneos.eventsourcing
 
 import groovy.json.*
+
 import java.text.SimpleDateFormat
+
+import org.apache.commons.logging.Log
+import org.apache.commons.logging.LogFactory
 
 
 class EventEnvelope {
-    org.apache.commons.logging.Log log = org.apache.commons.logging.LogFactory.getLog(EventEnvelope)
+    public static Log log = LogFactory.getLog(EventEnvelope)
 
     static final String NULL = 'null'
     static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss.SSS')
@@ -62,7 +66,9 @@ class EventEnvelope {
     }
 
     String getSerializedTimestamp() {
-        TIMESTAMP_FORMAT.format(timestamp)
+        synchronized(TIMESTAMP_FORMAT) {
+            return TIMESTAMP_FORMAT.format(timestamp)
+        }
     }
 
     @Override
@@ -123,12 +129,12 @@ class EventEnvelope {
         if(attributes['timestamp'].empty) {
             throw new IllegalArgumentException("Event timestamp must not be empty!")
         }
-        try {
-            synchronized(TIMESTAMP_FORMAT) {
+        synchronized(TIMESTAMP_FORMAT) {
+            try {
                 return TIMESTAMP_FORMAT.parse(attributes['timestamp'] as String)
+            } catch(NumberFormatException|ArrayIndexOutOfBoundsException e) {
+                throw new RuntimeException("Timestamp `${attributes['timestamp']}` could not be parsed with `${TIMESTAMP_FORMAT.toPattern()}`", e)
             }
-        } catch(NumberFormatException|ArrayIndexOutOfBoundsException e) {
-            throw new RuntimeException("Timestamp `${attributes['timestamp']}` could not be parsed with `${TIMESTAMP_FORMAT.toPattern()}`", e)
         }
     }
 
