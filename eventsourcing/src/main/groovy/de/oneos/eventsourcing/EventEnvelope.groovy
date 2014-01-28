@@ -116,7 +116,7 @@ class EventEnvelope {
         )
     }
 
-    protected static synchronized Date parseTimestamp(Map<String, ?> attributes) throws IllegalArgumentException, RuntimeException {
+    static Date parseTimestamp(Map<String, ?> attributes) throws IllegalArgumentException, RuntimeException {
         if(!attributes.containsKey('timestamp')) {
             throw new IllegalArgumentException("Event attributes '$attributes' must contain a timestamp!")
         }
@@ -124,9 +124,11 @@ class EventEnvelope {
             throw new IllegalArgumentException("Event timestamp must not be empty!")
         }
         try {
-            return TIMESTAMP_FORMAT.parse(attributes['timestamp'] as String)
-        } catch(NumberFormatException e) {
-            throw new RuntimeException("Timestamp `${attributes['timestamp']}` could not be parsed", e)
+            synchronized(TIMESTAMP_FORMAT) {
+                return TIMESTAMP_FORMAT.parse(attributes['timestamp'] as String)
+            }
+        } catch(NumberFormatException|ArrayIndexOutOfBoundsException e) {
+            throw new RuntimeException("Timestamp `${attributes['timestamp']}` could not be parsed with `${TIMESTAMP_FORMAT.toPattern()}`", e)
         }
     }
 

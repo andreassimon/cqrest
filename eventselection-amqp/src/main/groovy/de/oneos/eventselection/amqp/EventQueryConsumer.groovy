@@ -30,7 +30,7 @@ class EventQueryConsumer extends DefaultConsumer implements Consumer {
                 super.channel.basicPublish('', properties.replyTo, NO_PROPERTIES, eventEnvelope.toJSON().bytes)
             }
         } catch(Exception e) {
-            log.warn "Exception was raised when publishing event query results for '$criteria'", e
+            log.warn "${e.getClass().getCanonicalName()} was raised when publishing event query results for '$criteria'", e
         }
         super.channel.basicAck(envelope.deliveryTag, SINGLE_MESSAGE)
     }

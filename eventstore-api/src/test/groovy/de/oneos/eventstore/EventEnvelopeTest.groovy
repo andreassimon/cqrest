@@ -1,6 +1,8 @@
 package de.oneos.eventstore
 
 import static java.util.UUID.randomUUID
+import java.util.concurrent.CountDownLatch
+
 import groovy.json.JsonSlurper
 
 import org.junit.*
@@ -61,6 +63,32 @@ class EventEnvelopeTest {
         def deserializedUser = parser.parseText(envelope.toJSON())['user']
 
         assertThat deserializedUser, nullValue()
+    }
+
+    @Test(timeout = 1000L)
+    void should_parse_timestamps() {
+        final samples = [
+          '2013-04-15 11:25:31.000',
+          '2013-05-29 11:29:23.000',
+          '2013-08-25 05:58:52.000',
+          '2013-08-31 11:01:30.000',
+          '2013-10-19 12:39:29.000'
+        ]
+        CountDownLatch latch = new CountDownLatch(samples.size() * faculty(samples.size()))
+        samples.permutations().each { perm ->
+                Thread.start {
+                    perm.each {
+                        latch.countDown()
+                        EventEnvelope.parseTimestamp([timestamp: it])
+                    }
+                }
+            }
+        latch.await()
+    }
+
+    public int faculty(int n) {
+        assert n > 0
+        (1..n).inject { int a, int b -> a * b}
     }
 
 
