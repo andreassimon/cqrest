@@ -33,11 +33,6 @@ class AMQPEventSupplier implements EventSupplier {
         eventConsumers.each { subscribeTo(it) }
     }
 
-    @Override
-    EventSupplier rightShift(EventConsumer eventConsumer) {
-        subscribeTo(eventConsumer)
-        return this
-    }
 
     @Override
     void subscribeTo(EventConsumer eventConsumer) {
