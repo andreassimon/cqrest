@@ -51,14 +51,12 @@ class AMQPEventPublisher implements EventConsumer {
         log.debug("Bound event query queue '$declareOk.queue' to event supplier '$eventSupplier'")
 
         try {
-            eventSupplier.subscribeTo(eventCriteria, this)
+            eventSupplier.subscribeTo([:], this)
         } catch(e) {
             log.warn("${e.getClass().getCanonicalName()} was thrown when subscribing $this to $eventSupplier", e)
         }
     }
 
-    @Override
-    Map<String, ?> getEventCriteria() { [:] }
 
     private static routingKey(EventEnvelope eventEnvelope) throws IllegalAmqpEventCoordinate {
         def eventCoordinates = ['applicationName', 'boundedContextName', 'aggregateName', 'eventName'].collect {

@@ -2,7 +2,7 @@ package de.oneos.eventsourcing
 
 interface EventConsumer {
 
-    // TODO Remove from interface
+    // TODO Remove from interface in favor of reactive approach
     void process(EventEnvelope eventEnvelope) throws EventProcessingException
 
     /**
@@ -12,9 +12,5 @@ interface EventConsumer {
      */
     // TODO Rename
     void wasRegisteredAt(EventSupplier eventSupplier)
-
-    // TODO Remove
-    @Deprecated
-    Map<String, ?> getEventCriteria()
 
 }
