@@ -28,11 +28,6 @@ class AMQPEventSupplier implements EventSupplier {
         }.join('.')
     }
 
-    void setEventConsumers(Collection<EventConsumer> eventConsumers) {
-        this.eventConsumers.clear()
-        eventConsumers.each { subscribeTo(it) }
-    }
-
 
     @Override
     void subscribeTo(EventConsumer eventConsumer) {

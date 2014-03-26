@@ -132,12 +132,6 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
         }
     }
 
-    @Override
-    void setEventConsumers(List<EventConsumer> eventConsumers) {
-        assert null != eventConsumers
-        this.processors.clear()
-        eventConsumers.each { subscribeTo(it) }
-    }
 
 
     @Override

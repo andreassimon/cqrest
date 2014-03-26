@@ -15,12 +15,6 @@ class InMemoryEventStore implements EventStore {
     EventBus eventBus = new StubEventBus()
 
 
-    @Override
-    void setEventConsumers(List<EventConsumer> eventConsumers) {
-        assert null != eventConsumers
-        this.eventConsumers.clear()
-        eventConsumers.each { subscribeTo(it) }
-    }
 
 
     @Override
