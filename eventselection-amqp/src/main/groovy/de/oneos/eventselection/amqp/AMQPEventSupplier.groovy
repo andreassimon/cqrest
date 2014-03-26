@@ -30,12 +30,6 @@ class AMQPEventSupplier implements EventSupplier {
 
 
     @Override
-    @Deprecated
-    void subscribeTo(EventConsumer eventConsumer) {
-        subscribeTo(eventConsumer.eventCriteria, eventConsumer)
-    }
-
-    @Override
     void subscribeTo(Map<String, ?> criteria, EventConsumer eventConsumer) {
         deliverEvents(criteria) { EventEnvelope eventEnvelope ->
             eventConsumer.process(eventEnvelope)

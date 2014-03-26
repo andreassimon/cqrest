@@ -135,12 +135,6 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
 
 
     @Override
-    @Deprecated
-    void subscribeTo(EventConsumer eventConsumer) {
-        subscribeTo(eventConsumer.eventCriteria, eventConsumer)
-    }
-
-    @Override
     void subscribeTo(Map<String, ?> criteria, EventConsumer eventConsumer) {
         assert null != eventConsumer
         processors.add(eventConsumer)

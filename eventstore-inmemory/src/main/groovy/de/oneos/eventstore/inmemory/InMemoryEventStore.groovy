@@ -18,12 +18,6 @@ class InMemoryEventStore implements EventStore {
 
 
     @Override
-    @Deprecated
-    void subscribeTo(EventConsumer eventConsumer) {
-        subscribeTo(eventConsumer.eventCriteria, eventConsumer)
-    }
-
-    @Override
     void subscribeTo(Map<String, ?> criteria, EventConsumer eventConsumer) {
         assert null != eventConsumer
         eventConsumers.add(eventConsumer)

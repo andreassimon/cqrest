@@ -8,12 +8,6 @@ class StubEventSupplier implements EventSupplier {
 
 
     @Override
-    @Deprecated
-    void subscribeTo(EventConsumer eventConsumer) {
-        throw new RuntimeException('StubEventSupplier.subscribeTo() is not implemented')
-    }
-
-    @Override
     void subscribeTo(Map<String, ?> criteria, EventConsumer eventConsumer) {
         throw new RuntimeException('StubEventSupplier.subscribeTo() is not implemented')
     }
