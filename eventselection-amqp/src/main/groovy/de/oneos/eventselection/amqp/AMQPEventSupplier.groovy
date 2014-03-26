@@ -18,7 +18,7 @@ class AMQPEventSupplier implements EventSupplier {
     Channel channel
     Collection<EventConsumer> eventConsumers = []
 
-    AMQPEventSupplier(Connection connection) {
+    AMQPEventSupplier(Connection connection, AMQPEventPublisher upstream) {
         this.channel = connection.createChannel()
     }
 
@@ -30,6 +30,7 @@ class AMQPEventSupplier implements EventSupplier {
 
 
     @Override
+    @Deprecated
     void subscribeTo(EventConsumer eventConsumer) {
         subscribeTo(eventConsumer.eventCriteria, eventConsumer)
     }
@@ -39,14 +40,6 @@ class AMQPEventSupplier implements EventSupplier {
         deliverEvents(criteria) { EventEnvelope eventEnvelope ->
             eventConsumer.process(eventEnvelope)
             log.debug "Delivered $eventEnvelope to $eventConsumer"
-        }
-
-        eventConsumers << eventConsumer
-        try {
-            eventConsumer.wasRegisteredAt(this)
-        } catch(e) {
-            eventConsumers.remove(eventConsumer)
-            log.warn "'$e.message' during subscription of $eventConsumer", e
         }
     }
 

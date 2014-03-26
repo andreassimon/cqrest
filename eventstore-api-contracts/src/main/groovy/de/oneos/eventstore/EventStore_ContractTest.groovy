@@ -21,7 +21,7 @@ abstract class EventStore_ContractTest {
 
     abstract EventStore getEventStore()
 
-    EventConsumer eventConsumer, defectiveEventConsumer, flawlessEventConsumer
+    EventConsumer mockEventConsumer, defectiveEventConsumer, flawlessEventConsumer
     EventEnvelope expectedEventEnvelope = new EventEnvelope(
         APPLICATION_NAME,
         BOUNDED_CONTEXT_NAME,
@@ -36,7 +36,7 @@ abstract class EventStore_ContractTest {
     Closure<Object> eventFactory
 
     void setUp() {
-        eventConsumer = mock(EventConsumer)
+        mockEventConsumer = mock(EventConsumer)
 
         defectiveEventConsumer = mock(EventConsumer, 'defectiveEventConsumer')
         doThrow(new RuntimeException('Thrown by EventConsumer')).
@@ -308,29 +308,23 @@ abstract class EventStore_ContractTest {
             instanceOf(Correlation)
     }
 
-    @Test
-    void should_notify_EventConsumers_after_registration() {
-        eventStore.eventConsumers = [eventConsumer]
-
-        verify(eventConsumer).wasRegisteredAt(eventStore)
-    }
 
     @Test
     void should_pass_persisted_events_to_registered_EventConsumers() {
-        eventStore.eventConsumers = [eventConsumer]
+        eventStore.subscribeTo([:], mockEventConsumer)
 
         eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
 
-        verify(eventConsumer).process(expectedEventEnvelope)
+        verify(mockEventConsumer).process(expectedEventEnvelope)
     }
 
     @Test
     void should_pass_persisted_events_to_subscribed_EventConsumers() {
-        eventStore.subscribeTo([:], eventConsumer)
+        eventStore.subscribeTo([:], mockEventConsumer)
 
         eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
 
-        verify(eventConsumer).process(expectedEventEnvelope)
+        verify(mockEventConsumer).process(expectedEventEnvelope)
     }
 
     protected publish(EventEnvelope eventEnvelope) {
@@ -344,7 +338,9 @@ abstract class EventStore_ContractTest {
 
     @Test
     void should_ignore_any_exceptions_thrown_by_EventConsumer() {
-        eventStore.eventConsumers = [defectiveEventConsumer, flawlessEventConsumer]
+        [defectiveEventConsumer, flawlessEventConsumer].each {
+            eventStore.subscribeTo([:], it)
+        }
 
         eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
 
@@ -353,15 +349,15 @@ abstract class EventStore_ContractTest {
 
     @Test
     void should_not_publish_any_event_when_transaction_failed() {
-        eventStore.eventConsumers = [eventConsumer]
+        eventStore.subscribeTo([:], mockEventConsumer)
         eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
 
-        reset(eventConsumer)
+        reset(mockEventConsumer)
         expect(EventCollisionOccurred) {
             eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
         }
 
-        verify(eventConsumer, never()).process(expectedEventEnvelope)
+        verify(mockEventConsumer, never()).process(expectedEventEnvelope)
     }
 
     void expect(Class<? extends Throwable> exceptionClass, Closure<Void> block) {

@@ -26,11 +26,14 @@ class EventQueryConsumer extends DefaultConsumer implements Consumer {
 
     @Override
     void handleDelivery(String consumerTag, Envelope envelope, com.rabbitmq.client.AMQP.BasicProperties properties, byte[] body) {
-        Map criteria = parser.parseText(new String(body)) as Map
+        final Map criteria = parser.parseText(new String(body)) as Map
+        final addressee = properties.replyTo
+        log.debug("$this received query for $criteria to deliver to ${addressee}")
 
         try {
             eventSupplier.withEventEnvelopes(criteria) { EventEnvelope eventEnvelope ->
-                super.channel.basicPublish('', properties.replyTo, NO_PROPERTIES, eventEnvelope.toJSON().bytes)
+                log.debug("Publishing $eventEnvelope to ${addressee}")
+                super.channel.basicPublish('', addressee, NO_PROPERTIES, eventEnvelope.toJSON().bytes)
             }
         } catch(Exception e) {
             log.warn "${e.getClass().getCanonicalName()} was raised when publishing event query results for '$criteria'", e

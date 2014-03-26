@@ -18,6 +18,7 @@ class InMemoryEventStore implements EventStore {
 
 
     @Override
+    @Deprecated
     void subscribeTo(EventConsumer eventConsumer) {
         subscribeTo(eventConsumer.eventCriteria, eventConsumer)
     }

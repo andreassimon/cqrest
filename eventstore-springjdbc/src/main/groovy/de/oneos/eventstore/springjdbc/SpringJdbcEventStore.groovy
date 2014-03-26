@@ -135,6 +135,7 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
 
 
     @Override
+    @Deprecated
     void subscribeTo(EventConsumer eventConsumer) {
         subscribeTo(eventConsumer.eventCriteria, eventConsumer)
     }
@@ -143,11 +144,6 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
     void subscribeTo(Map<String, ?> criteria, EventConsumer eventConsumer) {
         assert null != eventConsumer
         processors.add(eventConsumer)
-        try {
-            eventConsumer.wasRegisteredAt(this)
-        } catch(e) {
-            log.warn("Exception occurred during subscription of $eventConsumer at $this", e)
-        }
     }
 
     @Override

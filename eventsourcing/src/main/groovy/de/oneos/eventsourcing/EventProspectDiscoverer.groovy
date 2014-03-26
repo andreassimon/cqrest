@@ -26,7 +26,7 @@ class EventProspectDiscoverer implements ApplicationContextAware {
             if(log.isDebugEnabled()) {
                 log.debug "Subscribing `$it.key` to `$eventSupplier`"
             }
-            eventSupplier.subscribeTo(it.value)
+            ((EventConsumer)it.value).wasRegisteredAt(eventSupplier)
         }
     }
 

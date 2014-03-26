@@ -10,8 +10,11 @@ interface EventConsumer {
      * This is also sufficient when using a reactive approach
      * @param eventStore
      */
+    // TODO Rename
     void wasRegisteredAt(EventSupplier eventSupplier)
 
+    // TODO Remove
+    @Deprecated
     Map<String, ?> getEventCriteria()
 
 }

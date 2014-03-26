@@ -30,7 +30,8 @@ class AMQPEventSupplierTest {
     com.rabbitmq.client.AMQP.Queue.DeclareOk queueDeclareOk
     Connection connection
 
-    EventConsumer amqpEventPublisher
+    EventSupplier upstreamEventSupplier = new StubEventSupplier()
+    AMQPEventPublisher amqpEventPublisher
     EventSupplier amqpEventSupplier
 
     def generatedAggregateId = UUID.randomUUID()
@@ -61,7 +62,7 @@ class AMQPEventSupplierTest {
             fail('Couldn\'t connect to AMQP. Try running `bin/services start`.')
         }
 
-        amqpEventPublisher = new AMQPEventPublisher(connection)
+        amqpEventPublisher = new AMQPEventPublisher(connection, upstreamEventSupplier)
     }
 
 
@@ -90,7 +91,7 @@ class AMQPEventSupplierTest {
 
     @Test
     void should_pass_events_to_the_EventConsumer() {
-        amqpEventSupplier = new AMQPEventSupplier(connection)
+        amqpEventSupplier = new AMQPEventSupplier(connection, amqpEventPublisher)
         amqpEventSupplier.subscribeTo(unconstrainedCriteria, eventConsumer)
 
         amqpEventPublisher.process(boxedBusinessEvent)

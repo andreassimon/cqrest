@@ -12,12 +12,14 @@ import de.oneos.eventsourcing.BaseEvent
 import de.oneos.eventsourcing.Event
 import de.oneos.eventsourcing.EventEnvelope
 import de.oneos.eventsourcing.EventProcessingException
+import de.oneos.eventsourcing.EventSupplier
 
 
 class AMQPEventPublisherTest {
     static final UUID NO_CORRELATION_ID = null
     static final String USER_UNKNOWN = null
 
+    EventSupplier upstreamSupplier = new StubEventSupplier()
     AMQPEventPublisher eventPublisher
     Connection connection
     Consumer consumer
@@ -36,7 +38,7 @@ class AMQPEventPublisherTest {
             fail('Couldn\'t connect to AMQP. Try running `bin/services start`.')
         }
 
-        eventPublisher = new AMQPEventPublisher(connection)
+        eventPublisher = new AMQPEventPublisher(connection, upstreamSupplier)
 
         consumerChannel = connection.createChannel()
         def declareOk = consumerChannel.queueDeclare()

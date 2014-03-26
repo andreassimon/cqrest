@@ -15,11 +15,12 @@ class ObservableEventSupplier implements EventSupplier {
         this.wrappee = wrappee
     }
 
+    // TODO Move to implementors, esp. EventStore, AMQPEventSupplier
     @SuppressWarnings("GroovyAssignabilityCheck")
     Observable<EventEnvelope> observe(Map<String, ?> criteria) {
         return new Observable<EventEnvelope>(
             rx.Observable.create(new GroovyOnSubscribeFuncWrapper<EventEnvelope>({ rx.Observer<EventEnvelope> observer ->
-                wrappee.subscribeTo(new ClosureEventConsumer(criteria, observer.&onNext))
+                wrappee.subscribeTo(criteria, new ClosureEventConsumer(criteria, observer.&onNext))
 
                 wrappee.withEventEnvelopes criteria, observer.&onNext
 

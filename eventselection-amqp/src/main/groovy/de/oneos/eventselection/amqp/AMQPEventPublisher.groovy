@@ -16,7 +16,7 @@ class AMQPEventPublisher implements EventConsumer {
 
     Channel channel
 
-    AMQPEventPublisher(Connection connection) {
+    AMQPEventPublisher(Connection connection, EventSupplier upstream) {
         channel = connection.createChannel()
         try {
             channel.exchangeDeclare(EVENT_EXCHANGE_NAME, TOPIC_EXCHANGE, DURABLE, NO_AUTO_DELETE, PUBLIC, [:])
@@ -25,6 +25,7 @@ class AMQPEventPublisher implements EventConsumer {
             channel = connection.createChannel()
         }
         channel.exchangeDeclare(EVENT_QUERY_EXCHANGE_NAME, DIRECT_EXCHANGE)
+        wasRegisteredAt(upstream)
     }
 
     @Override
@@ -48,6 +49,12 @@ class AMQPEventPublisher implements EventConsumer {
         channel.queueBind(declareOk.queue, EVENT_QUERY_EXCHANGE_NAME, EVENT_QUERY)
         channel.basicConsume(declareOk.queue, new EventQueryConsumer(channel, eventSupplier))
         log.debug("Bound event query queue '$declareOk.queue' to event supplier '$eventSupplier'")
+
+        try {
+            eventSupplier.subscribeTo(eventCriteria, this)
+        } catch(e) {
+            log.warn("${e.getClass().getCanonicalName()} was thrown when subscribing $this to $eventSupplier", e)
+        }
     }
 
     @Override
@@ -55,9 +62,9 @@ class AMQPEventPublisher implements EventConsumer {
 
     private static routingKey(EventEnvelope eventEnvelope) throws IllegalAmqpEventCoordinate {
         def eventCoordinates = ['applicationName', 'boundedContextName', 'aggregateName', 'eventName'].collect {
-            eventEnvelope[it]
+            eventEnvelope[it] as String
         }
-        if(eventCoordinates.find { it.contains('.') }) {
+        if(eventCoordinates.any { it.contains('.') }) {
             throw new IllegalAmqpEventCoordinate(eventCoordinates)
         }
         eventCoordinates.join('.')
