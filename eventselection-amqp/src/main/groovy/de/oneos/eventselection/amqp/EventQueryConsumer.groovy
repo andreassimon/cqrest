@@ -2,7 +2,10 @@ package de.oneos.eventselection.amqp
 
 import groovy.json.*
 import org.apache.commons.logging.*
-import com.rabbitmq.client.*
+import com.rabbitmq.client.Channel
+import com.rabbitmq.client.Consumer
+import com.rabbitmq.client.DefaultConsumer
+import com.rabbitmq.client.Envelope
 
 import de.oneos.eventsourcing.EventEnvelope
 import de.oneos.eventsourcing.EventSupplier
@@ -22,7 +25,7 @@ class EventQueryConsumer extends DefaultConsumer implements Consumer {
     }
 
     @Override
-    void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) {
+    void handleDelivery(String consumerTag, Envelope envelope, com.rabbitmq.client.AMQP.BasicProperties properties, byte[] body) {
         Map criteria = parser.parseText(new String(body)) as Map
 
         try {

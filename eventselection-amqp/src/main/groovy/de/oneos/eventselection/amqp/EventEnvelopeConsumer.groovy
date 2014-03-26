@@ -18,7 +18,7 @@ class EventEnvelopeConsumer extends DefaultConsumer implements Consumer {
     }
 
     @Override
-    void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) {
+    void handleDelivery(String consumerTag, Envelope envelope, com.rabbitmq.client.AMQP.BasicProperties properties, byte[] body) {
         def eventEnvelope
         try {
             eventEnvelope = EventEnvelope.fromJSON(new String(body))

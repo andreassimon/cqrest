@@ -42,7 +42,9 @@ class AMQPEventPublisher implements EventConsumer {
 
     @Override
     void wasRegisteredAt(EventSupplier eventSupplier) {
-        AMQP.Queue.DeclareOk declareOk = channel.queueDeclare()
+        assert eventSupplier != null
+
+        com.rabbitmq.client.AMQP.Queue.DeclareOk declareOk = channel.queueDeclare()
         channel.queueBind(declareOk.queue, EVENT_QUERY_EXCHANGE_NAME, EVENT_QUERY)
         channel.basicConsume(declareOk.queue, new EventQueryConsumer(channel, eventSupplier))
         log.debug("Bound event query queue '$declareOk.queue' to event supplier '$eventSupplier'")

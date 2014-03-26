@@ -27,7 +27,7 @@ class AMQPEventSupplierTest {
     Map<String, ?> unconstrainedCriteria = [:]
     EventConsumer eventConsumer = mock(EventConsumer)
 
-    AMQP.Queue.DeclareOk queueDeclareOk
+    com.rabbitmq.client.AMQP.Queue.DeclareOk queueDeclareOk
     Connection connection
 
     EventConsumer amqpEventPublisher
@@ -49,7 +49,7 @@ class AMQPEventSupplierTest {
 
     @Before
     void setUp() {
-        queueDeclareOk = new AMQP.Queue.DeclareOk.Builder().queue('GENERATED QUEUE NAME').build()
+        queueDeclareOk = new com.rabbitmq.client.AMQP.Queue.DeclareOk.Builder().queue('GENERATED QUEUE NAME').build()
 
         when(channel.queueDeclare()).thenReturn(queueDeclareOk)
 
