@@ -16,8 +16,8 @@ class AMQPEventSupplier implements EventSupplier {
     static Log log = LogFactory.getLog(AMQPEventSupplier)
 
     Channel channel
-    Collection<EventConsumer> eventConsumers = []
 
+    // The upstream parameter is only necessary to guarantee successful setup of the message pipelines
     AMQPEventSupplier(Connection connection, AMQPEventPublisher upstream) {
         this.channel = connection.createChannel()
     }
