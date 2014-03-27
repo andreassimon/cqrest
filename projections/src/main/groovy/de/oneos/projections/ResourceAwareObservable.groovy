@@ -2,6 +2,7 @@ package de.oneos.projections
 
 import rx.lang.groovy.GroovyFunctionWrapper
 import rx.observables.GroupedObservable
+import rx.util.functions.Func2
 
 import de.oneos.eventsourcing.EventEnvelope
 
@@ -15,16 +16,28 @@ class ResourceAwareObservable<T> {
         this.wrappee = wrappee
     }
 
-    public <A> Observable<Resource<A>> foldAggregateResource(Class<A> aggregateModel) {
+    public <R> ResourceAwareObservable<R> transformBodies(Closure<R> func) {
+        new ResourceAwareObservable(
+          map({ Resource resource ->
+              resource.transform(func)
+          })
+        )
+    }
+
+    public ResourceAwareObservable<T> filterBodies(Closure<Boolean> predicate) {
+        new ResourceAwareObservable<T>(filter { Resource r -> predicate.call(r.body) })
+    }
+
+    public <A> ResourceAwareObservable<Resource<A>> foldAggregateResource(Class<A> aggregateModel) {
         assert aggregateModel
 
-        // The type error could be fixed by writing `Resource<A>`, but that makes the code crash when run.
+        // The inferred type warning could be fixed by writing `Resource<A>`, but that makes the code crash when run.
         foldAggregateResource(aggregateModel) { Resource resource, EventEnvelope event ->
             resource.apply(event)
         }
     }
 
-    public <B> Observable<Resource<B>> foldAggregateResource(Class<B> resourceBody, Closure<Resource<B>> foldFunc) {
+    public <B> ResourceAwareObservable<Resource<B>> foldAggregateResource(Class<B> resourceBody, Closure<Resource<B>> foldFunc) {
         assert resourceBody
         assert foldFunc
 
@@ -32,16 +45,16 @@ class ResourceAwareObservable<T> {
           .foldResource(resourceBody, foldFunc)
     }
 
-    public <B> Observable<Resource<B>> foldResource(Class<B> resourceBody, Closure<Resource<B>> foldFunc) {
+    public <B> ResourceAwareObservable<Resource<B>> foldResource(Class<B> resourceBody, Closure<Resource<B>> foldFunc) {
         assert resourceBody
         assert foldFunc
 
-        flatMap({ GroupedObservable<UUID, Map> group ->
+        new ResourceAwareObservable<Resource<B>>(flatMap({ GroupedObservable<UUID, EventEnvelope> group ->
             group.scan(new Resource<B>(
               aggregateId: group.key,
               body: resourceBody.newInstance()
-            ), new GroovyFunctionWrapper<>(foldFunc))
-        }) as Observable<Resource<B>>
+            ), new GroovyFunctionWrapper(foldFunc) as Func2<Resource<B>, EventEnvelope, Resource<B>>)
+        }) as Observable<Resource<B>>)
     }
 
 }

@@ -23,18 +23,8 @@ class Observable<T> {
         return new Observable<R>(wrappee.map(new GroovyFunctionWrapper<>(func)))
     }
 
-    public <R> Observable<Resource<R>> transformBodies(Closure<R> func) {
-        map({ Resource resource ->
-            resource.transform(func)
-        })
-    }
-
     Observable<T> filter(Closure predicate) {
         return new Observable<T>(wrappee.filter(new GroovyFunctionWrapper<>(predicate)))
-    }
-
-    Observable<T> filterBodies(Closure<Boolean> predicate) {
-        filter { Resource it -> predicate.call(it.body) }
     }
 
     public <R> Observable<R> flatMap(Closure<R> func) {
@@ -49,11 +39,8 @@ class Observable<T> {
         return wrappee.subscribe(new GroovyActionWrapper<>(onNext), onError, onComplete)
     }
 
+    // TODO delete
     def deposit(Depository<T> depository) {
-        return subscribe(depository.&put, Rx.logReactiveError(depository.log), Rx.logSequenceFinished(depository.log))
-    }
-
-    def deposit(ResourceDepository<T> depository) {
         return subscribe(depository.&put, Rx.logReactiveError(depository.log), Rx.logSequenceFinished(depository.log))
     }
 
