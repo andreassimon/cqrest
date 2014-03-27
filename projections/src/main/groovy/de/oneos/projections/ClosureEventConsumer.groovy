@@ -23,8 +23,4 @@ class ClosureEventConsumer implements EventConsumer {
         // Ignore
     }
 
-    @Override
-    Map<String, ?> getEventCriteria() {
-        return eventCriteria
-    }
 }
