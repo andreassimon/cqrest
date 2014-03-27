@@ -1,4 +1,4 @@
-package de.oneos.projections
+package org.cqrest.reactive
 
 
 interface Observer<T> {

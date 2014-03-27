@@ -2,7 +2,7 @@ package de.oneos.projections
 
 import org.apache.commons.logging.*
 
-class ResourceDepository<T> implements Observer<Resource<T>> {
+class ResourceDepository<T> implements org.cqrest.reactive.Observer<Resource<T>> {
     public static final String UNDEFINED = null
     public static Log log = LogFactory.getLog(this)
 

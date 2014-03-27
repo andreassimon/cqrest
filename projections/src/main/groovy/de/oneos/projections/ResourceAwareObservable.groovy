@@ -10,9 +10,9 @@ import de.oneos.eventsourcing.EventEnvelope
 class ResourceAwareObservable<T> {
 
     @Delegate
-    de.oneos.projections.Observable<T> wrappee
+    org.cqrest.reactive.Observable<T> wrappee
 
-    ResourceAwareObservable(de.oneos.projections.Observable<T> wrappee) {
+    ResourceAwareObservable(org.cqrest.reactive.Observable<T> wrappee) {
         this.wrappee = wrappee
     }
 
@@ -54,7 +54,7 @@ class ResourceAwareObservable<T> {
               aggregateId: group.key,
               body: resourceBody.newInstance()
             ), new GroovyFunctionWrapper(foldFunc) as Func2<Resource<B>, EventEnvelope, Resource<B>>)
-        }) as Observable<Resource<B>>)
+        }) as org.cqrest.reactive.Observable<Resource<B>>)
     }
 
 }

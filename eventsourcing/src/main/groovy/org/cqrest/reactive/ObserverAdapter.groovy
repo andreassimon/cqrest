@@ -1,4 +1,4 @@
-package de.oneos.projections
+package org.cqrest.reactive
 
 
 class ObserverAdapter<T> implements rx.Observer<T> {

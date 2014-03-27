@@ -1,4 +1,5 @@
-package de.oneos.projections
+package org.cqrest.reactive
+
 
 class ConnectableObservable<T> extends Observable<T> {
 

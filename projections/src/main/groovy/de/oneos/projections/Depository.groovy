@@ -3,7 +3,7 @@ package de.oneos.projections
 import org.apache.commons.logging.*
 
 
-class Depository<T> implements Observer<T> {
+class Depository<T> implements org.cqrest.reactive.Observer<T> {
     public static Log log = LogFactory.getLog(this)
 
 

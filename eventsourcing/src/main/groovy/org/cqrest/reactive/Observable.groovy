@@ -1,8 +1,8 @@
-package de.oneos.projections
+package org.cqrest.reactive
 
 import rx.lang.groovy.*
 import rx.observables.*
-import rx.util.functions.*
+
 
 /**
  *  Wrapper for RxJava's Observable

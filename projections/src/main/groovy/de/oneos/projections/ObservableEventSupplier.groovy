@@ -17,8 +17,8 @@ class ObservableEventSupplier implements EventSupplier {
 
     // TODO Move to implementors, esp. EventStore, AMQPEventSupplier
     @SuppressWarnings("GroovyAssignabilityCheck")
-    Observable<EventEnvelope> observe(Map<String, ?> criteria) {
-        return new Observable<EventEnvelope>(
+    org.cqrest.reactive.Observable<EventEnvelope> observe(Map<String, ?> criteria) {
+        return new org.cqrest.reactive.Observable<EventEnvelope>(
             rx.Observable.create(new GroovyOnSubscribeFuncWrapper<EventEnvelope>({ rx.Observer<EventEnvelope> observer ->
                 wrappee.subscribeTo(criteria, new ClosureEventConsumer(criteria, observer.&onNext))
 
