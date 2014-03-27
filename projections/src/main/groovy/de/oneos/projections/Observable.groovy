@@ -35,15 +35,6 @@ class Observable<T> {
         return wrappee.subscribe(new ObserverAdapter(observer))
     }
 
-    def subscribe(Closure onNext, Action1 onError, Action0 onComplete) {
-        return wrappee.subscribe(new GroovyActionWrapper<>(onNext), onError, onComplete)
-    }
-
-    // TODO delete
-    def deposit(Depository<T> depository) {
-        return subscribe(depository.&put, Rx.logReactiveError(depository.log), Rx.logSequenceFinished(depository.log))
-    }
-
     ConnectableObservable<T> publish() {
         return new ConnectableObservable<T>(wrappee.publish())
     }

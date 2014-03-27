@@ -3,7 +3,7 @@ package de.oneos.projections
 import org.apache.commons.logging.*
 
 
-class Depository<T> {
+class Depository<T> implements Observer<T> {
     public static Log log = LogFactory.getLog(this)
 
 
@@ -17,4 +17,20 @@ class Depository<T> {
     def Collection<T> getAll() {
         return Collections.unmodifiableCollection(cache)
     }
+
+    @Override
+    void onCompleted() {
+        log.info "Event sequence on $this is completed"
+    }
+
+    @Override
+    void onError(Throwable e) {
+        log.error "${e.getClass().getCanonicalName()}: $e.message", e
+    }
+
+    @Override
+    void onNext(T item) {
+        put(item)
+    }
+
 }
