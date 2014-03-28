@@ -90,7 +90,7 @@ class AMQPEventPublisher implements EventConsumer, org.cqrest.reactive.Observer<
 
         com.rabbitmq.client.AMQP.Queue.DeclareOk declareOk = channel.queueDeclare()
         channel.queueBind(declareOk.queue, EVENT_QUERY_EXCHANGE_NAME, EVENT_QUERY)
-        channel.basicConsume(declareOk.queue, new EventQueryConsumer(channel, eventSource))
+        channel.basicConsume(declareOk.queue, new EventQueryConsumer(channel, (EventStream)eventSource))
         log.debug("Bound event query queue '$declareOk.queue' to event source '$eventSource'")
 
         try {
