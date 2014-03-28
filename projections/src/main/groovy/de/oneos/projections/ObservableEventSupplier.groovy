@@ -1,5 +1,6 @@
 package de.oneos.projections
 
+import de.oneos.eventsourcing.ClosureEventConsumer
 import de.oneos.eventsourcing.EventEnvelope
 import de.oneos.eventsourcing.EventStream
 import de.oneos.eventsourcing.EventSupplier

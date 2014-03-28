@@ -1,6 +1,4 @@
-package de.oneos.projections
-
-import de.oneos.eventsourcing.*
+package de.oneos.eventsourcing
 
 
 class ClosureEventConsumer implements EventConsumer {
