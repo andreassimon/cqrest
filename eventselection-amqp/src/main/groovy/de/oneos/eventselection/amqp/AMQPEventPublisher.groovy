@@ -1,17 +1,21 @@
 package de.oneos.eventselection.amqp
 
-import org.apache.commons.logging.*
-import com.rabbitmq.client.*
+import com.rabbitmq.client.Channel
+import com.rabbitmq.client.Connection
 
+import org.apache.commons.logging.Log
+import org.apache.commons.logging.LogFactory
 
 import de.oneos.eventsourcing.EventConsumer
 import de.oneos.eventsourcing.EventEnvelope
+import de.oneos.eventsourcing.EventStream
 import de.oneos.eventsourcing.EventSupplier
+import de.oneos.eventsourcing.ObservableEventSupplier
 
 import static AMQP.*
 
 
-class AMQPEventPublisher implements EventConsumer {
+class AMQPEventPublisher implements EventConsumer, org.cqrest.reactive.Observer<EventEnvelope> {
     static Log log = LogFactory.getLog(AMQPEventPublisher)
 
     Channel channel
@@ -25,10 +29,32 @@ class AMQPEventPublisher implements EventConsumer {
             channel = connection.createChannel()
         }
         channel.exchangeDeclare(EVENT_QUERY_EXCHANGE_NAME, DIRECT_EXCHANGE)
-        wasRegisteredAt(upstream)
+        setEventSource(new ObservableEventSupplier(upstream))
+    }
+
+
+    @Override
+    void onCompleted() {
+        // TODO implement
+        log.warn "AMQPEventPublisher#onCompleted is not implemented properly! Do it! NOW!"
+        log.debug "[$this] Event stream was completed"
     }
 
     @Override
+    void onError(Throwable e) {
+        // TODO implement
+        log.warn "AMQPEventPublisher#onError is not implemented properly! Do it! NOW!"
+        log.warn "[$this] ${e.getClass().getCanonicalName()} was raised when processing event stream", e
+    }
+
+    @Override
+    void onNext(EventEnvelope args) {
+        process(args)
+    }
+
+    @Override
+    @Deprecated
+    // TODO Inline
     void process(EventEnvelope eventEnvelope) throws IllegalAmqpEventCoordinate {
         def routingKey = routingKey(eventEnvelope)
         try {
@@ -42,6 +68,8 @@ class AMQPEventPublisher implements EventConsumer {
     }
 
     @Override
+    @Deprecated
+    // TODO Remove
     void wasRegisteredAt(EventSupplier eventSupplier) {
         assert eventSupplier != null
 
@@ -57,6 +85,20 @@ class AMQPEventPublisher implements EventConsumer {
         }
     }
 
+    void setEventSource(EventStream eventSource) {
+        assert eventSource
+
+        com.rabbitmq.client.AMQP.Queue.DeclareOk declareOk = channel.queueDeclare()
+        channel.queueBind(declareOk.queue, EVENT_QUERY_EXCHANGE_NAME, EVENT_QUERY)
+        channel.basicConsume(declareOk.queue, new EventQueryConsumer(channel, eventSource))
+        log.debug("Bound event query queue '$declareOk.queue' to event source '$eventSource'")
+
+        try {
+            eventSource.observe([:]).subscribe(this)
+        } catch(e) {
+            log.warn("${e.getClass().getCanonicalName()} was thrown when subscribing $this to $eventSource", e)
+        }
+    }
 
     private static routingKey(EventEnvelope eventEnvelope) throws IllegalAmqpEventCoordinate {
         def eventCoordinates = ['applicationName', 'boundedContextName', 'aggregateName', 'eventName'].collect {

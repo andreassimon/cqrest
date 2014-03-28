@@ -2,26 +2,38 @@ package de.oneos.eventselection.amqp
 
 import groovy.json.*
 import org.apache.commons.logging.*
+
 import com.rabbitmq.client.Channel
 import com.rabbitmq.client.Consumer
 import com.rabbitmq.client.DefaultConsumer
 import com.rabbitmq.client.Envelope
 
-import de.oneos.eventsourcing.EventEnvelope
+import de.oneos.eventsourcing.EventStream
 import de.oneos.eventsourcing.EventSupplier
-
-import static AMQP.*
 
 
 class EventQueryConsumer extends DefaultConsumer implements Consumer {
     static Log log = LogFactory.getLog(EventQueryConsumer)
 
     JsonSlurper parser = new JsonSlurper()
+    @Deprecated
     EventSupplier eventSupplier
+    EventStream eventSource
 
+    @Deprecated
     EventQueryConsumer(Channel channel, EventSupplier eventSupplier) {
         super(channel)
         this.eventSupplier = eventSupplier
+    }
+
+    EventQueryConsumer(Channel channel, EventStream eventSource) {
+        super(channel)
+        setEventSource(eventSource)
+    }
+
+    void setEventSource(EventStream eventSource) {
+        assert eventSource
+        this.eventSource = eventSource
     }
 
     @Override
@@ -31,14 +43,10 @@ class EventQueryConsumer extends DefaultConsumer implements Consumer {
         log.debug("$this received query for $criteria to deliver to ${addressee}")
 
         try {
-            eventSupplier.withEventEnvelopes(criteria) { EventEnvelope eventEnvelope ->
-                log.debug("Publishing $eventEnvelope to ${addressee}")
-                super.channel.basicPublish('', addressee, NO_PROPERTIES, eventEnvelope.toJSON().bytes)
-            }
+            eventSource.observe(criteria).subscribe(new EventStreamSender(addressee, envelope.deliveryTag, super.channel))
         } catch(Exception e) {
             log.warn "${e.getClass().getCanonicalName()} was raised when publishing event query results for '$criteria'", e
         }
-        super.channel.basicAck(envelope.deliveryTag, SINGLE_MESSAGE)
     }
 
 }
