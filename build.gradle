@@ -22,7 +22,7 @@ allprojects {
 
 
     group   = 'de.oneos'
-    version = '0.1.1-SNAPSHOT'
+    version = '0.2.0-SNAPSHOT'
 
     defaultTasks 'clean', 'install'
 
