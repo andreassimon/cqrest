@@ -3,13 +3,9 @@ package de.oneos.eventselection.amqp
 import java.util.concurrent.CountDownLatch
 
 import org.junit.*
-import static org.junit.Assert.*
-import static org.hamcrest.Matchers.*
-import static org.mockito.Mockito.*
 
 import com.rabbitmq.client.*
 
-import de.oneos.eventsourcing.EventConsumer
 import de.oneos.eventsourcing.EventEnvelope
 
 
@@ -23,7 +19,7 @@ class AMQPEventTransportTest {
     static final UUID CORRELATION_ID = UUID.fromString('d158a594-c864-4f36-ab34-238de28e8015')
 
     static StubEventSupplier eventStore
-    static EventConsumer eventPublisher
+    static AMQPEventPublisher eventPublisher
     static AMQPEventSupplier eventSupplier
 
     static EventEnvelope publishedEventEnvelope
@@ -57,33 +53,28 @@ class AMQPEventTransportTest {
     @Test(timeout = 2000L)
     void should_deliver_published_EventEnvelopes_to_registered_EventConsumer() {
         def invocation = new CountDownLatch(1)
-        eventSupplier.subscribeTo([:], [
-            process: { invocation.countDown() }
-        ] as EventConsumer)
+        eventSupplier.observe([:]).subscribe([
+            onNext: { invocation.countDown() }
+        ] as org.cqrest.reactive.Observer<EventEnvelope>)
 
-        publish(publishedEventEnvelope)
+        eventPublisher.onNext(publishedEventEnvelope)
 
         invocation.await()
     }
 
     @Test(timeout = 2000L)
-    void withEventEnvelopes__should_call_block_with_query_results() {
+    void should_pass_matching_past_events_to_the_subscribed_observers() {
         lock = new CountDownLatch(queryResults.size())
 
-        def actual = Collections.synchronizedList([])
-        eventSupplier.withEventEnvelopes([eventName: theEventName]) { EventEnvelope eventEnvelope ->
-            actual << eventEnvelope
-            lock.countDown()
-        }
+        Iterator<EventEnvelope> expected = queryResults.iterator()
+        eventSupplier.observe(eventName: theEventName).subscribe([
+          onNext: { EventEnvelope eventEnvelope ->
+              assert expected.next() == eventEnvelope
+              lock.countDown()
+          }
+        ] as org.cqrest.reactive.Observer<EventEnvelope>)
 
         lock.await()
-        synchronized(actual) {
-            assertThat actual, equalTo(queryResults)
-        }
-    }
-
-    protected void publish(EventEnvelope eventEnvelope) {
-        eventPublisher.process(eventEnvelope)
     }
 
 }

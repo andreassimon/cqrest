@@ -4,15 +4,19 @@ import groovy.json.*
 import org.apache.commons.logging.*
 
 import com.rabbitmq.client.*
+import rx.Subscription
+import rx.lang.groovy.GroovyOnSubscribeFuncWrapper
 
 import static AMQP.*
 
+import de.oneos.eventsourcing.ClosureEventConsumer
 import de.oneos.eventsourcing.EventConsumer
 import de.oneos.eventsourcing.EventEnvelope
+import de.oneos.eventsourcing.EventStream
 import de.oneos.eventsourcing.EventSupplier
 
 
-class AMQPEventSupplier implements EventSupplier {
+class AMQPEventSupplier implements EventSupplier, EventStream {
     static Log log = LogFactory.getLog(AMQPEventSupplier)
 
     Channel channel
@@ -51,4 +55,21 @@ class AMQPEventSupplier implements EventSupplier {
         log.debug "Queried for $criteria at '${eventEnvelopeQueue}'"
     }
 
+    @Override
+    org.cqrest.reactive.Observable<EventEnvelope> observe(Map<String, ?> criteria) {
+        return new org.cqrest.reactive.Observable<EventEnvelope>(
+          rx.Observable.create(new GroovyOnSubscribeFuncWrapper<EventEnvelope>({ rx.Observer<EventEnvelope> observer ->
+              subscribeTo(criteria, new ClosureEventConsumer(criteria, observer.&onNext))
+
+              withEventEnvelopes criteria, observer.&onNext
+
+              return new Subscription() {
+                  @Override
+                  void unsubscribe() {
+                      // TODO implement
+                  }
+              }
+          }))
+        )
+    }
 }
