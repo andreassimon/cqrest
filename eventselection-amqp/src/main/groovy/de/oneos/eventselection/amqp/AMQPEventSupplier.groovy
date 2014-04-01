@@ -34,6 +34,7 @@ class AMQPEventSupplier implements EventSupplier, EventStream {
 
 
     @Override
+    @Deprecated
     void subscribeTo(Map<String, ?> criteria, EventConsumer eventConsumer) {
         deliverEvents(criteria) { EventEnvelope eventEnvelope ->
             eventConsumer.process(eventEnvelope)
@@ -49,6 +50,7 @@ class AMQPEventSupplier implements EventSupplier, EventStream {
     }
 
     @Override
+    @Deprecated
     void withEventEnvelopes(Map<String, ?> criteria, Closure block) {
         String eventEnvelopeQueue = consumeQueue(channel, new EventEnvelopeConsumer(channel, block))
         channel.basicPublish(EVENT_QUERY_EXCHANGE_NAME, EVENT_QUERY, replyTo(eventEnvelopeQueue), new JsonBuilder(criteria).toString().bytes)
