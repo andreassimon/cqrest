@@ -3,9 +3,13 @@ package de.oneos.eventselection.amqp
 import java.util.concurrent.CountDownLatch
 
 import org.junit.*
+import static org.junit.Assert.*
+import static org.hamcrest.Matchers.*
+import static org.mockito.Mockito.*
 
 import com.rabbitmq.client.*
 
+import de.oneos.eventsourcing.EventConsumer
 import de.oneos.eventsourcing.EventEnvelope
 
 
@@ -19,7 +23,7 @@ class AMQPEventTransportTest {
     static final UUID CORRELATION_ID = UUID.fromString('d158a594-c864-4f36-ab34-238de28e8015')
 
     static StubEventSupplier eventStore
-    static AMQPEventPublisher eventPublisher
+    static EventConsumer eventPublisher
     static AMQPEventSupplier eventSupplier
 
     static EventEnvelope publishedEventEnvelope
@@ -53,28 +57,33 @@ class AMQPEventTransportTest {
     @Test(timeout = 2000L)
     void should_deliver_published_EventEnvelopes_to_registered_EventConsumer() {
         def invocation = new CountDownLatch(1)
-        eventSupplier.observe([:]).subscribe([
-            onNext: { invocation.countDown() }
-        ] as org.cqrest.reactive.Observer<EventEnvelope>)
+        eventSupplier.subscribeTo([:], [
+            process: { invocation.countDown() }
+        ] as EventConsumer)
 
-        eventPublisher.onNext(publishedEventEnvelope)
+        publish(publishedEventEnvelope)
 
         invocation.await()
     }
 
     @Test(timeout = 2000L)
-    void should_pass_matching_past_events_to_the_subscribed_observers() {
+    void withEventEnvelopes__should_call_block_with_query_results() {
         lock = new CountDownLatch(queryResults.size())
 
-        Iterator<EventEnvelope> expected = queryResults.iterator()
-        eventSupplier.observe(eventName: theEventName).subscribe([
-          onNext: { EventEnvelope eventEnvelope ->
-              assert expected.next() == eventEnvelope
-              lock.countDown()
-          }
-        ] as org.cqrest.reactive.Observer<EventEnvelope>)
+        def actual = Collections.synchronizedList([])
+        eventSupplier.withEventEnvelopes([eventName: theEventName]) { EventEnvelope eventEnvelope ->
+            actual << eventEnvelope
+            lock.countDown()
+        }
 
         lock.await()
+        synchronized(actual) {
+            assertThat actual, equalTo(queryResults)
+        }
+    }
+
+    protected void publish(EventEnvelope eventEnvelope) {
+        eventPublisher.process(eventEnvelope)
     }
 
 }

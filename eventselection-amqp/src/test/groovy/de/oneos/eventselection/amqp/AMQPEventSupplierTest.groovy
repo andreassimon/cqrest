@@ -1,9 +1,6 @@
 package de.oneos.eventselection.amqp
 
 import org.junit.*
-
-import java.util.concurrent.CountDownLatch
-
 import static org.junit.Assert.*
 import static org.hamcrest.Matchers.*
 import static org.mockito.Mockito.*
@@ -11,8 +8,8 @@ import static org.mockito.Mockito.*
 import com.rabbitmq.client.*
 
 import de.oneos.eventsourcing.BaseEvent
+import de.oneos.eventsourcing.EventConsumer
 import de.oneos.eventsourcing.EventEnvelope
-import de.oneos.eventsourcing.EventStream
 import de.oneos.eventsourcing.EventSupplier
 
 
@@ -28,13 +25,14 @@ class AMQPEventSupplierTest {
     Channel channel = mock(Channel)
 
     Map<String, ?> unconstrainedCriteria = [:]
+    EventConsumer eventConsumer = mock(EventConsumer)
 
     com.rabbitmq.client.AMQP.Queue.DeclareOk queueDeclareOk
     Connection connection
 
     EventSupplier upstreamEventSupplier = new StubEventSupplier()
     AMQPEventPublisher amqpEventPublisher
-    EventStream amqpEventSupplier
+    EventSupplier amqpEventSupplier
 
     def generatedAggregateId = UUID.randomUUID()
     def businessEventHappened = new BusinessEventHappened()
@@ -91,22 +89,17 @@ class AMQPEventSupplierTest {
         assertThat AMQPEventSupplier.routingKey(criteria), equalTo('*.*.*.*')
     }
 
-    @Test(timeout = 2000L)
-    void should_pass_events_to_the_Observer() {
-        CountDownLatch invocation = new CountDownLatch(1)
+    @Test
+    void should_pass_events_to_the_EventConsumer() {
         amqpEventSupplier = new AMQPEventSupplier(connection, amqpEventPublisher)
-        org.cqrest.reactive.Observer<EventEnvelope> eventConsumer = [
-          onNext: { eventEnvelope ->
-              if(boxedBusinessEvent == eventEnvelope) {
-                  invocation.countDown()
-              }
-          }
-        ] as org.cqrest.reactive.Observer<EventEnvelope>
-        amqpEventSupplier.observe(unconstrainedCriteria).subscribe(eventConsumer)
+        amqpEventSupplier.subscribeTo(unconstrainedCriteria, eventConsumer)
 
-        amqpEventPublisher.onNext(boxedBusinessEvent)
+        amqpEventPublisher.process(boxedBusinessEvent)
 
-        invocation.await();
+        // Because AMQP works inherently asynchronously we have to wait
+        sleep(100)
+
+        verify(eventConsumer).process(boxedBusinessEvent)
     }
 
     static class BusinessEventHappened extends BaseEvent {

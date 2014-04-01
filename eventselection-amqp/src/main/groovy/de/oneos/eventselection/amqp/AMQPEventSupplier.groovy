@@ -4,19 +4,15 @@ import groovy.json.*
 import org.apache.commons.logging.*
 
 import com.rabbitmq.client.*
-import rx.Subscription
-import rx.lang.groovy.GroovyOnSubscribeFuncWrapper
 
 import static AMQP.*
 
-import de.oneos.eventsourcing.ClosureEventConsumer
 import de.oneos.eventsourcing.EventConsumer
 import de.oneos.eventsourcing.EventEnvelope
-import de.oneos.eventsourcing.EventStream
 import de.oneos.eventsourcing.EventSupplier
 
 
-class AMQPEventSupplier implements EventSupplier, EventStream {
+class AMQPEventSupplier implements EventSupplier {
     static Log log = LogFactory.getLog(AMQPEventSupplier)
 
     Channel channel
@@ -34,7 +30,6 @@ class AMQPEventSupplier implements EventSupplier, EventStream {
 
 
     @Override
-    @Deprecated
     void subscribeTo(Map<String, ?> criteria, EventConsumer eventConsumer) {
         deliverEvents(criteria) { EventEnvelope eventEnvelope ->
             eventConsumer.process(eventEnvelope)
@@ -50,28 +45,10 @@ class AMQPEventSupplier implements EventSupplier, EventStream {
     }
 
     @Override
-    @Deprecated
     void withEventEnvelopes(Map<String, ?> criteria, Closure block) {
         String eventEnvelopeQueue = consumeQueue(channel, new EventEnvelopeConsumer(channel, block))
         channel.basicPublish(EVENT_QUERY_EXCHANGE_NAME, EVENT_QUERY, replyTo(eventEnvelopeQueue), new JsonBuilder(criteria).toString().bytes)
         log.debug "Queried for $criteria at '${eventEnvelopeQueue}'"
     }
 
-    @Override
-    org.cqrest.reactive.Observable<EventEnvelope> observe(Map<String, ?> criteria) {
-        return new org.cqrest.reactive.Observable<EventEnvelope>(
-          rx.Observable.create(new GroovyOnSubscribeFuncWrapper<EventEnvelope>({ rx.Observer<EventEnvelope> observer ->
-              subscribeTo(criteria, new ClosureEventConsumer(criteria, observer.&onNext))
-
-              withEventEnvelopes criteria, observer.&onNext
-
-              return new Subscription() {
-                  @Override
-                  void unsubscribe() {
-                      // TODO implement
-                  }
-              }
-          }))
-        )
-    }
 }
