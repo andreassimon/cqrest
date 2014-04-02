@@ -1,15 +1,10 @@
 package de.oneos.eventstore.inmemory
 
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-
 import org.junit.*
-import static org.junit.Assert.fail
 
 import org.cqrest.reactive.test.MockObserver
 import static de.oneos.eventstore.inmemory.AnEventEnvelope.anEventEnvelope
 
-import de.oneos.eventsourcing.EventEnvelope
 import de.oneos.eventstore.EventStore_ContractTest
 
 
@@ -27,48 +22,33 @@ class InMemoryEventStoreTest extends EventStore_ContractTest {
     @Test
     void observe__should_send_EventEnvelopes_to_subscribed_Observers() {
         eventStore.history = [
-          new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, EventStore_ContractTest.Order.aggregateName, ORDER_ID, orderLineWasAdded(), NO_CORRELATION_ID, USER_UNKNOWN),
-          new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, EventStore_ContractTest.Order.aggregateName, ANOTHER_ORDER_ID, orderLineWasAdded(), NO_CORRELATION_ID, USER_UNKNOWN),
+          anEventEnvelope().withAggregateId(ORDER_ID).withEventName('Order line was added').withEventAttributes(article: null).build(),
+          anEventEnvelope().withAggregateId(ANOTHER_ORDER_ID).withEventName('Order line was added').withEventAttributes(article: null).build(),
         ]
+        final MockObserver observer = new MockObserver(eventStore.history)
 
-        final Iterator<EventEnvelope> expectedEnvelopes = eventStore.history.iterator()
-        CountDownLatch latch = new CountDownLatch(eventStore.history.size())
+        eventStore.observe([:]).subscribe(observer)
 
-        eventStore.observe([:]).subscribe([
-          onNext: { nextEnvelope ->
-              assert expectedEnvelopes.next() == nextEnvelope
-              latch.countDown()
-          }
-        ] as org.cqrest.reactive.Observer<EventEnvelope>)
-
-        if(!latch.await(500L, TimeUnit.MILLISECONDS)) {
-            fail("The expected items were not passed within timeout limit")
-        }
+        observer.assertReceivedEvents()
     }
 
     @Test
     void observe__should_filter_EventEnvelopes_by_event_names() {
-        final List<EventEnvelope> notMatching = [
-          new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, EventStore_ContractTest.Order.aggregateName, ORDER_ID, orderLineWasAdded(), NO_CORRELATION_ID, USER_UNKNOWN)
-        ]
-        final List<EventEnvelope> matching = [
-          new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, EventStore_ContractTest.Order.aggregateName, ANOTHER_ORDER_ID, orderLineWasRemoved(), NO_CORRELATION_ID, USER_UNKNOWN),
-        ]
+        final notMatching = [ anEventEnvelope().withAggregateId(ORDER_ID).withEventName('Order line added').build() ]
+        final matching =    [ anEventEnvelope().withAggregateId(ANOTHER_ORDER_ID).withEventName('Order line removed').build() ]
         eventStore.history = notMatching + matching
         final MockObserver observer = new MockObserver(matching)
 
-        eventStore.observe(eventName: [orderLineWasRemoved().eventName]).subscribe(observer)
+        eventStore.observe(eventName: 'Order line removed').subscribe(observer)
 
         observer.assertReceivedEvents()
     }
 
 
-    // TODO test closing subscriptions
-
     @Test
     void should_pass_new_persisted_events_to_subscribed_Observers() {
-        final List<EventEnvelope> notMatching = [ anEventEnvelope().withEventName('Order line added').build() ]
-        final List<EventEnvelope> matching =    [ anEventEnvelope().withEventName('Order line removed').build() ]
+        final notMatching = [ anEventEnvelope().withEventName('Order line added').build() ]
+        final matching =    [ anEventEnvelope().withEventName('Order line removed').build() ]
 
         final MockObserver observer = new MockObserver(matching)
         eventStore.observe(eventName: 'Order line removed').subscribe(observer)
@@ -77,6 +57,8 @@ class InMemoryEventStoreTest extends EventStore_ContractTest {
 
         observer.assertReceivedEvents()
     }
+
+    // TODO test closing subscriptions
 
     @Ignore
     @Test

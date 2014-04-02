@@ -15,6 +15,7 @@ class AnEventEnvelope {
     private String aggregateName = 'Order'
     private String eventName = 'Order line was added'
     private UUID aggregateId = ANOTHER_ORDER_ID
+    private Map<String, ?> eventAttributes = [:]
 
 
     static AnEventEnvelope anEventEnvelope() {
@@ -23,6 +24,11 @@ class AnEventEnvelope {
 
     AnEventEnvelope withEventName(String eventName) {
         this.eventName = eventName
+        return this
+    }
+
+    AnEventEnvelope withEventAttributes(Map<String, ?> eventAttributes) {
+        this.eventAttributes = eventAttributes
         return this
     }
 
@@ -37,7 +43,7 @@ class AnEventEnvelope {
     }
 
     EventEnvelope build() {
-        new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, aggregateName, aggregateId, [eventName: eventName, eventAttributes: [:]], NO_CORRELATION_ID, USER_UNKNOWN)
+        new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, aggregateName, aggregateId, [eventName: eventName, eventAttributes: eventAttributes], NO_CORRELATION_ID, USER_UNKNOWN)
     }
 
 }
