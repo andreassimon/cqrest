@@ -71,26 +71,30 @@ class UnitOfWork {
     }
 
     void eachEventEnvelope(Closure callback) throws ValidationException {
+        getEventEnvelopes().each { callback(it) }
+    }
+
+    List<EventEnvelope> getEventEnvelopes() throws ValidationException {
         attachedAggregates.
-            findAll { !((Collection)it.getNewEvents()).empty }.
-            findAll { Validatable.isAssignableFrom(it.getClass()) }.
-            findAll { Validatable it -> !it.isValid() }.
-            each { Validatable it -> throw new ValidationException(it, it.validationMessage()) }
+          findAll { !((Collection)it.getNewEvents()).empty }.
+          findAll { Validatable.isAssignableFrom(it.getClass()) }.
+          findAll { Validatable it -> !it.isValid() }.
+          each { Validatable it -> throw new ValidationException(it, it.validationMessage()) }
 
         attachedAggregates.collect { aggregate ->
             aggregate.getNewEvents().inject([]) { List eventEnvelopes, Event newEvent ->
-                eventEnvelopes + new EventEnvelope(
+                eventEnvelopes + [new EventEnvelope(
                     this.applicationName,
                     this.boundedContextName,
-                    aggregate.aggregateName,
-                    aggregate.id,
+                    aggregate.aggregateName as String,
+                    aggregate.id as UUID,
                     newEvent,
-                    aggregate.getVersion() + 1 + eventEnvelopes.size(),
+                    (aggregate.getVersion() as Integer) + 1 + eventEnvelopes.size(),
                     this.correlationId,
                     this.user
-                )
+                )]
             }
-        }.flatten().each { callback(it) }
+        }.flatten()
     }
 
     void flush() {

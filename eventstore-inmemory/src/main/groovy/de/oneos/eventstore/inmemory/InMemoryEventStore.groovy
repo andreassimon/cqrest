@@ -46,9 +46,13 @@ class InMemoryEventStore implements EventStore, EventSupplier, EventStream {
 
     @Override
     void commit(UnitOfWork unitOfWork) throws IllegalArgumentException, EventCollisionOccurred {
-        unitOfWork.eachEventEnvelope validateEnvelope
-        unitOfWork.eachEventEnvelope saveEnvelope
+        saveEnvelopes(unitOfWork.eventEnvelopes)
         unitOfWork.flush()
+    }
+
+    public void saveEnvelopes(List<EventEnvelope> envelopes) {
+        envelopes.each validateEnvelope
+        envelopes.each saveEnvelope
     }
 
     protected Closure validateEnvelope = { EventEnvelope it ->

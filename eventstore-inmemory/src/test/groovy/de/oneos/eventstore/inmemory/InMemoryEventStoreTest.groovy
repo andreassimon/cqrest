@@ -64,24 +64,15 @@ class InMemoryEventStoreTest extends EventStore_ContractTest {
 
     // TODO test closing subscriptions
 
-    @Ignore
     @Test
-    void should_pass_persisted_events_to_registered_Observers() {
-//        eventStore.subscribeTo([:], mockEventConsumer)
-//
-//        eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
-//
-//        verify(mockEventConsumer).process(expectedEventEnvelope)
-    }
+    void should_pass_new_persisted_events_to_subscribed_Observers() {
+        final List<EventEnvelope> newEvents = [expectedEventEnvelope]
+        final MockObserver observer = new MockObserver(newEvents)
+        eventStore.observe([:]).subscribe(observer)
 
-    @Ignore
-    @Test
-    void should_pass_persisted_events_to_subscribed_EventConsumers() {
-//        eventStore.subscribeTo([:], mockEventConsumer)
-//
-//        eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
-//
-//        verify(mockEventConsumer).process(expectedEventEnvelope)
+        eventStore.saveEnvelopes(newEvents)
+
+        observer.assertReceivedEvents()
     }
 
     @Ignore
