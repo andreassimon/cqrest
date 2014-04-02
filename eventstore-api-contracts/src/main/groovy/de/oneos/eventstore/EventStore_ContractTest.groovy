@@ -308,15 +308,6 @@ abstract class EventStore_ContractTest {
 
 
     @Test
-    void should_pass_persisted_events_to_registered_EventConsumers() {
-        eventStore.subscribeTo([:], mockEventConsumer)
-
-        eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
-
-        verify(mockEventConsumer).process(expectedEventEnvelope)
-    }
-
-    @Test
     void should_pass_persisted_events_to_subscribed_EventConsumers() {
         eventStore.subscribeTo([:], mockEventConsumer)
 
