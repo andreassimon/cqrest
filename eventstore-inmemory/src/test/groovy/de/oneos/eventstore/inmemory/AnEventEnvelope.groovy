@@ -1,8 +1,6 @@
 package de.oneos.eventstore.inmemory
 
-import de.oneos.eventsourcing.Event
 import de.oneos.eventsourcing.EventEnvelope
-import de.oneos.eventstore.EventStore_ContractTest
 
 
 class AnEventEnvelope {
@@ -14,20 +12,32 @@ class AnEventEnvelope {
     public static UUID NO_CORRELATION_ID = null
     public static String USER_UNKNOWN = null
 
-    private Event event = EventStore_ContractTest.orderLineWasRemoved()
+    private String aggregateName = 'Order'
+    private String eventName = 'Order line was added'
+    private UUID aggregateId = ANOTHER_ORDER_ID
+
 
     static AnEventEnvelope anEventEnvelope() {
         new AnEventEnvelope()
     }
 
     AnEventEnvelope withEventName(String eventName) {
-        this.event.eventName = eventName
+        this.eventName = eventName
+        return this
+    }
+
+    AnEventEnvelope withAggregateName(String aggregateName) {
+        this.aggregateName = aggregateName
+        return this
+    }
+
+    AnEventEnvelope withAggregateId(UUID aggregateId) {
+        this.aggregateId = aggregateId
         return this
     }
 
     EventEnvelope build() {
-        new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, EventStore_ContractTest.Order.aggregateName, ANOTHER_ORDER_ID, event, NO_CORRELATION_ID, USER_UNKNOWN)
+        new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, aggregateName, aggregateId, [eventName: eventName, eventAttributes: [:]], NO_CORRELATION_ID, USER_UNKNOWN)
     }
-
 
 }
