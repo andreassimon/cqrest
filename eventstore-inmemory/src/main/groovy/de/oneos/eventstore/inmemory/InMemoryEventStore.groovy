@@ -6,7 +6,7 @@ import de.oneos.eventsourcing.*
 import de.oneos.eventstore.*
 
 
-class InMemoryEventStore implements EventStore {
+class InMemoryEventStore implements EventStore, EventSupplier, EventStream {
     static Log log = LogFactory.getLog(InMemoryEventStore)
 
 
@@ -106,6 +106,11 @@ class InMemoryEventStore implements EventStore {
     @Override
     void withEventEnvelopes(Map<String, ?> criteria, Closure block) {
         findAll(criteria).each(block)
+    }
+
+    @Override
+    org.cqrest.reactive.Observable<EventEnvelope> observe(Map<String, ?> criteria) {
+        throw new RuntimeException("Not implemented")
     }
 
 }
