@@ -11,7 +11,7 @@ class InMemoryEventStore implements EventStore, EventSupplier, EventStream {
 
 
     List<EventEnvelope> history = []
-    Collection<EventConsumer> eventConsumers = []
+    Collection<org.cqrest.reactive.Observer<EventEnvelope>> observers = []
     EventBus eventBus = new StubEventBus()
 
 
@@ -21,7 +21,7 @@ class InMemoryEventStore implements EventStore, EventSupplier, EventStream {
     @Deprecated
     void subscribeTo(Map<String, ?> criteria, EventConsumer eventConsumer) {
         assert null != eventConsumer
-        eventConsumers.add(eventConsumer)
+        observers.add(new EventConsumerAdapter(eventConsumer))
         try {
             eventConsumer.wasRegisteredAt(this)
         } catch(e) {
@@ -62,11 +62,11 @@ class InMemoryEventStore implements EventStore, EventSupplier, EventStream {
 
     protected Closure saveEnvelope = { eventEnvelope ->
         history << eventEnvelope
-        eventConsumers.each { processor ->
+        observers.each { org.cqrest.reactive.Observer observer ->
             try {
-                processor.process(eventEnvelope)
+                observer.onNext(eventEnvelope)
             } catch(e) {
-                log.error("Couldn't process $eventEnvelope with $processor", e)
+                log.error("${e.getClass().getCanonicalName()}: Couldn't process $eventEnvelope in $observer", e)
             }
         }
     }

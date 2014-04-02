@@ -65,6 +65,7 @@ class InMemoryEventStoreTest extends EventStore_ContractTest {
     // TODO test closing subscriptions
 
     @Test
+    @Ignore
     void should_pass_new_persisted_events_to_subscribed_Observers() {
         final List<EventEnvelope> newEvents = [expectedEventEnvelope]
         final MockObserver observer = new MockObserver(newEvents)
