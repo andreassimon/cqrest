@@ -88,7 +88,7 @@ abstract class EventStore_ContractTest {
     }
 
 
-    protected unitOfWork(Map eventCoordinates = [:], List<Event> events) {
+    protected unitOfWork(List<Event> events) {
         def unitOfWork = createUnitOfWork()
         Order aggregate = new Order(ORDER_ID)
         unitOfWork.attach(aggregate)
