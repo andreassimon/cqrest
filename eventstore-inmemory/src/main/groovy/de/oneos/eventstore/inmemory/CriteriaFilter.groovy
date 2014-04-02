@@ -3,7 +3,7 @@ package de.oneos.eventstore.inmemory
 import de.oneos.eventsourcing.EventEnvelope
 
 
-class CriteriaFilter {
+class CriteriaFilter implements rx.util.functions.Func1<EventEnvelope, Boolean> {
     private final Map<String, ?> criteria
 
     CriteriaFilter(Map<String, ?> criteria) {
@@ -23,6 +23,11 @@ class CriteriaFilter {
             }
             value == candidate[attribute]
         }
+    }
+
+    @Override
+    Boolean call(EventEnvelope candidate) {
+        return this.test.call(candidate)
     }
 
 }

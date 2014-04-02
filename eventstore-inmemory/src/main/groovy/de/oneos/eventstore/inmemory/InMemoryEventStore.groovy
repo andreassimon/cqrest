@@ -11,17 +11,28 @@ class InMemoryEventStore implements EventStore, EventSupplier, EventStream {
 
 
     List<EventEnvelope> history = []
-    Collection<org.cqrest.reactive.Observer<EventEnvelope>> observers = []
+    Collection<rx.Observer<? super EventEnvelope>> rxObservers = []
+    final rx.Observable<EventEnvelope> observable
     EventBus eventBus = new StubEventBus()
 
 
+    InMemoryEventStore() {
+        observable = rx.Observable.create([
+          onSubscribe: { rx.Observer<? super EventEnvelope> observer ->
+              rxObservers.add(observer)
+              return [
+                unsubscribe: { rxObservers.remove(observer) }
+              ] as rx.Subscription
+          }
+        ] as rx.Observable.OnSubscribeFunc<EventEnvelope>)
+    }
 
 
     @Override
     @Deprecated
     void subscribeTo(Map<String, ?> criteria, EventConsumer eventConsumer) {
         assert null != eventConsumer
-        observers.add(new EventConsumerAdapter(eventConsumer))
+        rxObservers.add(new EventConsumerAdapter(eventConsumer))
         try {
             eventConsumer.wasRegisteredAt(this)
         } catch(e) {
@@ -62,11 +73,15 @@ class InMemoryEventStore implements EventStore, EventSupplier, EventStream {
 
     protected Closure saveEnvelope = { eventEnvelope ->
         history << eventEnvelope
-        observers.each { org.cqrest.reactive.Observer observer ->
+        new ArrayList<>(rxObservers).each { rx.Observer observer ->
             try {
                 observer.onNext(eventEnvelope)
             } catch(e) {
-                log.error("${e.getClass().getCanonicalName()}: Couldn't process $eventEnvelope in $observer", e)
+                try {
+                    observer.onError(e)
+                } catch(ee) {
+                    log.error("${ee.getClass().getCanonicalName()}: Couldn't process $eventEnvelope in $observer", ee)
+                }
             }
         }
     }
@@ -110,7 +125,7 @@ class InMemoryEventStore implements EventStore, EventSupplier, EventStream {
     @Override
     org.cqrest.reactive.Observable<EventEnvelope> observe(Map<String, ?> criteria) {
         return new org.cqrest.reactive.Observable<EventEnvelope>(
-            rx.Observable.from(findAll(criteria))
+            rx.Observable.concat(rx.Observable.from(findAll(criteria)), observable.filter(new CriteriaFilter(criteria)))
         )
     }
 

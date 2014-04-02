@@ -7,6 +7,7 @@ import org.junit.*
 import static org.junit.Assert.fail
 
 import org.cqrest.reactive.test.MockObserver
+import static de.oneos.eventstore.inmemory.AnEventEnvelope.anEventEnvelope
 
 import de.oneos.eventsourcing.EventEnvelope
 import de.oneos.eventstore.EventStore_ContractTest
@@ -65,13 +66,14 @@ class InMemoryEventStoreTest extends EventStore_ContractTest {
     // TODO test closing subscriptions
 
     @Test
-    @Ignore
     void should_pass_new_persisted_events_to_subscribed_Observers() {
-        final List<EventEnvelope> newEvents = [expectedEventEnvelope]
-        final MockObserver observer = new MockObserver(newEvents)
-        eventStore.observe([:]).subscribe(observer)
+        final List<EventEnvelope> notMatching = [ anEventEnvelope().withEventName('Order line added').build() ]
+        final List<EventEnvelope> matching =    [ anEventEnvelope().withEventName('Order line removed').build() ]
 
-        eventStore.saveEnvelopes(newEvents)
+        final MockObserver observer = new MockObserver(matching)
+        eventStore.observe(eventName: 'Order line removed').subscribe(observer)
+
+        eventStore.saveEnvelopes(notMatching + matching)
 
         observer.assertReceivedEvents()
     }

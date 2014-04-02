@@ -9,7 +9,6 @@ import static de.oneos.eventstore.inmemory.AnEventEnvelope.anEventEnvelope;
 
 import de.oneos.eventsourcing.EventConsumer;
 import de.oneos.eventsourcing.EventEnvelope
-import org.cqrest.reactive.Observer;
 
 
 public class EventConsumerAdapterTest {
@@ -18,7 +17,7 @@ public class EventConsumerAdapterTest {
     public void onNext_should_pass_the_EventEnvelope_to_the_wrapped_EventConsumer() throws Exception {
         EventConsumer mockEventConsumer = mock(EventConsumer)
 
-        Observer<EventEnvelope> adapter = new EventConsumerAdapter(mockEventConsumer)
+        rx.Observer<EventEnvelope> adapter = new EventConsumerAdapter(mockEventConsumer)
         adapter.onNext(anEventEnvelope().build())
 
         verify(mockEventConsumer).process(anEventEnvelope().build())

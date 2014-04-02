@@ -4,7 +4,7 @@ import de.oneos.eventsourcing.EventConsumer
 import de.oneos.eventsourcing.EventEnvelope
 
 
-class EventConsumerAdapter implements org.cqrest.reactive.Observer<EventEnvelope> {
+class EventConsumerAdapter implements rx.Observer<EventEnvelope> {
 
     final EventConsumer wrappee
 
