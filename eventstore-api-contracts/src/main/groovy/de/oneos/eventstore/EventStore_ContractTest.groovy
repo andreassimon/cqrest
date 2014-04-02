@@ -33,8 +33,6 @@ abstract class EventStore_ContractTest {
     )
 
 
-    Closure<Object> eventFactory
-
     void setUp() {
         mockEventConsumer = mock(EventConsumer)
 
