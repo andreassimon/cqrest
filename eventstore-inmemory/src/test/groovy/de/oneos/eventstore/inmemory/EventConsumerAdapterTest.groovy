@@ -1,9 +1,11 @@
 package de.oneos.eventstore.inmemory;
 
-import org.junit.Test;
+import org.junit.Test
 
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.verify;
+
+import static de.oneos.eventstore.inmemory.AnEventEnvelope.anEventEnvelope;
 
 import de.oneos.eventsourcing.EventConsumer;
 import de.oneos.eventsourcing.EventEnvelope
@@ -17,9 +19,9 @@ public class EventConsumerAdapterTest {
         EventConsumer mockEventConsumer = mock(EventConsumer)
 
         Observer<EventEnvelope> adapter = new EventConsumerAdapter(mockEventConsumer)
-        adapter.onNext(AnEventEnvelope.build())
+        adapter.onNext(anEventEnvelope().build())
 
-        verify(mockEventConsumer).process(AnEventEnvelope.build())
+        verify(mockEventConsumer).process(anEventEnvelope().build())
     }
 
 }
