@@ -95,14 +95,7 @@ class InMemoryEventStore implements EventStore, EventSupplier, EventStream {
 
     @Override
     List<EventEnvelope> findAll(Map<String, ?> criteria) {
-        return history.findAll { eventEnvelope ->
-            criteria.every { attribute, value ->
-                if(value instanceof Collection) {
-                    return value.contains(eventEnvelope[attribute])
-                }
-                value == eventEnvelope[attribute]
-            }
-        }
+        return history.findAll(new CriteriaFilter(criteria).test)
     }
 
     @Override
