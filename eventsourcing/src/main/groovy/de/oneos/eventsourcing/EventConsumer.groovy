@@ -1,5 +1,7 @@
 package de.oneos.eventsourcing
 
+
+@Deprecated
 interface EventConsumer {
 
     // TODO Remove from interface in favor of reactive approach
@@ -12,6 +14,7 @@ interface EventConsumer {
      * @param eventStore
      */
     // TODO Rename
+    @Deprecated
     void wasRegisteredAt(EventSupplier eventSupplier)
 
 }

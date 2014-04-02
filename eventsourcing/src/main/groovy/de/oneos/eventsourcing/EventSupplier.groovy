@@ -1,5 +1,7 @@
 package de.oneos.eventsourcing
 
+
+@Deprecated
 interface EventSupplier {
 
     @Deprecated
