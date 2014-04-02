@@ -18,6 +18,7 @@ class InMemoryEventStore implements EventStore, EventSupplier, EventStream {
 
 
     @Override
+    @Deprecated
     void subscribeTo(Map<String, ?> criteria, EventConsumer eventConsumer) {
         assert null != eventConsumer
         eventConsumers.add(eventConsumer)
@@ -104,13 +105,16 @@ class InMemoryEventStore implements EventStore, EventSupplier, EventStream {
     String toString() { "InMemoryEventStore" }
 
     @Override
+    @Deprecated
     void withEventEnvelopes(Map<String, ?> criteria, Closure block) {
         findAll(criteria).each(block)
     }
 
     @Override
     org.cqrest.reactive.Observable<EventEnvelope> observe(Map<String, ?> criteria) {
-        throw new RuntimeException("Not implemented")
+        return new org.cqrest.reactive.Observable<EventEnvelope>(
+            rx.Observable.from(findAll(criteria))
+        )
     }
 
 }
