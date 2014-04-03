@@ -16,11 +16,12 @@ import de.oneos.eventsourcing.EventEnvelope
 import de.oneos.eventstore.EventCollisionOccurred
 import static de.oneos.eventstore.inmemory.AnEventEnvelope.anEventEnvelope
 
+import org.cqrest.eventstore.EventStream_ContractTest
 import org.cqrest.reactive.test.MockObserver
 import static org.cqrest.test.Expect.expect
 
 
-class InMemoryEventStore_as_EventStream_Test {
+class InMemoryEventStore_as_EventStream_Test extends EventStream_ContractTest {
     private static UUID ORDER_ID = UUID.fromString('836ed0d1-e87f-4d70-80f3-7aa44d00ed5d')
     static UUID ANOTHER_ORDER_ID = UUID.fromString('92bc8efe-0f5e-42f7-8dd6-3029d2d1a4eb')
 
