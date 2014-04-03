@@ -3,6 +3,7 @@ package de.oneos.eventstore.inmemory
 import org.junit.*
 
 import static org.mockito.Mockito.mock
+import static org.mockito.Mockito.never
 import static org.mockito.Mockito.reset
 import static org.mockito.Mockito.verify
 import static org.mockito.Mockito.verifyNoMoreInteractions
@@ -51,6 +52,19 @@ class InMemoryEventStoreTest extends EventStore_ContractTest {
         eventStore.observe().subscribe(observer)
 
         observer.assertReceivedEvents()
+    }
+
+    @Test
+    void observe__should_not_complete_streams_of_Observers() {
+        eventStore.history = [
+          anEventEnvelope().withAggregateId(ORDER_ID).withEventName('Order line was added').withEventAttributes(article: null).build(),
+          anEventEnvelope().withAggregateId(ANOTHER_ORDER_ID).withEventName('Order line was added').withEventAttributes(article: null).build(),
+        ]
+        final org.cqrest.reactive.Observer<EventEnvelope> observer = mock(org.cqrest.reactive.Observer)
+
+        eventStore.observe().subscribe(observer)
+
+        verify(observer, never()).onCompleted()
     }
 
     @Test
