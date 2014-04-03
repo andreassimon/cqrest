@@ -1,4 +1,4 @@
-package de.oneos.eventstore.inmemory
+package org.cqrest.test
 
 import de.oneos.eventsourcing.EventEnvelope
 

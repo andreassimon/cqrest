@@ -14,7 +14,7 @@ import rx.plugins.RxJavaPlugins
 
 import de.oneos.eventsourcing.EventEnvelope
 import de.oneos.eventstore.EventCollisionOccurred
-import static de.oneos.eventstore.inmemory.AnEventEnvelope.anEventEnvelope
+import static org.cqrest.test.AnEventEnvelope.anEventEnvelope
 
 import org.cqrest.eventstore.EventStream_ContractTest
 import org.cqrest.reactive.test.MockObserver

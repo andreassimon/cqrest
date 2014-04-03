@@ -5,7 +5,7 @@ import org.junit.Test
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.verify;
 
-import static de.oneos.eventstore.inmemory.AnEventEnvelope.anEventEnvelope;
+import static org.cqrest.test.AnEventEnvelope.anEventEnvelope;
 
 import de.oneos.eventsourcing.EventConsumer;
 import de.oneos.eventsourcing.EventEnvelope

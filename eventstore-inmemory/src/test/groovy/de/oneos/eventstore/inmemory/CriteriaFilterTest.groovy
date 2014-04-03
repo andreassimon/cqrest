@@ -1,9 +1,9 @@
 package de.oneos.eventstore.inmemory
 
-import org.junit.Ignore
 import org.junit.Test
 
-import static de.oneos.eventstore.inmemory.AnEventEnvelope.anEventEnvelope
+import org.cqrest.test.AnEventEnvelope
+import static org.cqrest.test.AnEventEnvelope.anEventEnvelope
 
 
 class CriteriaFilterTest {
