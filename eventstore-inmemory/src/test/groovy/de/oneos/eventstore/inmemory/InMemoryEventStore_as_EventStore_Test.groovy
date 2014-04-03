@@ -5,7 +5,7 @@ import org.junit.Before
 import de.oneos.eventstore.EventStore_ContractTest
 
 
-class InMemoryEventStoreTest extends EventStore_ContractTest {
+class InMemoryEventStore_as_EventStore_Test extends EventStore_ContractTest {
 
     InMemoryEventStore eventStore
 
