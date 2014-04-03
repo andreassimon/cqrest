@@ -123,7 +123,7 @@ class InMemoryEventStore implements EventStore, EventSupplier, EventStream {
     }
 
     @Override
-    org.cqrest.reactive.Observable<EventEnvelope> observe(Map<String, ?> criteria) {
+    org.cqrest.reactive.Observable<EventEnvelope> observe(Map<String, ?> criteria = [:]) {
         return new org.cqrest.reactive.Observable<EventEnvelope>(
             rx.Observable.concat(
               rx.Observable.from(findAll(criteria)),
