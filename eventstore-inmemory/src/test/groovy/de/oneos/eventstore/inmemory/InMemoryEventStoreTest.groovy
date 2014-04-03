@@ -79,7 +79,16 @@ class InMemoryEventStoreTest extends EventStore_ContractTest {
         observer.assertReceivedEvents()
     }
 
-    // TODO test closing subscriptions
+    @Test
+    void should_not_pass_new_persisted_events_to_unsubscribed_Observers() {
+        final org.cqrest.reactive.Observer<EventEnvelope> observer = mock(org.cqrest.reactive.Observer)
+        def subscription = eventStore.observe().subscribe(observer)
+
+        subscription.unsubscribe()
+        eventStore.saveEnvelopes([ anEventEnvelope().withEventName('Order line removed').build() ])
+
+        verifyNoMoreInteractions(observer)
+    }
 
     @Test
     void should_send_any_exceptions_thrown_by_onNext_to_onError() {
