@@ -349,7 +349,7 @@ abstract class EventStore_ContractTest {
         verify(mockEventConsumer, never()).process(expectedEventEnvelope)
     }
 
-    void expect(Class<? extends Throwable> exceptionClass, Closure<Void> block) {
+    void expect(Class<? extends Throwable> exceptionClass, Closure<?> block) {
         try {
             block.call()
             throw new AssertionFailedError("Expected $exceptionClass, but none was thrown")

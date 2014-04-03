@@ -16,6 +16,7 @@ class AnEventEnvelope {
     private String eventName = 'Order line was added'
     private UUID aggregateId = ANOTHER_ORDER_ID
     private Map<String, ?> eventAttributes = [:]
+    private int sequenceNumber = 0
 
 
     static AnEventEnvelope anEventEnvelope() {
@@ -42,8 +43,13 @@ class AnEventEnvelope {
         return this
     }
 
+    AnEventEnvelope withSequenceNumber(int sequenceNumber) {
+        this.sequenceNumber = sequenceNumber
+        return this
+    }
+
     EventEnvelope build() {
-        new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, aggregateName, aggregateId, [eventName: eventName, eventAttributes: eventAttributes], NO_CORRELATION_ID, USER_UNKNOWN)
+        new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, aggregateName, aggregateId, [eventName: eventName, eventAttributes: eventAttributes], sequenceNumber, NO_CORRELATION_ID, USER_UNKNOWN)
     }
 
 }

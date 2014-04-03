@@ -13,6 +13,8 @@ import static de.oneos.eventstore.inmemory.AnEventEnvelope.anEventEnvelope
 import rx.plugins.RxJavaErrorHandler
 import rx.plugins.RxJavaPlugins
 
+import de.oneos.eventsourcing.EventEnvelope
+import de.oneos.eventstore.EventCollisionOccurred
 import de.oneos.eventstore.EventStore_ContractTest
 
 
@@ -107,18 +109,18 @@ class InMemoryEventStoreTest extends EventStore_ContractTest {
         verifyNoMoreInteractions(mockErrorHandler)
     }
 
-    @Ignore
     @Test
     void should_not_publish_any_event_when_transaction_failed() {
-//        eventStore.subscribeTo([:], mockEventConsumer)
-//        eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
-//
-//        reset(mockEventConsumer)
-//        expect(EventCollisionOccurred) {
-//            eventStore.inUnitOfWork APPLICATION_NAME, BOUNDED_CONTEXT_NAME, NO_CORRELATION_ID, USER_UNKNOWN, publish(expectedEventEnvelope)
-//        }
-//
-//        verify(mockEventConsumer, never()).process(expectedEventEnvelope)
+        org.cqrest.reactive.Observer<EventEnvelope> mockObserver = mock(org.cqrest.reactive.Observer)
+        eventStore.observe().subscribe(mockObserver)
+        eventStore.saveEnvelopes([ anEventEnvelope().withSequenceNumber(0).build() ])
+        reset(mockObserver)
+
+        expect(EventCollisionOccurred) {
+            eventStore.saveEnvelopes([ anEventEnvelope().withSequenceNumber(0).build() ])
+        }
+
+        verifyNoMoreInteractions(mockObserver)
     }
 
 }
