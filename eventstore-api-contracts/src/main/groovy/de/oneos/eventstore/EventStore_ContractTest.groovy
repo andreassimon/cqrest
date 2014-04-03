@@ -3,12 +3,14 @@ package de.oneos.eventstore
 import static java.util.UUID.randomUUID
 
 import org.junit.*
-import junit.framework.AssertionFailedError
 import static org.junit.Assert.*
 import static org.mockito.Mockito.*
 import static org.hamcrest.Matchers.*
 
+import static org.cqrest.test.Expect.expect
+
 import de.oneos.eventsourcing.*
+
 
 abstract class EventStore_ContractTest {
     static final String APPLICATION_NAME = 'APPLICATION'
@@ -347,17 +349,6 @@ abstract class EventStore_ContractTest {
         }
 
         verify(mockEventConsumer, never()).process(expectedEventEnvelope)
-    }
-
-    void expect(Class<? extends Throwable> exceptionClass, Closure<?> block) {
-        try {
-            block.call()
-            throw new AssertionFailedError("Expected $exceptionClass, but none was thrown")
-        } catch (exception) {
-            if(exception.class != exceptionClass) {
-                throw exception
-            }
-        }
     }
 
     @Test
