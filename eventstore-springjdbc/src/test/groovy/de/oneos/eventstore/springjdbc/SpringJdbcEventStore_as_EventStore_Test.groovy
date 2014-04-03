@@ -13,7 +13,7 @@ import org.springframework.jdbc.core.*
 import de.oneos.eventstore.*
 
 
-class SpringJdbcEventStoreTest extends EventStore_ContractTest {
+class SpringJdbcEventStore_as_EventStore_Test extends EventStore_ContractTest {
 
     EventStore eventStore
     Connection sentinelConnection
