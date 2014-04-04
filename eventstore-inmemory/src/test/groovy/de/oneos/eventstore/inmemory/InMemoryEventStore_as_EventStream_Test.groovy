@@ -66,19 +66,6 @@ class InMemoryEventStore_as_EventStream_Test extends EventStream_ContractTest {
     }
 
     @Test
-    void should_pass_new_persisted_events_to_subscribed_Observers() {
-        final notMatching = [ anEventEnvelope().withEventName('Order line added').build() ]
-        final matching =    [ anEventEnvelope().withEventName('Order line removed').build() ]
-
-        final MockObserver observer = new MockObserver(matching)
-        eventStore.observe(eventName: 'Order line removed').subscribe(observer)
-
-        eventStore.saveEnvelopes(notMatching + matching)
-
-        observer.assertReceivedEvents()
-    }
-
-    @Test
     void should_not_pass_new_persisted_events_to_unsubscribed_Observers() {
         final org.cqrest.reactive.Observer<EventEnvelope> observer = mock(org.cqrest.reactive.Observer)
         def subscription = eventStore.observe().subscribe(observer)

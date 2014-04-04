@@ -63,7 +63,19 @@ abstract class EventStream_ContractTest {
         flawlessObserver.assertReceivedEvents()
     }
 
-    // TODO pull up should_pass_new_persisted_events_to_subscribed_Observers() here
+    @Test
+    void should_pass_new_persisted_events_to_subscribed_Observers() {
+        final notMatching = [ anEventEnvelope().withSequenceNumber(0).withEventName('Order line added').build() ]
+        final matching =    [ anEventEnvelope().withSequenceNumber(1).withEventName('Order line removed').build() ]
+
+        final MockObserver observer = new MockObserver(matching)
+        eventStream.observe(eventName: 'Order line removed').subscribe(observer)
+
+        setStreamHistory(notMatching + matching)
+
+        observer.assertReceivedEvents()
+    }
+
 
     // TODO pull up should_not_pass_new_persisted_events_to_unsubscribed_Observers() here
 
