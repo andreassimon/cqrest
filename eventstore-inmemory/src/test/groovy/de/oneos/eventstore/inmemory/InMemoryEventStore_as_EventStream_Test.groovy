@@ -13,6 +13,7 @@ import rx.plugins.RxJavaErrorHandler
 import rx.plugins.RxJavaPlugins
 
 import de.oneos.eventsourcing.EventEnvelope
+import de.oneos.eventsourcing.EventStream
 import de.oneos.eventstore.EventCollisionOccurred
 import static org.cqrest.test.AnEventEnvelope.anEventEnvelope
 
@@ -22,12 +23,19 @@ import static org.cqrest.test.Expect.expect
 
 
 class InMemoryEventStore_as_EventStream_Test extends EventStream_ContractTest {
-    private static UUID ORDER_ID = UUID.fromString('836ed0d1-e87f-4d70-80f3-7aa44d00ed5d')
-    static UUID ANOTHER_ORDER_ID = UUID.fromString('92bc8efe-0f5e-42f7-8dd6-3029d2d1a4eb')
-
     private static RxJavaErrorHandler mockErrorHandler
 
     InMemoryEventStore eventStore
+
+    @Override
+    EventStream getEventStream() {
+        return eventStore
+    }
+
+    @Override
+    void setStreamHistory(List<EventEnvelope> history) {
+        eventStore.history = history
+    }
 
     @BeforeClass
     static void setUpRxJavaErrorHandler() {
@@ -40,19 +48,6 @@ class InMemoryEventStore_as_EventStream_Test extends EventStream_ContractTest {
     public void setUp() {
         eventStore = new InMemoryEventStore()
         reset(mockErrorHandler)
-    }
-
-    @Test
-    void observe__should_send_EventEnvelopes_to_subscribed_Observers() {
-        eventStore.history = [
-          anEventEnvelope().withAggregateId(ORDER_ID).withEventName('Order line was added').withEventAttributes(article: null).build(),
-          anEventEnvelope().withAggregateId(ANOTHER_ORDER_ID).withEventName('Order line was added').withEventAttributes(article: null).build(),
-        ]
-        final MockObserver observer = new MockObserver(eventStore.history)
-
-        eventStore.observe().subscribe(observer)
-
-        observer.assertReceivedEvents()
     }
 
     @Test

@@ -18,7 +18,7 @@ import org.springframework.jdbc.datasource.*
 import org.springframework.transaction.support.*
 
 
-class SpringJdbcEventStore implements EventStore {
+class SpringJdbcEventStore implements EventStore, EventStream {
     static Log log = LogFactory.getLog(SpringJdbcEventStore)
 
     public static final boolean CREATE_TABLE = true
@@ -162,14 +162,18 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
 
     @Override
     void commit(UnitOfWork unitOfWork) throws IllegalArgumentException, EventCollisionOccurred {
-        doInTransaction {
-            unitOfWork.eachEventEnvelope saveEventEnvelope
-        }
-        unitOfWork.eachEventEnvelope { process(it) }
+        saveEnvelopes(unitOfWork.getEventEnvelopes())
         unitOfWork.flush()
     }
 
-    protected process(envelope) {
+    public void saveEnvelopes(List<EventEnvelope> envelopes) {
+        doInTransaction {
+            envelopes.each saveEventEnvelope
+        }
+        envelopes.each process
+    }
+
+    protected Closure<?> process = { EventEnvelope envelope ->
         processors.each { processor ->
             try {
                 processor.process(envelope)
@@ -179,7 +183,7 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
         }
     }
 
-    protected doInTransaction(Closure<Void> callback) {
+    protected doInTransaction(Closure<?> callback) {
         transactionTemplate.execute(callback as TransactionCallback)
     }
 
@@ -264,4 +268,10 @@ ORDER BY aggregate_id, sequence_number;\
             } as RowCallbackHandler
         )
     }
+
+    @Override
+    org.cqrest.reactive.Observable<EventEnvelope> observe(Map<String, ?> criteria = [:]) {
+        throw new RuntimeException('Not implemented')
+    }
+
 }
