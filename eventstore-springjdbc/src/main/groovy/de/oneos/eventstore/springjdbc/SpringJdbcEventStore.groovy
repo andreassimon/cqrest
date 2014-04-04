@@ -4,7 +4,6 @@ import de.oneos.eventsourcing.*
 
 import java.sql.*
 import javax.sql.*
-import groovy.json.*
 
 import org.apache.commons.logging.*
 
@@ -41,26 +40,7 @@ INSERT INTO ${TABLE_NAME} (
 ) VALUES (?,?,?,?,?,?,?,?,?,?);\
 """.toString()
 
-    protected eventEnvelopeMapper =
-        { ResultSet rs, int rowNum ->
-            new EventEnvelope(
-                rs.getString('application_name'),
-                rs.getString('bounded_context_name'),
-                rs.getString('aggregate_name'),
-                (UUID)rs.getObject('aggregate_id'),
-                buildEvent(
-                    rs.getString('event_name'),
-                    json.parseText(rs.getString('attributes'))
-                ),
-                rs.getInt('sequence_number'),
-                rs.getTimestamp('timestamp'),
-                (UUID)rs.getObject('correlation_id'),
-                rs.getString('user')
-            )
-        } as RowMapper<EventEnvelope>
-
-
-    JsonSlurper json = new JsonSlurper()
+    protected eventEnvelopeMapper = new EventEnvelopeRowMapper()
 
     JdbcOperations jdbcTemplate
     NamedParameterJdbcTemplate namedParameterJdbcTemplate
