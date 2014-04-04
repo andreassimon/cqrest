@@ -49,7 +49,7 @@ class SpringJdbcEventStore_as_EventStore_Test extends EventStore_ContractTest {
 
     @Test
     void should_have_a_defined_TABLE_NAME() {
-        assertThat SpringJdbcEventStore.TABLE_NAME, equalTo('events')
+        assertThat Schema.TABLE_NAME, equalTo('events')
     }
 
     @Test
@@ -58,7 +58,7 @@ class SpringJdbcEventStore_as_EventStore_Test extends EventStore_ContractTest {
 
         eventStore.createTable()
 
-        verify(mockJdbcTemplate).execute(contains("CREATE TABLE IF NOT EXISTS ${SpringJdbcEventStore.TABLE_NAME}"))
+        verify(mockJdbcTemplate).execute(contains("CREATE TABLE IF NOT EXISTS ${Schema.TABLE_NAME}"))
     }
 
     @Test
@@ -67,7 +67,7 @@ class SpringJdbcEventStore_as_EventStore_Test extends EventStore_ContractTest {
 
         eventStore.dropTable()
 
-        verify(mockJdbcTemplate).execute("DROP TABLE IF EXISTS ${SpringJdbcEventStore.TABLE_NAME};")
+        verify(mockJdbcTemplate).execute("DROP TABLE IF EXISTS ${Schema.TABLE_NAME};")
     }
 
 }

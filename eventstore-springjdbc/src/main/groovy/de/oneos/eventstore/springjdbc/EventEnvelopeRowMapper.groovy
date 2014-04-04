@@ -17,16 +17,16 @@ class EventEnvelopeRowMapper implements RowMapper<EventEnvelope> {
     @Override
     EventEnvelope mapRow(ResultSet rs, int rowNum) throws SQLException {
         new EventEnvelope(
-          rs.getString('application_name'),
-          rs.getString('bounded_context_name'),
-          rs.getString('aggregate_name'),
-          (UUID) rs.getObject('aggregate_id'),
-          rs.getString('event_name'),
-          json.parseText(rs.getString('attributes')) as Map,
-          rs.getInt('sequence_number'),
-          rs.getTimestamp('timestamp'),
-          (UUID) rs.getObject('correlation_id'),
-          rs.getString('user')
+          rs.getString(Schema.APPLICATION_NAME),
+          rs.getString(Schema.BOUNDED_CONTEXT_NAME),
+          rs.getString(Schema.AGGREGATE_NAME),
+          (UUID) rs.getObject(Schema.AGGREGATE_ID),
+          rs.getString(Schema.EVENT_NAME),
+          json.parseText(rs.getString(Schema.ATTRIBUTES)) as Map,
+          rs.getInt(Schema.SEQUENCE_NUMBER),
+          rs.getTimestamp(Schema.TIMESTAMP),
+          (UUID) rs.getObject(Schema.CORRELATION_ID),
+          rs.getString(Schema.USER)
         )
     }
 

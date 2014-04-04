@@ -24,19 +24,18 @@ class SpringJdbcEventStore implements EventStore, EventStream {
     public static final boolean DONT_CREATE_TABLE = !CREATE_TABLE
 
 
-    static String TABLE_NAME = 'events'
     static String INSERT_EVENT = """\
-INSERT INTO ${TABLE_NAME} (
-    aggregate_id,
-    sequence_number,
-    correlation_id,
-    application_name,
-    bounded_context_name,
-    aggregate_name,
-    event_name,
-    attributes,
-    user,
-    timestamp
+INSERT INTO ${Schema.TABLE_NAME} (
+    ${Schema.AGGREGATE_ID},
+    ${Schema.SEQUENCE_NUMBER},
+    ${Schema.CORRELATION_ID},
+    ${Schema.APPLICATION_NAME},
+    ${Schema.BOUNDED_CONTEXT_NAME},
+    ${Schema.AGGREGATE_NAME},
+    ${Schema.EVENT_NAME},
+    ${Schema.ATTRIBUTES},
+    ${Schema.USER},
+    ${Schema.TIMESTAMP}
 ) VALUES (?,?,?,?,?,?,?,?,?,?);\
 """.toString()
 
@@ -70,45 +69,45 @@ INSERT INTO ${TABLE_NAME} (
 
 
     void dropTable() {
-        jdbcTemplate.execute("DROP TABLE IF EXISTS ${TABLE_NAME};")
+        jdbcTemplate.execute("DROP TABLE IF EXISTS ${Schema.TABLE_NAME};")
     }
 
     void createTable() {
         jdbcTemplate.execute("""\
-CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
-    aggregate_id         UUID         NOT NULL,
-    sequence_number      INTEGER      NOT NULL,
-    application_name     VARCHAR(255) NOT NULL,
-    bounded_context_name VARCHAR(255) NOT NULL,
-    aggregate_name       VARCHAR(255) NOT NULL,
-    event_name           VARCHAR(255) NOT NULL,
-    attributes           TEXT         NOT NULL,
-    timestamp            TIMESTAMP    NOT NULL,
+CREATE TABLE IF NOT EXISTS ${Schema.TABLE_NAME} (
+    ${Schema.AGGREGATE_ID}         UUID         NOT NULL,
+    ${Schema.SEQUENCE_NUMBER}      INTEGER      NOT NULL,
+    ${Schema.APPLICATION_NAME}     VARCHAR(255) NOT NULL,
+    ${Schema.BOUNDED_CONTEXT_NAME} VARCHAR(255) NOT NULL,
+    ${Schema.AGGREGATE_NAME}       VARCHAR(255) NOT NULL,
+    ${Schema.EVENT_NAME}           VARCHAR(255) NOT NULL,
+    ${Schema.ATTRIBUTES}           TEXT         NOT NULL,
+    ${Schema.TIMESTAMP}            TIMESTAMP    NOT NULL,
     CONSTRAINT unambiguous_event_sequence UNIQUE (
-        aggregate_id,
-        sequence_number
+        ${Schema.AGGREGATE_ID},
+        ${Schema.SEQUENCE_NUMBER}
     )
 );\
 """)
         jdbcTemplate.execute("""\
-ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS correlation_id UUID BEFORE application_name;\
+ALTER TABLE ${Schema.TABLE_NAME} ADD COLUMN IF NOT EXISTS ${Schema.CORRELATION_ID} UUID BEFORE ${Schema.APPLICATION_NAME};\
 """)
 
         jdbcTemplate.execute("""\
-ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE timestamp;\
+ALTER TABLE ${Schema.TABLE_NAME} ADD COLUMN IF NOT EXISTS ${Schema.USER} VARCHAR(255) BEFORE ${Schema.TIMESTAMP};\
 """)
 
-        ['aggregate_id',
-         'sequence_number',
-         'correlation_id',
-         'application_name',
-         'bounded_context_name',
-         'aggregate_name',
-         'event_name',
-         'user',
-         'timestamp'
+        [Schema.AGGREGATE_ID,
+         Schema.SEQUENCE_NUMBER,
+         Schema.CORRELATION_ID,
+         Schema.APPLICATION_NAME,
+         Schema.BOUNDED_CONTEXT_NAME,
+         Schema.AGGREGATE_NAME,
+         Schema.EVENT_NAME,
+         Schema.USER,
+         Schema.TIMESTAMP
         ].each { columnName ->
-            jdbcTemplate.execute("CREATE INDEX IF NOT EXISTS idx_${TABLE_NAME}_${columnName} ON ${TABLE_NAME} (${columnName});")
+            jdbcTemplate.execute("CREATE INDEX IF NOT EXISTS idx_${Schema.TABLE_NAME}_${columnName} ON ${Schema.TABLE_NAME} (${columnName});")
         }
     }
 
@@ -191,55 +190,18 @@ ALTER TABLE ${TABLE_NAME} ADD COLUMN IF NOT EXISTS user VARCHAR(255) BEFORE time
     @Override
     List<EventEnvelope> findAll(Map<String, ?> criteria) {
         namedParameterJdbcTemplate.query(
-            queryExpression(criteria),
+            queryExpression.forCriteria(criteria),
             criteria,
             eventEnvelopeMapper
         )
     }
 
-    protected String queryExpression(Map<String, ?> criteria) {
-        """\
-SELECT *
-FROM ${TABLE_NAME}
-${whereClause(criteria)}
-ORDER BY aggregate_id, sequence_number;\
-""".toString()
-    }
-
-    protected final static Map<String, String> COLUMN_NAME = [
-        boundedContextName: 'bounded_context_name',
-        aggregateName: 'aggregate_name',
-        aggregateId: 'aggregate_id',
-        eventName:   'event_name'
-    ]
-
-    protected whereClause(Map<String, ?> criteria) {
-        if (criteria.isEmpty()) { return '' }
-        'WHERE ' + criteria.collect { attribute, values -> condition(attribute, values) }.join(' AND ')
-    }
-
-    protected condition(String attribute, values) {
-        switch(values.getClass()) {
-            case [String, UUID]:
-                return "${COLUMN_NAME[attribute]} = :$attribute".toString()
-            case List:
-                return "event_name IN (:$attribute)".toString()
-            default:
-                throw new RuntimeException("Cannot transform ($attribute, ${values.getClass().simpleName}<$values>) to WHERE clause")
-        }
-    }
-
-    protected def buildEvent(String eventName, Map eventAttributes) {
-        return [
-            eventName: eventName,
-            eventAttributes: eventAttributes
-        ]
-    }
+    QueryExpression queryExpression = new QueryExpression()
 
     @Override
     void withEventEnvelopes(Map<String, ?> criteria, Closure block) {
         namedParameterJdbcTemplate.query(
-            queryExpression(criteria),
+            queryExpression.forCriteria(criteria),
             criteria,
             { ResultSet resultSet ->
                 block.call(
