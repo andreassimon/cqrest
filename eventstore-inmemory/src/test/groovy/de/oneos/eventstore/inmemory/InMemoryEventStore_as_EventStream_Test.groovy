@@ -63,18 +63,6 @@ class InMemoryEventStore_as_EventStream_Test extends EventStream_ContractTest {
         verify(observer, never()).onCompleted()
     }
 
-    @Test
-    void observe__should_filter_EventEnvelopes_by_event_names() {
-        final notMatching = [ anEventEnvelope().withAggregateId(ORDER_ID).withEventName('Order line added').build() ]
-        final matching =    [ anEventEnvelope().withAggregateId(ANOTHER_ORDER_ID).withEventName('Order line removed').build() ]
-        eventStore.history = notMatching + matching
-        final MockObserver observer = new MockObserver(matching)
-
-        eventStore.observe(eventName: 'Order line removed').subscribe(observer)
-
-        observer.assertReceivedEvents()
-    }
-
 
     @Test
     void should_pass_new_persisted_events_to_subscribed_Observers() {

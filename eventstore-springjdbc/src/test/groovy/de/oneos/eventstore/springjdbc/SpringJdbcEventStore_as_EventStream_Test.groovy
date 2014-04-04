@@ -3,6 +3,7 @@ package de.oneos.eventstore.springjdbc
 import java.sql.Connection
 import javax.sql.DataSource
 
+import org.junit.After
 import org.junit.Before
 import org.junit.Ignore
 
@@ -39,6 +40,13 @@ class SpringJdbcEventStore_as_EventStream_Test extends EventStream_ContractTest 
 
         eventStore = new SpringJdbcEventStore(dataSource, SpringJdbcEventStore.CREATE_TABLE)
     }
+
+    @After
+    public void tearDown() {
+        eventStore.dropTable()
+        sentinelConnection.close()
+    }
+
 
     @Override
     void setStreamHistory(List<EventEnvelope> history) {

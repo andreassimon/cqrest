@@ -33,4 +33,19 @@ abstract class EventStream_ContractTest {
         observer.assertReceivedEvents()
     }
 
+
+    // TODO insert here `observe__should_not_complete_streams_of_Observers`
+
+    @Test
+    void observe__should_filter_EventEnvelopes_by_event_names() {
+        final notMatching = [ anEventEnvelope().withAggregateId(ORDER_ID).withEventName('Order line added').build() ]
+        final matching =    [ anEventEnvelope().withAggregateId(ANOTHER_ORDER_ID).withEventName('Order line removed').build() ]
+        setStreamHistory(notMatching + matching)
+        final MockObserver observer = new MockObserver(matching)
+
+        eventStream.observe(eventName: 'Order line removed').subscribe(observer)
+
+        observer.assertReceivedEvents()
+    }
+
 }
