@@ -1,4 +1,4 @@
-package de.oneos.eventstore.inmemory
+package de.oneos.eventstore
 
 import de.oneos.eventsourcing.EventEnvelope
 
