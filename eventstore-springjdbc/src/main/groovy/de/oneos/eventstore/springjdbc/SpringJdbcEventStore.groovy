@@ -200,20 +200,26 @@ ALTER TABLE ${Schema.TABLE_NAME} ADD COLUMN IF NOT EXISTS ${Schema.USER} VARCHAR
 
     @Override
     void withEventEnvelopes(Map<String, ?> criteria, Closure block) {
+        queryByCriteria(criteria, { ResultSet resultSet ->
+            block.call(
+              eventEnvelopeMapper.mapRow(resultSet, resultSet.row)
+            )
+        } as RowCallbackHandler)
+    }
+
+    void queryByCriteria(Map<String, ?> criteria, RowCallbackHandler rowCallbackHandler) {
         namedParameterJdbcTemplate.query(
-            queryExpression.forCriteria(criteria),
-            criteria,
-            { ResultSet resultSet ->
-                block.call(
-                    eventEnvelopeMapper.mapRow(resultSet, resultSet.row)
-                )
-            } as RowCallbackHandler
+          queryExpression.forCriteria(criteria),
+          criteria,
+          rowCallbackHandler
         )
     }
 
     @Override
     org.cqrest.reactive.Observable<EventEnvelope> observe(Map<String, ?> criteria = [:]) {
-        throw new RuntimeException('Not implemented')
+        return new org.cqrest.reactive.Observable<EventEnvelope>(
+            rx.Observable.create(new QueryOnSubscribe(criteria, this))
+        )
     }
 
 }

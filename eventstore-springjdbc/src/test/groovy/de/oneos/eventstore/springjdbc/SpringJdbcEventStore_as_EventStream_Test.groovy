@@ -45,10 +45,4 @@ class SpringJdbcEventStore_as_EventStream_Test extends EventStream_ContractTest 
         eventStore.saveEnvelopes(history)
     }
 
-    @Override
-    void observe__should_send_EventEnvelopes_to_subscribed_Observers() {
-        // Ignored
-        // super.observe__should_send_EventEnvelopes_to_subscribed_Observers()    //To change body of overridden methods use File | Settings | File Templates.
-    }
-
 }
