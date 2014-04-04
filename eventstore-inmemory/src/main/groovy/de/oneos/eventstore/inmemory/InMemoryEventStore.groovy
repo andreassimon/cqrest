@@ -7,32 +7,19 @@ import de.oneos.eventstore.*
 
 
 class InMemoryEventStore implements EventStore, EventSupplier, EventStream {
-    static Log log = LogFactory.getLog(InMemoryEventStore)
+    public static Log log = LogFactory.getLog(InMemoryEventStore)
 
 
     List<EventEnvelope> history = []
-    Collection<rx.Observer<? super EventEnvelope>> newEventsObservers = []
-    final rx.Observable<EventEnvelope> newEvents
+    Subscribers subscribers = new Subscribers(log)
     EventBus eventBus = new StubEventBus()
-
-
-    InMemoryEventStore() {
-        newEvents = rx.Observable.create([
-          onSubscribe: { rx.Observer<? super EventEnvelope> observer ->
-              newEventsObservers.add(observer)
-              return [
-                unsubscribe: { newEventsObservers.remove(observer) }
-              ] as rx.Subscription
-          }
-        ] as rx.Observable.OnSubscribeFunc<EventEnvelope>)
-    }
 
 
     @Override
     @Deprecated
     void subscribeTo(Map<String, ?> criteria, EventConsumer eventConsumer) {
         assert null != eventConsumer
-        newEventsObservers.add(new EventConsumerAdapter(eventConsumer))
+        subscribers.onSubscribe(new EventConsumerAdapter(eventConsumer))
         try {
             eventConsumer.wasRegisteredAt(this)
         } catch(e) {
@@ -73,17 +60,7 @@ class InMemoryEventStore implements EventStore, EventSupplier, EventStream {
 
     protected Closure saveEnvelope = { eventEnvelope ->
         history << eventEnvelope
-        new ArrayList<>(newEventsObservers).each { rx.Observer observer ->
-            try {
-                observer.onNext(eventEnvelope)
-            } catch(e) {
-                try {
-                    observer.onError(e)
-                } catch(ee) {
-                    log.error("${ee.getClass().getCanonicalName()}: Couldn't process $eventEnvelope in $observer", ee)
-                }
-            }
-        }
+        subscribers.publish(eventEnvelope)
     }
 
     void addEventEnvelope(UUID aggregateId, String application, String boundedContext, final String aggregateType, Event event, int sequenceNumber) {
@@ -127,7 +104,7 @@ class InMemoryEventStore implements EventStore, EventSupplier, EventStream {
         return new org.cqrest.reactive.Observable<EventEnvelope>(
             rx.Observable.concat(
               rx.Observable.from(findAll(criteria)),
-              newEvents.filter(new CriteriaFilter(criteria))
+              subscribers.observable.filter(new CriteriaFilter(criteria))
             )
         )
     }
