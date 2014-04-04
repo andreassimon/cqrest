@@ -27,17 +27,68 @@ class EventEnvelope {
     String user
 
 
-    @Deprecated
     EventEnvelope(
         String application,
         String boundedContext,
         String aggregateName,
         UUID aggregateId,
-        def event,
+        Map<String, ?> event,
         int sequenceNumber = 0,
         Date timestamp = new Date(),
         UUID correlationId,
         String user
+    ) {
+        this(
+          application,
+          boundedContext,
+          aggregateName,
+          aggregateId,
+          event.eventName as String,
+          event.eventAttributes as Map<String, ?>,
+          sequenceNumber,
+          timestamp,
+          correlationId,
+          user
+        )
+    }
+
+    @Deprecated
+    EventEnvelope(
+      String application,
+      String boundedContext,
+      String aggregateName,
+      UUID aggregateId,
+      Event<?> event,
+      int sequenceNumber = 0,
+      Date timestamp = new Date(),
+      UUID correlationId,
+      String user
+    ) {
+        this(
+          application,
+          boundedContext,
+          aggregateName,
+          aggregateId,
+          event.eventName,
+          event.eventAttributes,
+          sequenceNumber,
+          timestamp,
+          correlationId,
+          user
+        )
+    }
+
+    EventEnvelope(
+      String application,
+      String boundedContext,
+      String aggregateName,
+      UUID aggregateId,
+      String eventName,
+      Map<String, ?> eventAttributes,
+      int sequenceNumber,
+      Date timestamp = new Date(),
+      UUID correlationId,
+      String user
     ) {
         assert aggregateName != null
         assert null != timestamp
@@ -47,8 +98,8 @@ class EventEnvelope {
         this.aggregateName = aggregateName
         this.aggregateId = aggregateId
         this.sequenceNumber = sequenceNumber
-        this.eventName = event.eventName
-        this.eventAttributes = event.eventAttributes
+        this.eventName = eventName
+        this.eventAttributes = eventAttributes
         this.timestamp = timestamp
         this.correlationId = correlationId
         this.user = user
