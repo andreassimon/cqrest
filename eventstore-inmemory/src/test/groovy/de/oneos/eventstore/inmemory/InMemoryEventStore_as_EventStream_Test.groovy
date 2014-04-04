@@ -15,6 +15,8 @@ import rx.plugins.RxJavaPlugins
 import de.oneos.eventsourcing.EventEnvelope
 import de.oneos.eventsourcing.EventStream
 import de.oneos.eventstore.EventCollisionOccurred
+
+import org.cqrest.eventstore.DefectiveObserver
 import static org.cqrest.test.AnEventEnvelope.anEventEnvelope
 
 import org.cqrest.eventstore.EventStream_ContractTest
@@ -34,7 +36,7 @@ class InMemoryEventStore_as_EventStream_Test extends EventStream_ContractTest {
 
     @Override
     void setStreamHistory(List<EventEnvelope> history) {
-        eventStore.history = history
+        eventStore.saveEnvelopes(history)
     }
 
     @BeforeClass
@@ -62,7 +64,6 @@ class InMemoryEventStore_as_EventStream_Test extends EventStream_ContractTest {
 
         verify(observer, never()).onCompleted()
     }
-
 
     @Test
     void should_pass_new_persisted_events_to_subscribed_Observers() {

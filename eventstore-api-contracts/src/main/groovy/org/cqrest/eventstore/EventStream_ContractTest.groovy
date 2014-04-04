@@ -34,7 +34,7 @@ abstract class EventStream_ContractTest {
     }
 
 
-    // TODO insert here `observe__should_not_complete_streams_of_Observers`
+    // TODO pull up `observe__should_not_complete_streams_of_Observers` here
 
     @Test
     void observe__should_filter_EventEnvelopes_by_event_names() {
@@ -47,5 +47,30 @@ abstract class EventStream_ContractTest {
 
         observer.assertReceivedEvents()
     }
+
+    @Test
+    void should_send_any_exceptions_thrown_while_replaying_to_onError() {
+        final history = [ anEventEnvelope().withEventName('Order line added').build() ]
+        setStreamHistory(history)
+        def defectiveObserver = new DefectiveObserver()
+        def flawlessObserver = new MockObserver(history)
+
+        [defectiveObserver, flawlessObserver].each {
+            eventStream.observe().subscribe(it)
+        }
+
+        defectiveObserver.assertReceivedExceptionIn_onError()
+        flawlessObserver.assertReceivedEvents()
+    }
+
+    // TODO pull up should_pass_new_persisted_events_to_subscribed_Observers() here
+
+    // TODO pull up should_not_pass_new_persisted_events_to_unsubscribed_Observers() here
+
+    // TODO pull up should_send_any_exceptions_thrown_by_onNext_to_onError() here
+
+    // TODO pull up should_log_any_exceptions_thrown_by_onError() here
+
+    // TODO pull up should_not_publish_any_event_when_transaction_failed() here
 
 }
