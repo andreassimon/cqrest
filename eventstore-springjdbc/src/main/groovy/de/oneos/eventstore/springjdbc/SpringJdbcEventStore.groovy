@@ -38,33 +38,49 @@ INSERT INTO ${Schema.TABLE_NAME} (
     ${Schema.TIMESTAMP}
 ) VALUES (?,?,?,?,?,?,?,?,?,?);\
 """.toString()
+    public static final String EVENT_STORE_QUERY_EXCEPTION_MSG = 'Exception during query of SpringJdbcEventStore'
 
     protected eventEnvelopeMapper = new EventEnvelopeRowMapper()
 
     JdbcOperations jdbcTemplate
-    NamedParameterJdbcTemplate namedParameterJdbcTemplate
+    NamedParameterJdbcOperations namedParameterJdbcTemplate
     TransactionTemplate transactionTemplate
     Subscribers subscribers = new Subscribers(log)
     protected EventBus eventBus
 
     SpringJdbcEventStore(DataSource dataSource, boolean createTable) {
-        this(dataSource, new StubEventBus(), createTable)
+        this(dataSource, defaultEventBus(), createTable)
+    }
+
+    public static EventBus defaultEventBus() {
+        return new StubEventBus()
     }
 
     SpringJdbcEventStore(DataSource dataSource, EventBus eventBus, boolean createTable) {
-        setDataSource(dataSource)
+        this(
+          new JdbcTemplate(dataSource),
+          new NamedParameterJdbcTemplate(dataSource),
+          new TransactionTemplate(
+            new DataSourceTransactionManager(dataSource)),
+          eventBus,
+          createTable
+        )
+    }
+
+    SpringJdbcEventStore(
+      JdbcOperations jdbcTemplate,
+      NamedParameterJdbcOperations namedParameterJdbcTemplate,
+      TransactionTemplate transactionTemplate,
+      EventBus eventBus,
+      boolean createTable
+    ) {
+        this.jdbcTemplate = jdbcTemplate
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate
+        this.transactionTemplate = transactionTemplate
         this.eventBus = eventBus
         if(createTable) {
             this.createTable()
         }
-    }
-
-    void setDataSource(DataSource dataSource) {
-        jdbcTemplate = new JdbcTemplate(dataSource)
-        namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource)
-        transactionTemplate =
-            new TransactionTemplate(
-                new DataSourceTransactionManager(dataSource))
     }
 
 
@@ -193,8 +209,7 @@ ALTER TABLE ${Schema.TABLE_NAME} ADD COLUMN IF NOT EXISTS ${Schema.USER} VARCHAR
     QueryExpression queryExpression = new QueryExpression()
 
     @Override
-    // TODO Remove Spring exception from signature
-    void withEventEnvelopes(Map<String, ?> criteria, Closure block) throws DataAccessException {
+    void withEventEnvelopes(Map<String, ?> criteria, Closure block) throws EventStoreQueryException {
         queryByCriteria(criteria, { ResultSet resultSet ->
             block.call(
               eventEnvelopeMapper.mapRow(resultSet, resultSet.row)
@@ -202,12 +217,20 @@ ALTER TABLE ${Schema.TABLE_NAME} ADD COLUMN IF NOT EXISTS ${Schema.USER} VARCHAR
         } as RowCallbackHandler)
     }
 
-    void queryByCriteria(Map<String, ?> criteria, RowCallbackHandler rowCallbackHandler) throws DataAccessException {
-        namedParameterJdbcTemplate.query(
-          queryExpression.forCriteria(criteria),
-          criteria,
-          rowCallbackHandler
-        )
+    void queryByCriteria(Map<String, ?> criteria, RowCallbackHandler rowCallbackHandler) throws EventStoreQueryException {
+        try {
+            namedParameterJdbcTemplate.query(
+              queryExpression.forCriteria(criteria),
+              criteria,
+              rowCallbackHandler
+            )
+        } catch(DataAccessException e) {
+            throw createQueryException(e)
+        }
+    }
+
+    public static EventStoreQueryException createQueryException(DataAccessException e) {
+        return new EventStoreQueryException(EVENT_STORE_QUERY_EXCEPTION_MSG, e)
     }
 
     @Override

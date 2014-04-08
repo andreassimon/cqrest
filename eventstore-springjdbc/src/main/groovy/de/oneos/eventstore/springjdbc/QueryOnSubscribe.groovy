@@ -7,6 +7,7 @@ import org.springframework.dao.DataAccessException
 import rx.Subscription
 
 import de.oneos.eventsourcing.EventEnvelope
+import de.oneos.eventstore.EventStoreQueryException
 
 
 class QueryOnSubscribe implements rx.Observable.OnSubscribeFunc<EventEnvelope> {
@@ -23,8 +24,7 @@ class QueryOnSubscribe implements rx.Observable.OnSubscribeFunc<EventEnvelope> {
     }
 
     @Override
-    // TODO Remove Spring exception from signature
-    Subscription onSubscribe(rx.Observer<? super EventEnvelope> observer) throws DataAccessException {
+    Subscription onSubscribe(rx.Observer<? super EventEnvelope> observer) throws EventStoreQueryException {
         // TODO Fork a thread ?
         store.queryByCriteria(criteria, new ReactiveRowCallbackHandler(observer))
         // TODO test

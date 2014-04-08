@@ -52,6 +52,4 @@ class SpringJdbcEventStore_as_EventStream_Test extends EventStream_ContractTest 
         eventStore.saveEnvelopes(history)
     }
 
-    // TODO test behaviour when org.springframework.dao.DataAccessException is thrown in de.oneos.eventstore.springjdbc.SpringJdbcEventStore.queryByCriteria
-
 }

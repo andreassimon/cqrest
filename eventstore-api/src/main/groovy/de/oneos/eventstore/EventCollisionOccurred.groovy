@@ -3,7 +3,7 @@ package de.oneos.eventstore
 import de.oneos.eventsourcing.*
 
 
-class EventCollisionOccurred extends RuntimeException {
+class EventCollisionOccurred extends EventStoreException {
 
     EventCollisionOccurred(EventEnvelope conflictingEnvelope) {
         super(message(conflictingEnvelope))
