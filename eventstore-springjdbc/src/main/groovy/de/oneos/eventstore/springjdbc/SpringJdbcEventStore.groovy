@@ -44,7 +44,7 @@ INSERT INTO ${Schema.TABLE_NAME} (
     JdbcOperations jdbcTemplate
     NamedParameterJdbcTemplate namedParameterJdbcTemplate
     TransactionTemplate transactionTemplate
-    protected List<EventConsumer> processors = []
+    Subscribers subscribers = new Subscribers(log)
     protected EventBus eventBus
 
     SpringJdbcEventStore(DataSource dataSource, boolean createTable) {
@@ -116,7 +116,7 @@ ALTER TABLE ${Schema.TABLE_NAME} ADD COLUMN IF NOT EXISTS ${Schema.USER} VARCHAR
     @Override
     void subscribeTo(Map<String, ?> criteria, EventConsumer eventConsumer) {
         assert null != eventConsumer
-        processors.add(eventConsumer)
+        subscribers.observable.subscribe(new EventConsumerAdapter(eventConsumer))
     }
 
     @Override
@@ -152,14 +152,8 @@ ALTER TABLE ${Schema.TABLE_NAME} ADD COLUMN IF NOT EXISTS ${Schema.USER} VARCHAR
         envelopes.each process
     }
 
-    protected Closure<?> process = { EventEnvelope envelope ->
-        processors.each { processor ->
-            try {
-                processor.process(envelope)
-            } catch (Throwable e) {
-                log.warn("Exception during processing $envelope by $processor", e)
-            }
-        }
+    protected Closure<?> process = { EventEnvelope eventEnvelope ->
+        subscribers.publish(eventEnvelope)
     }
 
     protected doInTransaction(Closure<?> callback) {
@@ -199,7 +193,8 @@ ALTER TABLE ${Schema.TABLE_NAME} ADD COLUMN IF NOT EXISTS ${Schema.USER} VARCHAR
     QueryExpression queryExpression = new QueryExpression()
 
     @Override
-    void withEventEnvelopes(Map<String, ?> criteria, Closure block) {
+    // TODO Remove Spring exception from signature
+    void withEventEnvelopes(Map<String, ?> criteria, Closure block) throws DataAccessException {
         queryByCriteria(criteria, { ResultSet resultSet ->
             block.call(
               eventEnvelopeMapper.mapRow(resultSet, resultSet.row)
@@ -207,7 +202,7 @@ ALTER TABLE ${Schema.TABLE_NAME} ADD COLUMN IF NOT EXISTS ${Schema.USER} VARCHAR
         } as RowCallbackHandler)
     }
 
-    void queryByCriteria(Map<String, ?> criteria, RowCallbackHandler rowCallbackHandler) {
+    void queryByCriteria(Map<String, ?> criteria, RowCallbackHandler rowCallbackHandler) throws DataAccessException {
         namedParameterJdbcTemplate.query(
           queryExpression.forCriteria(criteria),
           criteria,
@@ -218,7 +213,10 @@ ALTER TABLE ${Schema.TABLE_NAME} ADD COLUMN IF NOT EXISTS ${Schema.USER} VARCHAR
     @Override
     org.cqrest.reactive.Observable<EventEnvelope> observe(Map<String, ?> criteria = [:]) {
         return new org.cqrest.reactive.Observable<EventEnvelope>(
-            rx.Observable.create(new QueryOnSubscribe(criteria, this))
+            rx.Observable.concat(
+              rx.Observable.create(new QueryOnSubscribe(criteria, this)),
+              subscribers.observable.filter(new CriteriaFilter(criteria))
+            )
         )
     }
 

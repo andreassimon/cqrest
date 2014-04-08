@@ -19,12 +19,7 @@ class InMemoryEventStore implements EventStore, EventSupplier, EventStream {
     @Deprecated
     void subscribeTo(Map<String, ?> criteria, EventConsumer eventConsumer) {
         assert null != eventConsumer
-        subscribers.onSubscribe(new EventConsumerAdapter(eventConsumer))
-        try {
-            eventConsumer.wasRegisteredAt(this)
-        } catch(e) {
-            log.warn("Exception occurred during registration of $eventConsumer at $this", e)
-        }
+        subscribers.observable.subscribe(new EventConsumerAdapter(eventConsumer))
     }
 
     @Override

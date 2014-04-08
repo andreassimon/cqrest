@@ -5,7 +5,6 @@ import javax.sql.DataSource
 
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 
 import de.oneos.eventsourcing.EventEnvelope
 import de.oneos.eventsourcing.EventStream
@@ -53,10 +52,6 @@ class SpringJdbcEventStore_as_EventStream_Test extends EventStream_ContractTest 
         eventStore.saveEnvelopes(history)
     }
 
-    @Override
-    void should_pass_new_persisted_events_to_subscribed_Observers() {
-        // TODO Ignore
-        // super.should_pass_new_persisted_events_to_subscribed_Observers()    //To change body of overridden methods use File | Settings | File Templates.
-    }
+    // TODO test behaviour when org.springframework.dao.DataAccessException is thrown in de.oneos.eventstore.springjdbc.SpringJdbcEventStore.queryByCriteria
 
 }
