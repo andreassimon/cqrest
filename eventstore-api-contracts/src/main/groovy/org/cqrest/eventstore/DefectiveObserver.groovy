@@ -1,4 +1,4 @@
-package de.oneos.eventstore.inmemory
+package org.cqrest.eventstore
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
