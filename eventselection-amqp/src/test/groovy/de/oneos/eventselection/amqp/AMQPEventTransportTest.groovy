@@ -42,7 +42,7 @@ class AMQPEventTransportTest {
     @BeforeClass
     static void setUp() {
         ConnectionFactory connectionFactory = new ConnectionFactory();
-        connectionFactory.virtualHost = 'one-os-test'
+        connectionFactory.virtualHost = 'cqrs-test'
         Connection connection = connectionFactory.newConnection()
 
         eventStore = new StubEventSupplier(queryResult: queryResults)

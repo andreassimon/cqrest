@@ -56,6 +56,7 @@ class AMQPEventSupplierTest {
 
         def connectionFactory = new ConnectionFactory()
         connectionFactory.clientProperties = AMQP.DEFAULT_AMQP_CLIENT_PROPERTIES
+        connectionFactory.virtualHost = 'cqrs-test'
         try {
             connection = connectionFactory.newConnection()
         } catch (ConnectException) {

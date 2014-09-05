@@ -31,7 +31,7 @@ class AMQPEventPublisherTest {
     @Before
     void setUp() throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
-        factory.virtualHost = 'one-os-test'
+        factory.virtualHost = 'cqrs-test'
         try {
             connection = factory.newConnection();
         } catch (ConnectException) {
