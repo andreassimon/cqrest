@@ -1,4 +1,4 @@
-package de.oneos.eventstore.springjdbc
+package org.cqrest.eventstore.springjdbc
 
 import java.sql.Connection
 import javax.sql.DataSource
@@ -6,8 +6,8 @@ import javax.sql.DataSource
 import org.junit.After
 import org.junit.Before
 
-import de.oneos.eventsourcing.EventEnvelope
-import de.oneos.eventsourcing.EventStream
+import org.cqrest.eventsourcing.EventEnvelope
+import org.cqrest.eventsourcing.EventStream
 
 import org.cqrest.eventstore.EventStream_ContractTest
 

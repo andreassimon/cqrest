@@ -1,4 +1,4 @@
-package de.oneos.eventstore.springjdbc
+package org.cqrest.eventstore.springjdbc
 
 import org.junit.*
 import static org.junit.Assert.*
@@ -10,7 +10,7 @@ import java.sql.*
 import javax.sql.*
 import org.springframework.jdbc.core.*
 
-import de.oneos.eventstore.*
+import org.cqrest.eventstore.*
 
 
 class SpringJdbcEventStore_as_EventStore_Test extends EventStore_ContractTest {

@@ -1,4 +1,4 @@
-package de.oneos.eventstore.springjdbc
+package org.cqrest.eventstore.springjdbc
 
 import java.sql.ResultSet
 import java.sql.SQLException
@@ -6,7 +6,7 @@ import java.sql.SQLException
 import groovy.json.JsonSlurper
 import org.springframework.jdbc.core.RowMapper
 
-import de.oneos.eventsourcing.EventEnvelope
+import org.cqrest.eventsourcing.EventEnvelope
 
 
 class EventEnvelopeRowMapper implements RowMapper<EventEnvelope> {

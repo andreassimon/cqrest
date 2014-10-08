@@ -1,13 +1,13 @@
-package de.oneos.eventstore.springjdbc
+package org.cqrest.eventstore.springjdbc
 
-import de.oneos.eventsourcing.*
+import org.cqrest.eventsourcing.*
 
 import java.sql.*
 import javax.sql.*
 
 import org.apache.commons.logging.*
 
-import de.oneos.eventstore.*
+import org.cqrest.eventstore.*
 
 import org.springframework.dao.*
 import org.springframework.jdbc.core.*

@@ -1,4 +1,4 @@
-package de.oneos.eventstore.springjdbc
+package org.cqrest.eventstore.springjdbc
 
 import org.junit.Test
 import static org.mockito.Mockito.mock

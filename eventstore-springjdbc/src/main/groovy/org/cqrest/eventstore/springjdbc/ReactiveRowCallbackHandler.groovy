@@ -1,11 +1,11 @@
-package de.oneos.eventstore.springjdbc
+package org.cqrest.eventstore.springjdbc
 
 import java.sql.ResultSet
 import java.sql.SQLException
 
 import org.springframework.jdbc.core.RowCallbackHandler
 
-import de.oneos.eventsourcing.EventEnvelope
+import org.cqrest.eventsourcing.EventEnvelope
 
 
 class ReactiveRowCallbackHandler implements RowCallbackHandler {

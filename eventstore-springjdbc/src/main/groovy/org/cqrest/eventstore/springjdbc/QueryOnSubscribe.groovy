@@ -1,4 +1,4 @@
-package de.oneos.eventstore.springjdbc
+package org.cqrest.eventstore.springjdbc
 
 import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory
@@ -6,8 +6,8 @@ import org.springframework.dao.DataAccessException
 
 import rx.Subscription
 
-import de.oneos.eventsourcing.EventEnvelope
-import de.oneos.eventstore.EventStoreQueryException
+import org.cqrest.eventsourcing.EventEnvelope
+import org.cqrest.eventstore.EventStoreQueryException
 
 
 class QueryOnSubscribe implements rx.Observable.OnSubscribeFunc<EventEnvelope> {
