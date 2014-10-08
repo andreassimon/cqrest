@@ -1,4 +1,4 @@
-package de.oneos.projections
+package org.cqrest.projections
 
 import groovy.transform.Canonical
 import org.junit.Test

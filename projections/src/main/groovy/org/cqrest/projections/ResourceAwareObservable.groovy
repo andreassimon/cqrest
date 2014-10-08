@@ -1,10 +1,10 @@
-package de.oneos.projections
+package org.cqrest.projections
 
 import rx.lang.groovy.GroovyFunctionWrapper
 import rx.observables.GroupedObservable
 import rx.util.functions.Func2
 
-import de.oneos.eventsourcing.EventEnvelope
+import org.cqrest.eventsourcing.EventEnvelope
 
 
 class ResourceAwareObservable<T> {

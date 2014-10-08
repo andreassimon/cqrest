@@ -1,9 +1,9 @@
-package de.oneos.projections
+package org.cqrest.projections
 
 import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory
 
-import de.oneos.eventsourcing.EventEnvelope
+import org.cqrest.eventsourcing.EventEnvelope
 
 
 class Resource<T> {
