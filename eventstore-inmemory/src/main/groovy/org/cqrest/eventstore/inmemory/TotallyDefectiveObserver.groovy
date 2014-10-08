@@ -1,6 +1,6 @@
-package de.oneos.eventstore.inmemory
+package org.cqrest.eventstore.inmemory
 
-import de.oneos.eventsourcing.EventEnvelope
+import org.cqrest.eventsourcing.EventEnvelope
 
 
 class TotallyDefectiveObserver implements org.cqrest.reactive.Observer<EventEnvelope> {

@@ -1,4 +1,4 @@
-package de.oneos.eventstore.inmemory
+package org.cqrest.eventstore.inmemory
 
 import org.junit.Before
 import org.junit.BeforeClass
@@ -12,9 +12,9 @@ import static org.mockito.Mockito.verifyNoMoreInteractions
 import rx.plugins.RxJavaErrorHandler
 import rx.plugins.RxJavaPlugins
 
-import de.oneos.eventsourcing.EventEnvelope
-import de.oneos.eventsourcing.EventStream
-import de.oneos.eventstore.EventCollisionOccurred
+import org.cqrest.eventsourcing.EventEnvelope
+import org.cqrest.eventsourcing.EventStream
+import org.cqrest.eventstore.EventCollisionOccurred
 
 import org.cqrest.eventstore.DefectiveObserver
 import static org.cqrest.test.AnEventEnvelope.anEventEnvelope

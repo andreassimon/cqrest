@@ -1,4 +1,4 @@
-package de.oneos.eventstore.inmemory
+package org.cqrest.eventstore.inmemory
 
 import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory

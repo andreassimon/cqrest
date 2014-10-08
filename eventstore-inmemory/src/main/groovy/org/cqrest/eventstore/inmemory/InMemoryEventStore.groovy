@@ -1,9 +1,9 @@
-package de.oneos.eventstore.inmemory
+package org.cqrest.eventstore.inmemory
 
 import org.apache.commons.logging.*
 
-import de.oneos.eventsourcing.*
-import de.oneos.eventstore.*
+import org.cqrest.eventsourcing.*
+import org.cqrest.eventstore.*
 
 
 class InMemoryEventStore implements EventStore, EventSupplier, EventStream {
