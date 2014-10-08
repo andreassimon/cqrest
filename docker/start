@@ -2,12 +2,20 @@
 
 docker build --tag "cqrs/rabbit" rabbit
 
-docker stop cqrs_rabbit
-docker rm cqrs_rabbit
-rabbit_cid=$(docker run -d --name cqrs_rabbit -p "5672:5672" -p "15672:15672" cqrs/rabbit)
+# docker stop cqrs_rabbit
+# docker rm cqrs_rabbit
+rabbit_cid=$(docker run -ti --rm \
+  --hostname rabbit \
+  -v `pwd`/volumes/var/lib/rabbitmq:/var/lib/rabbitmq \
+  -p "5672:5672" \
+  -p "15672:15672" \
+  cqrs/rabbit \
+)
 echo Rabbit container: $rabbit_cid
+echo $rabbit_cid > rabbit.cid
 
 # docker run --rm -ti -p "5672:5672" -p "15672:15672" cqrs/rabbit /bin/bash
+# docker run --rm -h rabbit -ti -v `pwd`/volumes/var/lib/rabbitmq:/var/lib/rabbitmq -p "5672:5672" -p "15672:15672" cqrs/rabbit bin/bash
 # rabbitmq-server &
 # rabbitmqctl add_vhost cqrs-test
 # rabbitmqctl set_permissions -p cqrs-test guest ".*" ".*" ".*"
