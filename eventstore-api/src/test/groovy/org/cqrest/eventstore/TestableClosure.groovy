@@ -1,4 +1,4 @@
-package de.oneos.eventstore
+package org.cqrest.eventstore
 
 class TestableClosure<V> extends Closure<V> {
 

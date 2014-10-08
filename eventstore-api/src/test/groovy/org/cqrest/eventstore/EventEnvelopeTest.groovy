@@ -1,4 +1,4 @@
-package de.oneos.eventstore
+package org.cqrest.eventstore
 
 import static java.util.UUID.randomUUID
 import java.util.concurrent.CountDownLatch
@@ -9,7 +9,7 @@ import org.junit.*
 import static org.junit.Assert.*
 import static org.hamcrest.Matchers.*
 
-import de.oneos.eventsourcing.*
+import org.cqrest.eventsourcing.*
 
 
 class EventEnvelopeTest {

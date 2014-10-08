@@ -1,7 +1,7 @@
-package de.oneos.eventstore
+package org.cqrest.eventstore
 
-import de.oneos.eventsourcing.*
-import de.oneos.validation.*
+import org.cqrest.eventsourcing.*
+import org.cqrest.validation.*
 
 
 class UnitOfWork {

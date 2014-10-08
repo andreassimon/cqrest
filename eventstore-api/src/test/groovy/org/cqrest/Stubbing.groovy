@@ -1,4 +1,4 @@
-package de.oneos
+package org.cqrest
 
 import org.mockito.stubbing.*
 import org.mockito.invocation.*

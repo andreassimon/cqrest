@@ -1,4 +1,4 @@
-package de.oneos.eventstore
+package org.cqrest.eventstore
 
 import static java.util.UUID.randomUUID
 
@@ -6,11 +6,11 @@ import org.junit.*
 import static org.junit.Assert.*
 import static org.mockito.Mockito.*
 import static org.hamcrest.Matchers.*
-import static de.oneos.Matchers.*
-import static de.oneos.Stubbing.*
+import static org.cqrest.Matchers.*
+import static org.cqrest.Stubbing.*
 
-import de.oneos.eventsourcing.*
-import de.oneos.validation.*
+import org.cqrest.eventsourcing.*
+import org.cqrest.validation.*
 
 class UnitOfWorkTest {
     static final String APPLICATION_NAME = 'APPLICATION_NAME'
@@ -198,7 +198,7 @@ class UnitOfWorkTest {
     }
 
 
-    @de.oneos.eventsourcing.Aggregate
+    @org.cqrest.eventsourcing.Aggregate
     static class NotValidatableAggregate {
         static aggregateName = AGGREGATE_NAME
 
@@ -212,7 +212,7 @@ class UnitOfWorkTest {
         def "Business event happened"(Map event) { }
     }
 
-    @de.oneos.eventsourcing.Aggregate
+    @org.cqrest.eventsourcing.Aggregate
     static class Aggregate extends NotValidatableAggregate {
         Aggregate(UUID id) { super(id) }
 
@@ -223,7 +223,7 @@ class UnitOfWorkTest {
         new EventEnvelope(APPLICATION_NAME, BOUNDED_CONTEXT_NAME, AGGREGATE_NAME, AGGREGATE_ID, new Business_event_happened(), attributes['sequenceNumber'], NO_CORRELATION_ID, USER_UNKNOWN)
     }
 
-    @de.oneos.eventsourcing.Aggregate
+    @org.cqrest.eventsourcing.Aggregate
     static class InvalidAggregate implements Validatable<InvalidAggregate> {
         static String aggregateName = 'Invalid Aggregate'
         boolean isValid() { return false }
@@ -233,7 +233,7 @@ class UnitOfWorkTest {
         def "Business event happened"(Map event) { }
     }
 
-    @de.oneos.eventsourcing.Aggregate
+    @org.cqrest.eventsourcing.Aggregate
     static class ValidAggregate implements Validatable<ValidAggregate> {
         static String aggregateName = 'Valid Aggregate'
         boolean isValid() { return true }

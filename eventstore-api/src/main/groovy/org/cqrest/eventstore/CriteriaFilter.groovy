@@ -1,6 +1,6 @@
-package de.oneos.eventstore
+package org.cqrest.eventstore
 
-import de.oneos.eventsourcing.EventEnvelope
+import org.cqrest.eventsourcing.EventEnvelope
 
 
 class CriteriaFilter implements rx.util.functions.Func1<EventEnvelope, Boolean> {

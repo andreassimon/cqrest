@@ -1,9 +1,9 @@
-package de.oneos
+package org.cqrest
 
 import org.hamcrest.Matcher
-import de.oneos.eventstore.TestableClosure
+import org.cqrest.eventstore.TestableClosure
 
-import de.oneos.matchers.*
+import org.cqrest.matchers.*
 
 
 class Matchers {

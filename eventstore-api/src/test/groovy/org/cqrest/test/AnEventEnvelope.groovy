@@ -1,6 +1,6 @@
 package org.cqrest.test
 
-import de.oneos.eventsourcing.EventEnvelope
+import org.cqrest.eventsourcing.EventEnvelope
 
 
 class AnEventEnvelope {

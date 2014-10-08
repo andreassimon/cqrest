@@ -1,8 +1,8 @@
-package de.oneos.eventstore
+package org.cqrest.eventstore
 
 import org.junit.Test
 
-import de.oneos.eventstore.CriteriaFilter
+import org.cqrest.eventstore.CriteriaFilter
 
 import org.cqrest.test.AnEventEnvelope
 import static org.cqrest.test.AnEventEnvelope.anEventEnvelope

@@ -1,4 +1,4 @@
-package de.oneos.eventstore;
+package org.cqrest.eventstore;
 
 import org.junit.Test
 
@@ -7,8 +7,8 @@ import static org.mockito.Mockito.verify
 
 import static org.cqrest.test.AnEventEnvelope.anEventEnvelope;
 
-import de.oneos.eventsourcing.EventConsumer;
-import de.oneos.eventsourcing.EventEnvelope
+import org.cqrest.eventsourcing.EventConsumer;
+import org.cqrest.eventsourcing.EventEnvelope
 
 
 public class EventConsumerAdapterTest {

@@ -1,8 +1,8 @@
-package de.oneos.matchers
+package org.cqrest.matchers
 
 import org.hamcrest.*
 
-import de.oneos.eventstore.*
+import org.cqrest.eventstore.*
 
 
 class FilteredNumberOfCallsMatcher extends TypeSafeMatcher<TestableClosure> {

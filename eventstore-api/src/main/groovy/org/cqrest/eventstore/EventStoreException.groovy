@@ -1,4 +1,4 @@
-package de.oneos.eventstore
+package org.cqrest.eventstore
 
 
 abstract class EventStoreException extends RuntimeException {

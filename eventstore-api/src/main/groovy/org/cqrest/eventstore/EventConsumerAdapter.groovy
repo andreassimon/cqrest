@@ -1,7 +1,7 @@
-package de.oneos.eventstore
+package org.cqrest.eventstore
 
-import de.oneos.eventsourcing.EventConsumer
-import de.oneos.eventsourcing.EventEnvelope
+import org.cqrest.eventsourcing.EventConsumer
+import org.cqrest.eventsourcing.EventEnvelope
 
 
 class EventConsumerAdapter implements rx.Observer<EventEnvelope> {

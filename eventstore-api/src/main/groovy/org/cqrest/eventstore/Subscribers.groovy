@@ -1,8 +1,8 @@
-package de.oneos.eventstore
+package org.cqrest.eventstore
 
 import org.apache.commons.logging.Log
 
-import de.oneos.eventsourcing.EventEnvelope
+import org.cqrest.eventsourcing.EventEnvelope
 
 
 class Subscribers implements rx.Observable.OnSubscribeFunc<EventEnvelope> {

@@ -1,10 +1,10 @@
-package de.oneos.eventstore
+package org.cqrest.eventstore
 
 import static java.util.UUID.randomUUID
 
 import org.junit.*
 
-import de.oneos.eventsourcing.*
+import org.cqrest.eventsourcing.*
 
 
 public class AssertEventEnvelopeTest {

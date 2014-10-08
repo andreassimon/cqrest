@@ -1,19 +1,18 @@
-package de.oneos.matchers
+package org.cqrest.matchers
 
+import org.cqrest.eventstore.*
 import org.hamcrest.*
-import de.oneos.eventstore.TestableClosure
 
-
-class ClosureWasCalledOnceMatcher extends TypeSafeMatcher<TestableClosure> {
+class ClosureWasNeverCalledMatcher extends TypeSafeMatcher<TestableClosure> {
 
     @Override
     protected boolean matchesSafely(TestableClosure closure) {
-        return closure.getNumberOfCalls() == 1
+        return closure.getNumberOfCalls() == 0
     }
 
     @Override
     void describeTo(Description description) {
-        description.appendText(explain(1))
+        description.appendText(explain(0))
     }
 
     @Override

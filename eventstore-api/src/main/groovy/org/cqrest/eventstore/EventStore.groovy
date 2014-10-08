@@ -1,6 +1,6 @@
-package de.oneos.eventstore
+package org.cqrest.eventstore
 
-import de.oneos.eventsourcing.*
+import org.cqrest.eventsourcing.*
 
 
 interface EventStore extends EventSupplier {
