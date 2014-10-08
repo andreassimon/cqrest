@@ -1,4 +1,4 @@
-package de.oneos.validation
+package org.cqrest.validation
 
 
 class ValidationException extends RuntimeException {

@@ -1,4 +1,4 @@
-package de.oneos.validation
+package org.cqrest.validation
 
 public interface Validator<T> {
 
