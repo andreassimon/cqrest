@@ -1,4 +1,4 @@
-package de.oneos.eventselection.amqp
+package org.cqrest.eventselection.amqp
 
 import java.util.concurrent.CountDownLatch
 
@@ -9,8 +9,8 @@ import static org.mockito.Mockito.*
 
 import com.rabbitmq.client.*
 
-import de.oneos.eventsourcing.EventConsumer
-import de.oneos.eventsourcing.EventEnvelope
+import org.cqrest.eventsourcing.EventConsumer
+import org.cqrest.eventsourcing.EventEnvelope
 
 
 class AMQPEventTransportTest {

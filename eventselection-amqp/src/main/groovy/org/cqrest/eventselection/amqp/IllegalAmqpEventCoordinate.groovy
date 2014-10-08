@@ -1,6 +1,6 @@
-package de.oneos.eventselection.amqp
+package org.cqrest.eventselection.amqp
 
-import de.oneos.eventsourcing.EventProcessingException
+import org.cqrest.eventsourcing.EventProcessingException
 
 
 class IllegalAmqpEventCoordinate extends EventProcessingException {

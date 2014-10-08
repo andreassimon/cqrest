@@ -1,10 +1,10 @@
-package de.oneos.eventselection.amqp
+package org.cqrest.eventselection.amqp
 
 import org.apache.commons.logging.*
 import com.rabbitmq.client.*
 
 import static AMQP.*
-import de.oneos.eventsourcing.*
+import org.cqrest.eventsourcing.*
 
 
 class EventEnvelopeConsumer extends DefaultConsumer implements Consumer {

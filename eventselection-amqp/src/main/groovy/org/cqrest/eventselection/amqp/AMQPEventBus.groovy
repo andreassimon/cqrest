@@ -1,8 +1,8 @@
-package de.oneos.eventselection.amqp
+package org.cqrest.eventselection.amqp
 
 import com.rabbitmq.client.*
-import de.oneos.eventsourcing.Correlation
-import de.oneos.eventsourcing.EventBus
+import org.cqrest.eventsourcing.Correlation
+import org.cqrest.eventsourcing.EventBus
 import org.apache.commons.logging.*
 
 import static AMQP.*

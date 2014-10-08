@@ -1,4 +1,4 @@
-package de.oneos.eventselection.amqp
+package org.cqrest.eventselection.amqp
 
 import org.junit.*
 import static org.hamcrest.CoreMatchers.*
@@ -8,11 +8,11 @@ import static java.util.UUID.*
 
 import com.rabbitmq.client.*
 
-import de.oneos.eventsourcing.BaseEvent
-import de.oneos.eventsourcing.Event
-import de.oneos.eventsourcing.EventEnvelope
-import de.oneos.eventsourcing.EventProcessingException
-import de.oneos.eventsourcing.EventSupplier
+import org.cqrest.eventsourcing.BaseEvent
+import org.cqrest.eventsourcing.Event
+import org.cqrest.eventsourcing.EventEnvelope
+import org.cqrest.eventsourcing.EventProcessingException
+import org.cqrest.eventsourcing.EventSupplier
 
 
 class AMQPEventPublisherTest {

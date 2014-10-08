@@ -1,4 +1,4 @@
-package de.oneos.eventselection.amqp
+package org.cqrest.eventselection.amqp
 
 import groovy.json.*
 import org.apache.commons.logging.*
@@ -7,9 +7,9 @@ import com.rabbitmq.client.*
 
 import static AMQP.*
 
-import de.oneos.eventsourcing.EventConsumer
-import de.oneos.eventsourcing.EventEnvelope
-import de.oneos.eventsourcing.EventSupplier
+import org.cqrest.eventsourcing.EventConsumer
+import org.cqrest.eventsourcing.EventEnvelope
+import org.cqrest.eventsourcing.EventSupplier
 
 
 class AMQPEventSupplier implements EventSupplier {

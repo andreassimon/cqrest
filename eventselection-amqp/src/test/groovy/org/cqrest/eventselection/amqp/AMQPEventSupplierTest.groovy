@@ -1,4 +1,4 @@
-package de.oneos.eventselection.amqp
+package org.cqrest.eventselection.amqp
 
 import org.junit.*
 import static org.junit.Assert.*
@@ -7,10 +7,10 @@ import static org.mockito.Mockito.*
 
 import com.rabbitmq.client.*
 
-import de.oneos.eventsourcing.BaseEvent
-import de.oneos.eventsourcing.EventConsumer
-import de.oneos.eventsourcing.EventEnvelope
-import de.oneos.eventsourcing.EventSupplier
+import org.cqrest.eventsourcing.BaseEvent
+import org.cqrest.eventsourcing.EventConsumer
+import org.cqrest.eventsourcing.EventEnvelope
+import org.cqrest.eventsourcing.EventSupplier
 
 
 class AMQPEventSupplierTest {

@@ -1,6 +1,6 @@
-package de.oneos.eventselection.amqp
+package org.cqrest.eventselection.amqp
 
-import de.oneos.eventsourcing.*
+import org.cqrest.eventsourcing.*
 
 class StubEventSupplier implements EventSupplier {
 

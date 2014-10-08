@@ -1,11 +1,11 @@
-package de.oneos.eventselection.amqp
+package org.cqrest.eventselection.amqp
 
 import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory
 
 import com.rabbitmq.client.Channel
 
-import de.oneos.eventsourcing.EventEnvelope
+import org.cqrest.eventsourcing.EventEnvelope
 
 import java.util.concurrent.atomic.AtomicBoolean
 

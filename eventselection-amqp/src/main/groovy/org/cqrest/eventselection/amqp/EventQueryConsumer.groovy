@@ -1,4 +1,4 @@
-package de.oneos.eventselection.amqp
+package org.cqrest.eventselection.amqp
 
 import groovy.json.*
 import org.apache.commons.logging.*
@@ -7,8 +7,8 @@ import com.rabbitmq.client.Consumer
 import com.rabbitmq.client.DefaultConsumer
 import com.rabbitmq.client.Envelope
 
-import de.oneos.eventsourcing.EventEnvelope
-import de.oneos.eventsourcing.EventSupplier
+import org.cqrest.eventsourcing.EventEnvelope
+import org.cqrest.eventsourcing.EventSupplier
 
 import static AMQP.*
 
