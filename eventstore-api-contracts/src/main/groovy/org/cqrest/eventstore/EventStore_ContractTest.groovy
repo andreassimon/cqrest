@@ -358,7 +358,7 @@ abstract class EventStore_ContractTest {
             @Override
             void flush() {
                 numberOfCalls++
-                GroovyObjectSupport.flush()
+                super.flush()
             }
         }
 
