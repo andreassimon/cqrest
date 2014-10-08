@@ -5,7 +5,7 @@ include(
     'eventstore-api-contracts',
     'eventstore-inmemory',
     'eventstore-springjdbc',
-    'eventselection-amqp',
+    'eventbus-amqp',
     'projections',
     'eventsourcing-test'
 )

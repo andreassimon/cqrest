@@ -1,4 +1,4 @@
-package org.cqrest.eventselection.amqp
+package org.cqrest.eventbus.amqp
 
 import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory

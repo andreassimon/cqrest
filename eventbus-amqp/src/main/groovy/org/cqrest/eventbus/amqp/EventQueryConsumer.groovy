@@ -1,4 +1,4 @@
-package org.cqrest.eventselection.amqp
+package org.cqrest.eventbus.amqp
 
 import groovy.json.*
 import org.apache.commons.logging.*

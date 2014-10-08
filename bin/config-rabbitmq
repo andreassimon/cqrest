@@ -1,1 +1,1 @@
-../eventselection-amqp/bin/config-rabbitmq
+../eventbus-amqp/bin/config-rabbitmq
