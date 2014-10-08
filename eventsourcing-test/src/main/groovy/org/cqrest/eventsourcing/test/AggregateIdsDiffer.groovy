@@ -1,4 +1,4 @@
-package de.oneos.eventsourcing.test
+package org.cqrest.eventsourcing.test
 
 class AggregateIdsDiffer extends EventDiff {
     RecordedEvent left

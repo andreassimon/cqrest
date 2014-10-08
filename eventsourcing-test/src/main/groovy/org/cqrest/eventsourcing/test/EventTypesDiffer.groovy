@@ -1,6 +1,6 @@
-package de.oneos.eventsourcing.test
+package org.cqrest.eventsourcing.test
 
-import static de.oneos.eventsourcing.test.Util.*
+import static org.cqrest.eventsourcing.test.Util.*
 
 
 class EventTypesDiffer extends EventDiff {

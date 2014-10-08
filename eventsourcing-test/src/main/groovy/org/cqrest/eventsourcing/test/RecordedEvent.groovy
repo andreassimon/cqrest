@@ -1,6 +1,6 @@
-package de.oneos.eventsourcing.test
+package org.cqrest.eventsourcing.test
 
-import de.oneos.eventsourcing.Event
+import org.cqrest.eventsourcing.Event
 
 class RecordedEvent {
 

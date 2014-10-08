@@ -1,4 +1,4 @@
-package de.oneos.eventsourcing.test
+package org.cqrest.eventsourcing.test
 
 import static java.lang.String.*
 
@@ -29,7 +29,7 @@ class EventAttributesDiffer extends EventDiff {
     @Override
     String toString() {
         StringBuilder builder = new StringBuilder()
-        builder.append(format('%s    %-30s    =%n', de.oneos.eventsourcing.test.Util.abbreviate(aggregateId), eventName))
+        builder.append(format('%s    %-30s    =%n', org.cqrest.eventsourcing.test.Util.abbreviate(aggregateId), eventName))
         String attributeDiffFormat = "                   %-${maxAttributeNameLength}s  %-${maxLeftValueLength}s    %s%n"
         attributeDiffs.each {
             builder.append(it.formatWith(attributeDiffFormat))

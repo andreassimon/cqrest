@@ -1,11 +1,11 @@
-package de.oneos.eventsourcing.test
+package org.cqrest.eventsourcing.test
 
 import org.junit.*
 
-import de.oneos.eventsourcing.EventBus
+import org.cqrest.eventsourcing.EventBus
 
-import de.oneos.eventstore.inmemory.*
-import static de.oneos.eventstore.EventStore.*
+import org.cqrest.eventstore.inmemory.*
+import static org.cqrest.eventstore.EventStore.*
 
 
 abstract class EventSourcingTest {

@@ -1,7 +1,7 @@
-package de.oneos.eventsourcing.test
+package org.cqrest.eventsourcing.test
 
-import de.oneos.eventsourcing.Correlation
-import de.oneos.eventsourcing.EventBus
+import org.cqrest.eventsourcing.Correlation
+import org.cqrest.eventsourcing.EventBus
 
 
 class InMemoryEventBus implements EventBus {

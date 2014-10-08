@@ -1,7 +1,7 @@
-package de.oneos.eventsourcing.test
+package org.cqrest.eventsourcing.test
 
-import de.oneos.eventstore.inmemory.InMemoryEventStore
-import de.oneos.eventsourcing.Event
+import org.cqrest.eventstore.inmemory.InMemoryEventStore
+import org.cqrest.eventsourcing.Event
 
 
 class PreconditionsCollector {

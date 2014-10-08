@@ -1,4 +1,4 @@
-package de.oneos.eventsourcing.test
+package org.cqrest.eventsourcing.test
 
 import static java.lang.String.format
 

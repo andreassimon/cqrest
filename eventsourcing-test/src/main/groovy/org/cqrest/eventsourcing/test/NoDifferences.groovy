@@ -1,4 +1,4 @@
-package de.oneos.eventsourcing.test
+package org.cqrest.eventsourcing.test
 
 import static java.lang.String.*
 
@@ -13,7 +13,7 @@ class NoDifferences extends EventDiff {
 
     @Override
     String toString() {
-        format('%s    %s    =%n', de.oneos.eventsourcing.test.Util.abbreviate(left.aggregateId), left.eventName)
+        format('%s    %s    =%n', org.cqrest.eventsourcing.test.Util.abbreviate(left.aggregateId), left.eventName)
     }
 
 }

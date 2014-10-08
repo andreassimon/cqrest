@@ -1,7 +1,7 @@
-package de.oneos.eventsourcing.test
+package org.cqrest.eventsourcing.test
 
-import de.oneos.eventsourcing.*
-import de.oneos.eventstore.inmemory.*
+import org.cqrest.eventsourcing.*
+import org.cqrest.eventstore.inmemory.*
 
 class ExpectationsCollector {
 
