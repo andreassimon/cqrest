@@ -1,4 +1,4 @@
-import de.oneos.eventsourcing.*
+import org.cqrest.eventsourcing.*
 
 class Order_was_created extends BaseEvent<Order> { }
 

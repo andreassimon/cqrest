@@ -21,7 +21,7 @@ allprojects {
     apply plugin: 'maven'
 
 
-    group   = 'de.oneos'
+    group   = 'org.cqrest'
     version = '0.1.2-SNAPSHOT'
 
     defaultTasks 'clean', 'install'
