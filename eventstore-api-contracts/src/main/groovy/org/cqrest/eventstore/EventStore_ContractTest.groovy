@@ -1,4 +1,4 @@
-package de.oneos.eventstore
+package org.cqrest.eventstore
 
 import static java.util.UUID.randomUUID
 
@@ -9,7 +9,7 @@ import static org.hamcrest.Matchers.*
 
 import static org.cqrest.test.Expect.expect
 
-import de.oneos.eventsourcing.*
+import org.cqrest.eventsourcing.*
 
 
 abstract class EventStore_ContractTest {
@@ -358,7 +358,7 @@ abstract class EventStore_ContractTest {
             @Override
             void flush() {
                 numberOfCalls++
-                super.flush()
+                GroovyObjectSupport.flush()
             }
         }
 

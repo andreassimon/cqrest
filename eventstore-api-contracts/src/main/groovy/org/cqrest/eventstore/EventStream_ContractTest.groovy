@@ -2,8 +2,8 @@ package org.cqrest.eventstore
 
 import org.junit.Test
 
-import de.oneos.eventsourcing.EventEnvelope
-import de.oneos.eventsourcing.EventStream
+import org.cqrest.eventsourcing.EventEnvelope
+import org.cqrest.eventsourcing.EventStream
 
 import org.cqrest.reactive.test.MockObserver
 import static org.cqrest.test.AnEventEnvelope.anEventEnvelope

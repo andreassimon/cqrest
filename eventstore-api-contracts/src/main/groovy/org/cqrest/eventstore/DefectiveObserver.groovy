@@ -3,7 +3,7 @@ package org.cqrest.eventstore
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-import de.oneos.eventsourcing.EventEnvelope
+import org.cqrest.eventsourcing.EventEnvelope
 
 
 class DefectiveObserver implements org.cqrest.reactive.Observer<EventEnvelope> {

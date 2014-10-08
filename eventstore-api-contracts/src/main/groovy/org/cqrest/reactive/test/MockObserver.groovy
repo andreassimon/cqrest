@@ -1,6 +1,6 @@
 package org.cqrest.reactive.test
 
-import de.oneos.eventsourcing.EventEnvelope
+import org.cqrest.eventsourcing.EventEnvelope
 import org.junit.Assert
 
 import java.util.concurrent.CountDownLatch
